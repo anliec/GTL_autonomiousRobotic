@@ -2,7 +2,7 @@
 
     <!-- Instantiate your teleoperation node here -->
 
-  <node pkg="collision_avoidance_base" type="collision_avoidance_base" name="coll_avoid" output="screen">
+  <node pkg="collision_avoidance" type="collision_avoidance" name="coll_avoid" output="screen">
       launch-prefix="xterm -e gdb --args"
       <param name="radius" value="1.0" />
 
