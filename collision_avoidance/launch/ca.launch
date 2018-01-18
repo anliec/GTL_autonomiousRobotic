@@ -8,7 +8,7 @@
 
       <remap from="~scans" to="/vrep/hokuyoSensor"/>
       <remap from="~cmd_vel" to="/teleop/cmd_vel"/>
-      <remap from="~output_vel" to="/vrep/twistCommand"/> -->
+      <remap from="~output_vel" to="/vrep/twistCommand"/>
   </node>
 
 </launch>
