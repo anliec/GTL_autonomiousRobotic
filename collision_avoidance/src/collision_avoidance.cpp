@@ -60,7 +60,7 @@ class CollisionAvoidance {
                     }
                 }
 
-                if(desired.linear.x > minDistance - STOP_DISTANCE){
+                if(minDistance <= STOP_DISTANCE){
                     // if we will go too close of an object, stop moving forward
                     res.linear.x = 0.0;
                 }
