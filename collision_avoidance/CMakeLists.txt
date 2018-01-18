@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 2.8.3)
-project(collision_avoidance_base)
+project(collision_avoidance)
 
 ## Find catkin macros and libraries
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
@@ -105,14 +105,14 @@ include_directories(
 # )
 
 ## Declare a cpp executable
-add_executable(collision_avoidance_base src/collision_avoidance.cpp)
+add_executable(collision_avoidance src/collision_avoidance.cpp)
 
 ## Add cmake target dependencies of the executable/library
 ## as an example, message headers may need to be generated before nodes
 # add_dependencies(collision_avoidance_node collision_avoidance_generate_messages_cpp)
 
 ## Specify libraries to link a library or executable target against
-target_link_libraries(collision_avoidance_base
+target_link_libraries(collision_avoidance
   ${catkin_LIBRARIES}
 )
 
