@@ -6,6 +6,9 @@
 #include <pcl/point_types.h>
 
 
+const static float STOP_DISTANCE = 25.0;
+
+
 class CollisionAvoidance {
     protected:
         ros::Subscriber scanSub;
@@ -40,12 +43,31 @@ class CollisionAvoidance {
         geometry_msgs::Twist findClosestAcceptableVelocity(const geometry_msgs::Twist & desired) {
             geometry_msgs::Twist res = desired;
             // TODO: modify desired using the laser point cloud
+            if(desired.linear.x <= 0.0){
+                //if we move backward, we don't see anything...
+                return res;
+            } else{
+                // We move forward, we need to check for obstacles
 
-            return res;
+                // find minimal x value in the last point cloud
+                float minDistance = 1000.0;
+                for(pcl::PointXYZ p : lastpc){
+                    if(p.x < minDistance){
+                        minDistance = p.x;
+                    }
+                }
+
+                if(desired.linear.x > minDistance - STOP_DISTANCE){
+                    // if we will go too close of an object, adjust distance to stop
+                    // at the right distance
+                    res.linear.x = minDistance - STOP_DISTANCE;
+                }
+                return res;
+            }
         }
 
     public:
-        CollisionAvoidance() : nh("~"), radius(1.0) {
+        CollisionAvoidance() : nh("~"), radius(1.0){
             scanSub = nh.subscribe("scans",1,&CollisionAvoidance::pc_callback,this);
             velSub = nh.subscribe("cmd_vel",1,&CollisionAvoidance::velocity_filter,this);
             velPub = nh.advertise<geometry_msgs::Twist>("output_vel",1);

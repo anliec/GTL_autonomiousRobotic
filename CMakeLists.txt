@@ -60,7 +60,7 @@ else()
   endif()
 endif()
 
-add_definitions( -Wall -g -ggdb -O0)
+add_definitions( -Wall -g -ggdb -O0 -std=c++11)
 
 
 catkin_workspace()
