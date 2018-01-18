@@ -7,6 +7,7 @@
 
 
 const static float STOP_DISTANCE = 25.0;
+const static float Y_CHECK_RANGE = 1.0;
 
 
 class CollisionAvoidance {
@@ -51,9 +52,11 @@ class CollisionAvoidance {
 
                 // find minimal x value in the last point cloud
                 float minDistance = 1000.0;
-                for(pcl::PointXYZ p : lastpc){
-                    if(p.x < minDistance){
-                        minDistance = p.x;
+                for(pcl::PointXYZ p : lastpc) {
+                    if(p.y > -Y_CHECK_RANGE && p.y < Y_CHECK_RANGE && p.x > 0.0) {
+                        if (p.x < minDistance) {
+                            minDistance = p.x;
+                        }
                     }
                 }
 
