@@ -6,8 +6,8 @@
 #include <pcl/point_types.h>
 
 
-const static float STOP_DISTANCE = 25.0;
-const static float Y_CHECK_RANGE = 1.0;
+const static float STOP_DISTANCE = 0.60;
+const static float Y_CHECK_RANGE = 0.30;
 
 
 class CollisionAvoidance {
@@ -61,9 +61,7 @@ class CollisionAvoidance {
                 }
 
                 if(desired.linear.x > minDistance - STOP_DISTANCE){
-                    // if we will go too close of an object, adjust distance to stop
-                    // at the right distance
-//                    res.linear.x = minDistance - STOP_DISTANCE;
+                    // if we will go too close of an object, stop moving forward
                     res.linear.x = 0.0;
                 }
                 return res;
