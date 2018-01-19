@@ -69,7 +69,7 @@ class CollisionAvoidance {
         }
 
     public:
-        CollisionAvoidance() : nh("~"), radius(1.0){
+        CollisionAvoidance() : nh("~"), radius(1.0) {
             scanSub = nh.subscribe("scans",1,&CollisionAvoidance::pc_callback,this);
             velSub = nh.subscribe("cmd_vel",1,&CollisionAvoidance::velocity_filter,this);
             velPub = nh.advertise<geometry_msgs::Twist>("output_vel",1);

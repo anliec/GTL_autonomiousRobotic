@@ -7,7 +7,6 @@ Original C implementation by:  ?
 Python implementation by: Roman Stanchak, James Bowman
 """
 import roslib
-roslib.load_manifest('face_detect')
 
 import sys
 import os
@@ -16,8 +15,9 @@ import rospy
 import sensor_msgs.msg
 from cv_bridge import CvBridge
 import cv2
-from sensor_msgs.msg import *
+from sensor_msgs.msg import RegionOfInterest
 
+roslib.load_manifest('face_detect')
 
 min_size = (10, 10)
 image_scale = 2
@@ -39,23 +39,34 @@ if __name__ == '__main__':
         sys.exit(-1)
     br = CvBridge()
     rospy.init_node('facedetect')
-    display = rospy.get_param("~display",True)
+    display = rospy.get_param("~display", True)
+
+    pub = rospy.Publisher('facedetect', int, queue_size=5)
 
     def detect_and_draw(imgmsg):
         img = br.imgmsg_to_cv2(imgmsg, "bgr8")
         # allocate temporary images
         gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
         faces = face_cascade.detectMultiScale(gray, 1.3, 3)
-        for (x,y,w,h) in faces:
-            cv2.rectangle(img,(x,y),(x+w,y+h),(255,0,0),2)
-            roi_gray = gray[y:y+h, x:x+w]
-            roi_color = img[y:y+h, x:x+w]
+        for (x, y, w, h) in faces:
+            cv2.rectangle(img, (x, y), (x + w, y + h), (255, 0, 0), 2)
+            roi_gray = gray[y:y + h, x:x + w]
+            roi_color = img[y:y + h, x:x + w]
             eyes = eye_cascade.detectMultiScale(roi_gray)
-            for (ex,ey,ew,eh) in eyes:
-                cv2.rectangle(roi_color,(ex,ey),(ex+ew,ey+eh),(0,255,0),2)
-        
-        cv2.imshow('img',img)
+            for (ex, ey, ew, eh) in eyes:
+                cv2.rectangle(roi_color, (ex, ey), (ex + ew, ey + eh), (0, 255, 0), 2)
+
+        cv2.imshow('img', img)
         cv2.waitKey(10)
+
+
+    def detect_and_publish(imgmsg):
+        img = br.imgmsg_to_cv2(imgmsg, "bgr8")
+        # allocate temporary images
+        gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+        faces = face_cascade.detectMultiScale(gray, 1.3, 3)
+        mesage 
+
 
     rospy.Subscriber("~image", sensor_msgs.msg.Image, detect_and_draw)
     rospy.spin()
