@@ -199,7 +199,5 @@ include_directories(
 # catkin_add_nosetests(test)
 
 
-add_executable(joyturtle src/joyturtle.cpp)
-target_link_libraries(joyturtle ${catkin_LIBRARIES})
 add_executable(joyrobk src/joyrobk.cpp)
 target_link_libraries(joyrobk ${catkin_LIBRARIES})
