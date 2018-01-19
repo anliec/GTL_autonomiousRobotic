@@ -14,5 +14,7 @@
   <param name="axis_angular" value="0" type="int"/>
   <param name="scale_linear" value="2" type="double"/>
   <param name="scale_angular" value="2" type="double"/>
-  <node pkg="hw1_joy_ns" type="joyturtle" name="joystickturtle"/>
+  <node pkg="hw1_joy_ns" type="joyrobk" name="joystickrobotkinect">
+     <remap from="cmd_vel" to="turtle1/cmd_vel"/>
+  </node>
 </launch>

@@ -4,7 +4,6 @@
         type="joy_node" name="robk_joy" >
     <param name="dev" type="string" value="/dev/input/js0" />
     <param name="deadzone" value="0.12" />
-    <remap from="cmd_vel" to="/teleop/cmd_vel"/>
   </node>
 
  <!-- Axes -->
@@ -12,5 +11,7 @@
   <param name="axis_angular" value="0" type="int"/>
   <param name="scale_linear" value="2" type="double"/>
   <param name="scale_angular" value="2" type="double"/>
-  <node pkg="hw1_joy_ns" type="joyrobk" name="joystickrobotkinect"/>
+  <node pkg="hw1_joy_ns" type="joyrobk" name="joystickrobotkinect">
+     <remap from="cmd_vel" to="/teleop/cmd_vel"/>
+  </node>
 </launch>
