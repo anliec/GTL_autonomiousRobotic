@@ -4,6 +4,7 @@
         type="joy_node" name="robk_joy" >
     <param name="dev" type="string" value="/dev/input/js0" />
     <param name="deadzone" value="0.12" />
+    <param name="autorepeat_rate" value="10" />
   </node>
 
   <node pkg="collision_avoidance" type="collision_avoidance" name="coll_avoid" output="screen">
