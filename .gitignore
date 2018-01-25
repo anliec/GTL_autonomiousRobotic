@@ -3,3 +3,5 @@ joyadapter
 .idea
 beginner_tutorials
 cmake-build-debug
+
+*.pyc
