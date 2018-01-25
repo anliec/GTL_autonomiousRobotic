@@ -42,6 +42,7 @@ generate_dynamic_reconfigure_options(
   cfg/TaskSetManual.cfg
   cfg/TaskWaitForAuto.cfg
   cfg/TaskWaitForROI.cfg
+#  cfg/TaskWaitForFace.cfg
   cfg/TaskWander.cfg
 )
 
@@ -125,6 +126,10 @@ add_dependencies(TaskSetManual ${${PROJECT_NAME}_EXPORTED_TARGETS})
 ADD_LIBRARY( TaskWaitForROI SHARED tasks/TaskWaitForROI.cpp)
 TARGET_LINK_LIBRARIES(TaskWaitForROI ${catkin_LIBRARIES} dl)
 add_dependencies(TaskWaitForROI ${${PROJECT_NAME}_EXPORTED_TARGETS})
+
+#ADD_LIBRARY( TaskWaitForFace SHARED tasks/TaskWaitForFace.cpp)
+#TARGET_LINK_LIBRARIES(TaskWaitForFace ${catkin_LIBRARIES} dl)
+#add_dependencies(TaskWaitForFace ${${PROJECT_NAME}_EXPORTED_TARGETS})
 
 ADD_LIBRARY( TaskWander SHARED tasks/TaskWander.cpp)
 TARGET_LINK_LIBRARIES(TaskWander ${catkin_LIBRARIES} dl)
