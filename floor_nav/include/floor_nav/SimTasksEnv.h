@@ -9,6 +9,7 @@
 #include "geometry_msgs/Pose2D.h"
 #include "geometry_msgs/PoseStamped.h"
 #include "sensor_msgs/LaserScan.h"
+#include "sensor_msgs/RegionOfInterest.h"
 #include "pcl_ros/point_cloud.h"
 #include "pcl/point_types.h"
 #include <tf/transform_listener.h>
@@ -23,6 +24,7 @@ namespace floor_nav {
             ros::Subscriber pointCloudSub;
             ros::Subscriber pointCloud2DSub;
             ros::Subscriber laserscanSub;
+            ros::Subscriber roiSub;
             ros::Publisher velPub;
             ros::ServiceClient muxClient;
             tf::TransformListener listener;
@@ -32,8 +34,10 @@ namespace floor_nav {
             void pointCloudCallback(const sensor_msgs::PointCloud2ConstPtr msg) ;
             void pointCloud2DCallback(const sensor_msgs::PointCloud2ConstPtr msg) ;
             void laserScanCallback(const sensor_msgs::LaserScanConstPtr msg) ;
+            void faceCallback(const sensor_msgs::RegionOfInterest msg);
 
             bool manualControl;
+            int facePosition;
             std::string joystick_topic;
             std::string auto_topic;
             std::string base_frame;
@@ -50,6 +54,7 @@ namespace floor_nav {
             geometry_msgs::Pose2D getPose2D() const ; 
 
             geometry_msgs::Pose getPose() const ;
+            int getFacePosition() const ;
 
             geometry_msgs::PoseStamped getPoseStamped() const  ;
 
