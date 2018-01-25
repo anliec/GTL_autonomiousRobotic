@@ -20,6 +20,7 @@ SimTasksEnv::SimTasksEnv(ros::NodeHandle & n) : task_manager_lib::TaskEnvironmen
     pointCloud2DSub = nh.subscribe("/vrep/hokuyoSensor",1,&SimTasksEnv::pointCloud2DCallback,this);
     laserscanSub = nh.subscribe("/scan",1,&SimTasksEnv::laserScanCallback,this);
     velPub = nh.advertise<geometry_msgs::Twist>(auto_topic,1);
+    roiSub = nh.subscribe("/1faceROI",1,&SimTasksEnv::faceCallback,this);
 }
 
 void SimTasksEnv::setManualControl()
@@ -71,6 +72,11 @@ geometry_msgs::Pose SimTasksEnv::getPose() const {
     tf::pointTFToMsg(transform.getOrigin(),pose.position);
     return pose;
 }
+
+int SimTasksEnv::getFacePosition() const {
+    return facePosition;
+}
+
 
 geometry_msgs::PoseStamped SimTasksEnv::getPoseStamped() const {
     geometry_msgs::PoseStamped pose;
@@ -143,6 +149,10 @@ void SimTasksEnv::pointCloudCallback(const sensor_msgs::PointCloud2ConstPtr msg)
 
 void SimTasksEnv::pointCloud2DCallback(const sensor_msgs::PointCloud2ConstPtr msg) {
     pcl::fromROSMsg(*msg, pointCloud2D);
+}
+
+void SimTasksEnv::faceCallback(const sensor_msgs::RegionOfInterest msg) {
+    facePosition = msg.x_offset + (msg.width)/2;
 }
 
 void SimTasksEnv::laserScanCallback(const sensor_msgs::LaserScanConstPtr msg) {
