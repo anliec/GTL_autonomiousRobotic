@@ -18,7 +18,7 @@ TaskIndicator TaskStareAtFace::initialise()
 TaskIndicator TaskStareAtFace::iterate()
 {
     // compute the heading from the face ROI position
-    target_angle = (env->getFacePosition()/cfg.camera_width)*60.-30.;
+    target_angle = (env->getFacePosition()*2./cfg.camera_width)*30.;
     ROS_INFO("Setting heading to %.2f deg", target_angle);
     const geometry_msgs::Pose2D & tpose = env->getPose2D();
     double alpha = remainder(initial_heading+target_angle-tpose.theta,2*M_PI);

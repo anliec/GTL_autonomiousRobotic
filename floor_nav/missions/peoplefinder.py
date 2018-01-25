@@ -22,6 +22,7 @@ try:
     except TaskConditionException, e:
         rospy.loginfo("Path following interrupted on condition: %s"
                       "or ".join([str(c) for c in e.conditions]))
+        tc.TaskStareAtFace()
 
 except TaskException, e:
     rospy.logerr("Exception caught: " + str(e))
