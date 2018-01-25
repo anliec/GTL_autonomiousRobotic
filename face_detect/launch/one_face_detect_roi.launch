@@ -1,8 +1,8 @@
 <launch>
 
 
-  <node pkg="face_detect" type="rosfacedetect.py" name="face_detect" output="screen">
-      <remap from="/face_detect/image" to="/vrep/visionSensor"/>
+  <node pkg="face_detect" type="onefacedetectroi.py" name="one_face_detect_roi" output="screen">
+      <remap from="/one_face_detect_roi/image" to="/vrep/visionSensor"/>
   </node>
 
 </launch>

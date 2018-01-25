@@ -38,6 +38,7 @@ namespace floor_nav {
 
             bool manualControl;
             int facePosition;
+            ros::Time lastFaceTime;
             std::string joystick_topic;
             std::string auto_topic;
             std::string base_frame;
@@ -55,6 +56,7 @@ namespace floor_nav {
 
             geometry_msgs::Pose getPose() const ;
             int getFacePosition() const ;
+            ros::Time getLastFaceTime() const ;
 
             geometry_msgs::PoseStamped getPoseStamped() const  ;
 

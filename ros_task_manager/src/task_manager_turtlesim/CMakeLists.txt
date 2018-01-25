@@ -40,6 +40,7 @@ generate_dynamic_reconfigure_options(
     cfg/TaskSetPen.cfg
     cfg/TaskWaitForButton.cfg
     cfg/TaskWaitForROI.cfg
+#    cfg/TaskWaitForFace.cfg
 )
 
 
@@ -112,6 +113,9 @@ TARGET_LINK_LIBRARIES(TaskClear ${catkin_LIBRARIES} dl)
 
 ADD_LIBRARY( TaskWaitForROI SHARED tasks/TaskWaitForROI.cpp)
 TARGET_LINK_LIBRARIES(TaskWaitForROI ${catkin_LIBRARIES} dl)
+
+#ADD_LIBRARY( TaskWaitForROI SHARED tasks/TaskWaitForFace.cpp)
+#TARGET_LINK_LIBRARIES(TaskWaitForFace ${catkin_LIBRARIES} dl)
 
 ADD_LIBRARY( TaskWaitForButton SHARED tasks/TaskWaitForButton.cpp)
 TARGET_LINK_LIBRARIES(TaskWaitForButton ${catkin_LIBRARIES} dl)

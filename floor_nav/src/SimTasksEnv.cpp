@@ -77,6 +77,10 @@ int SimTasksEnv::getFacePosition() const {
     return facePosition;
 }
 
+ros::Time SimTasksEnv::getLastFaceTime() const {
+    return lastFaceTime;
+}
+
 
 geometry_msgs::PoseStamped SimTasksEnv::getPoseStamped() const {
     geometry_msgs::PoseStamped pose;
@@ -153,6 +157,7 @@ void SimTasksEnv::pointCloud2DCallback(const sensor_msgs::PointCloud2ConstPtr ms
 
 void SimTasksEnv::faceCallback(const sensor_msgs::RegionOfInterest msg) {
     facePosition = msg.x_offset + (msg.width)/2;
+    lastFaceTime = ros::Time::now();
 }
 
 void SimTasksEnv::laserScanCallback(const sensor_msgs::LaserScanConstPtr msg) {

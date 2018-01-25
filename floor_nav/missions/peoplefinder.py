@@ -15,7 +15,7 @@ rospy.loginfo("Mission connected to server: " + server_node)
 
 tc.WaitForAuto()
 try:
-    w4roi = tc.WaitForROI(foreground=False, roi_x=0., roi_y=0., roi_radius=1.0)
+    w4roi = tc.WaitForFace(foreground=False)
     tc.addCondition(ConditionIsCompleted("Face fund condition", tc, w4roi))
     try:
         tc.Wander(max_linear_speed=0.5)

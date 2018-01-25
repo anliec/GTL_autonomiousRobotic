@@ -1,29 +1,29 @@
-#ifndef TASK_WAIT_FOR_ROI_H
-#define TASK_WAIT_FOR_ROI_H
+#ifndef TASK_WAIT_FOR_FACE_H
+#define TASK_WAIT_FOR_FACE_H
 
 #include "task_manager_lib/TaskDefinition.h"
 #include "floor_nav/SimTasksEnv.h"
-#include "floor_nav/TaskWaitForROIConfig.h"
+#include "floor_nav/TaskWaitForFaceConfig.h"
 
 using namespace task_manager_lib;
 
 namespace floor_nav {
-    class TaskWaitForROI : public TaskInstance<TaskWaitForROIConfig,SimTasksEnv>
+    class TaskWaitForFace : public TaskInstance<TaskWaitForFaceConfig,SimTasksEnv>
     {
         public:
-            TaskWaitForROI(TaskDefinitionPtr def, TaskEnvironmentPtr env) : Parent(def,env) {}
-            virtual ~TaskWaitForROI() {};
+        TaskWaitForFace(TaskDefinitionPtr def, TaskEnvironmentPtr env) : Parent(def,env) {}
+            virtual ~TaskWaitForFace() {};
 
             virtual TaskIndicator iterate();
 
     };
-    class TaskFactoryWaitForROI : public TaskDefinition<TaskWaitForROIConfig, SimTasksEnv, TaskWaitForROI>
+    class TaskFactoryWaitForFace : public TaskDefinition<TaskWaitForFaceConfig, SimTasksEnv, TaskWaitForFace>
     {
         public:
-            TaskFactoryWaitForROI(TaskEnvironmentPtr env) : 
-                Parent("WaitForROI","Do nothing until we reach a given destination",true,env) {}
-            virtual ~TaskFactoryWaitForROI() {};
+            TaskFactoryWaitForFace(TaskEnvironmentPtr env) :
+                Parent("WaitForFace","Do nothing until we see a face",true,env) {}
+            virtual ~TaskFactoryWaitForFace() {};
     };
 };
 
-#endif // TASK_WAIT_FOR_ROI_H
+#endif // TASK_WAIT_FOR_FACE_H
