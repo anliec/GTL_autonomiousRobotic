@@ -1,0 +1,541 @@
+!_TAG_FILE_FORMAT	2	/extended format; --format=1 will not append ;" to lines/
+!_TAG_FILE_SORTED	1	/0=unsorted, 1=sorted, 2=foldcase/
+!_TAG_PROGRAM_AUTHOR	Darren Hiebert	/dhiebert@users.sourceforge.net/
+!_TAG_PROGRAM_NAME	Exuberant Ctags	//
+!_TAG_PROGRAM_URL	http://ctags.sourceforge.net	/official site/
+!_TAG_PROGRAM_VERSION	5.9~svn20110310	//
+ActionQueue	include/task_manager_lib/TaskScheduler.h	/^			typedef std::map<double, ThreadAction, std::less<double> > ActionQueue;$/;"	t	class:task_manager_lib::TaskScheduler
+ActionType	include/task_manager_lib/TaskScheduler.h	/^			} ActionType;$/;"	t	class:task_manager_lib::TaskScheduler	typeref:enum:task_manager_lib::TaskScheduler::__anon1
+BasicMissions	include/task_manager_lib/TaskServerInterface.h	/^		std::vector<task_manager_msgs::BasicMission> BasicMissions;$/;"	m	class:task_manager_lib::TaskServerInterface
+CONDITIONALLY_IDLE	include/task_manager_lib/TaskScheduler.h	/^				CONDITIONALLY_IDLE,$/;"	e	enum:task_manager_lib::TaskScheduler::__anon1
+ComplexMissions	include/task_manager_lib/TaskServerInterface.h	/^		std::vector<task_manager_msgs::ComplexMission> ComplexMissions;$/;"	m	class:task_manager_lib::TaskServerInterface
+Condition	src/task_manager_lib/TaskClient.py	/^class Condition:$/;"	c
+ConditionIsCompleted	src/task_manager_lib/TaskClient.py	/^class ConditionIsCompleted(Condition):$/;"	c
+ConditionIsRunning	src/task_manager_lib/TaskClient.py	/^class ConditionIsRunning(Condition):$/;"	c
+DELETE_TASK	include/task_manager_lib/TaskScheduler.h	/^				DELETE_TASK,$/;"	e	enum:task_manager_lib::TaskScheduler::__anon1
+DELETE_TIMEOUT	include/task_manager_lib/TaskScheduler.h	/^			static const double DELETE_TIMEOUT;$/;"	m	class:task_manager_lib::TaskScheduler
+DELETE_TIMEOUT	src/TaskScheduler.cpp	/^const double TaskScheduler::DELETE_TIMEOUT=2.0;$/;"	m	class:TaskScheduler	file:
+DLL_EXT	src/TaskScheduler.cpp	248;"	d	file:
+DLLoadError	include/task_manager_lib/DynamicTask.h	/^                DLLoadError(const std::string & s) {$/;"	f	struct:task_manager_lib::DynamicTask::DLLoadError
+DLLoadError	include/task_manager_lib/DynamicTask.h	/^            struct DLLoadError : public std::exception {$/;"	s	class:task_manager_lib::DynamicTask
+DYNAMIC_TASK	include/task_manager_lib/TaskDefinition.h	628;"	d
+DYNAMIC_TASK_DEFINITION_H	include/task_manager_lib/DynamicTask.h	2;"	d
+DescriptionLightToTaskParameters	src/SequenceTask.cpp	/^std::vector<std::pair<std::string, TaskParameters > > SequenceDef::DescriptionLightToTaskParameters(const std::vector<task_manager_msgs::TaskDescriptionLight>& tasks)$/;"	f	class:SequenceDef
+DynRecfgData	include/task_manager_lib/TaskDefinition.h	/^                        DynRecfgData(TaskInstance * td, const CFG & cfg) {$/;"	f	class:task_manager_lib::TaskInstance::DynRecfgData
+DynRecfgData	include/task_manager_lib/TaskDefinition.h	/^                class DynRecfgData {$/;"	c	class:task_manager_lib::TaskInstance
+DynamicTask	include/task_manager_lib/DynamicTask.h	/^    class DynamicTask : public TaskDefinitionBase$/;"	c	namespace:task_manager_lib
+DynamicTask	src/DynamicTask.cpp	/^DynamicTask::DynamicTask(const std::string & fname, TaskEnvironmentPtr env) :$/;"	f	class:DynamicTask
+IDLE_TIMEOUT	include/task_manager_lib/TaskScheduler.h	/^			static const double IDLE_TIMEOUT;$/;"	m	class:task_manager_lib::TaskScheduler
+IDLE_TIMEOUT	src/TaskScheduler.cpp	/^const double TaskScheduler::IDLE_TIMEOUT=0.5;$/;"	m	class:TaskScheduler	file:
+InvalidParameter	include/task_manager_lib/TaskDefinition.h	/^        InvalidParameter(const std::string & txt) : text("Invalid Parameter: ") {$/;"	f	struct:task_manager_lib::InvalidParameter
+InvalidParameter	include/task_manager_lib/TaskDefinition.h	/^    struct InvalidParameter : public std::exception {$/;"	s	namespace:task_manager_lib
+MissionCompleted	src/task_manager_lib/TaskSmach.py	/^class MissionCompleted(smach.State):$/;"	c
+MissionFailed	src/task_manager_lib/TaskSmach.py	/^class MissionFailed(smach.State):$/;"	c
+MissionStateMachine	src/task_manager_lib/TaskSmach.py	/^class MissionStateMachine:$/;"	c
+NO_ACTION	include/task_manager_lib/TaskScheduler.h	/^                NO_ACTION,$/;"	e	enum:task_manager_lib::TaskScheduler::__anon1
+NegatedCondition	src/task_manager_lib/TaskClient.py	/^class NegatedCondition(Condition):$/;"	c
+PACKAGE	cfg/MinimalTask.cfg	/^PACKAGE='task_manager_lib'$/;"	v
+PACKAGE	cfg/TaskWait.cfg	/^PACKAGE='task_manager_lib'$/;"	v
+PRINTF	include/task_manager_lib/TaskScheduler.h	36;"	d
+Parent	include/task_manager_lib/TaskDefinition.h	/^                typedef TaskDefinition<CFG,ENV,INSTANCE> Parent;$/;"	t	class:task_manager_lib::TaskDefinition
+Parent	include/task_manager_lib/TaskDefinition.h	/^                typedef TaskInstance<CFG,ENV> Parent;$/;"	t	class:task_manager_lib::TaskInstance
+SEQUENCE_TASK_DEFINITION_H	include/task_manager_lib/SequenceTask.h	2;"	d
+START_IDLE_TASK	include/task_manager_lib/TaskScheduler.h	/^				START_IDLE_TASK, $/;"	e	enum:task_manager_lib::TaskScheduler::__anon1
+START_TASK	include/task_manager_lib/TaskScheduler.h	/^				START_TASK,$/;"	e	enum:task_manager_lib::TaskScheduler::__anon1
+SequenceDef	include/task_manager_lib/SequenceTask.h	/^    class SequenceDef : public TaskDefinition<MinimalTaskConfig,TaskEnvironment,SequenceTask>$/;"	c	namespace:task_manager_lib
+SequenceDef	src/SequenceTask.cpp	/^SequenceDef::SequenceDef(const std::vector<task_manager_msgs::TaskDescriptionLight> &tasks_sequence,$/;"	f	class:SequenceDef
+SequenceTask	include/task_manager_lib/SequenceTask.h	/^            SequenceTask(TaskDefinitionPtr def, TaskEnvironmentPtr ev) :$/;"	f	class:task_manager_lib::SequenceTask
+SequenceTask	include/task_manager_lib/SequenceTask.h	/^    class SequenceTask : public TaskInstance<MinimalTaskConfig,TaskEnvironment> $/;"	c	namespace:task_manager_lib
+StatusMap	include/task_manager_lib/TaskClient.h	/^                    TaskState, std::less<TaskScheduler::TaskId> > StatusMap;$/;"	t	class:task_manager_lib::TaskClient
+TASK_BACKGROUND	include/task_manager_lib/TaskScheduler.h	35;"	d
+TASK_CLIENT_H	include/task_manager_lib/TaskClient.h	2;"	d
+TASK_DEFINITION_H	include/task_manager_lib/TaskDefinition.h	2;"	d
+TASK_FOREGROUND	include/task_manager_lib/TaskScheduler.h	34;"	d
+TASK_HISTORY_H	include/task_manager_lib/TaskHistory.h	2;"	d
+TASK_IDLE_DEFAULT_H	include/task_manager_lib/TaskIdleDefault.h	2;"	d
+TASK_SCHEDULER_H	include/task_manager_lib/TaskScheduler.h	2;"	d
+TASK_SERVER_DEFAULT_H	include/task_manager_lib/TaskServerDefault.h	2;"	d
+TASK_SERVER_INTERFACE_H	include/task_manager_lib/TaskServerInterface.h	2;"	d
+TASK_STATUS_MASK	include/task_manager_lib/TaskScheduler.h	33;"	d
+TASK_WAIT_DEFAULT_H	include/task_manager_lib/TaskWaitDefault.h	2;"	d
+TaskClient	include/task_manager_lib/TaskClient.h	/^    class TaskClient {$/;"	c	namespace:task_manager_lib
+TaskClient	src/TaskClient.cpp	/^TaskClient::TaskClient(const std::string & node, ros::NodeHandle & nh) : spinner(1)$/;"	f	class:TaskClient
+TaskClient	src/task_manager_lib/TaskClient.py	/^class TaskClient:$/;"	c
+TaskConditionException	src/task_manager_lib/TaskClient.py	/^class TaskConditionException(Exception):$/;"	c
+TaskDefinition	include/task_manager_lib/TaskDefinition.h	/^                TaskDefinition(const std::string & tname, const std::string & thelp, bool isperiodic, $/;"	f	class:task_manager_lib::TaskDefinition
+TaskDefinition	include/task_manager_lib/TaskDefinition.h	/^        class TaskDefinition: public TaskDefinitionBase {$/;"	c	namespace:task_manager_lib
+TaskDefinition	src/task_manager_lib/TaskClient.py	/^    class TaskDefinition:$/;"	c	class:TaskClient
+TaskDefinitionBase	include/task_manager_lib/TaskDefinition.h	/^            TaskDefinitionBase(const std::string & tname, const std::string & thelp, $/;"	f	class:task_manager_lib::TaskDefinitionBase
+TaskDefinitionBase	include/task_manager_lib/TaskDefinition.h	/^    class TaskDefinitionBase : public boost::enable_shared_from_this<TaskDefinitionBase>$/;"	c	namespace:task_manager_lib
+TaskDefinitionConstPtr	include/task_manager_lib/TaskDefinition.h	/^    typedef boost::shared_ptr<TaskDefinitionBase const> TaskDefinitionConstPtr;$/;"	t	namespace:task_manager_lib
+TaskDefinitionPtr	include/task_manager_lib/TaskDefinition.h	/^    typedef boost::shared_ptr<TaskDefinitionBase> TaskDefinitionPtr;$/;"	t	namespace:task_manager_lib
+TaskDirectory	include/task_manager_lib/TaskScheduler.h	/^			typedef std::map<std::string,boost::shared_ptr<TaskDefinitionBase>,std::less<std::string> > TaskDirectory;$/;"	t	class:task_manager_lib::TaskScheduler
+TaskEnvironment	include/task_manager_lib/TaskDefinition.h	/^            TaskEnvironment(ros::NodeHandle & _nh) : nh(_nh) {}$/;"	f	class:task_manager_lib::TaskEnvironment
+TaskEnvironment	include/task_manager_lib/TaskDefinition.h	/^    class TaskEnvironment {$/;"	c	namespace:task_manager_lib
+TaskEnvironmentConstPtr	include/task_manager_lib/TaskDefinition.h	/^    typedef boost::shared_ptr<TaskEnvironment const> TaskEnvironmentConstPtr;$/;"	t	namespace:task_manager_lib
+TaskEnvironmentPtr	include/task_manager_lib/TaskDefinition.h	/^    typedef boost::shared_ptr<TaskEnvironment> TaskEnvironmentPtr;$/;"	t	namespace:task_manager_lib
+TaskEpsilon	src/task_manager_lib/TaskSmach.py	/^    class TaskEpsilon(smach.State):$/;"	c	class:MissionStateMachine
+TaskException	src/task_manager_lib/TaskClient.py	/^class TaskException(Exception):$/;"	c
+TaskFactory	include/task_manager_lib/TaskDefinition.h	/^    typedef TaskDefinitionPtr (*TaskFactory)(boost::shared_ptr<TaskEnvironment>&);$/;"	t	namespace:task_manager_lib
+TaskFactoryIdleDefault	include/task_manager_lib/TaskIdleDefault.h	/^            TaskFactoryIdleDefault(TaskEnvironmentPtr env) $/;"	f	class:task_manager_lib::TaskFactoryIdleDefault
+TaskFactoryIdleDefault	include/task_manager_lib/TaskIdleDefault.h	/^    class TaskFactoryIdleDefault : public TaskDefinition<MinimalTaskConfig,TaskEnvironment,TaskIdleDefault>$/;"	c	namespace:task_manager_lib
+TaskFactoryWaitDefault	include/task_manager_lib/TaskWaitDefault.h	/^            TaskFactoryWaitDefault(TaskEnvironmentPtr env) $/;"	f	class:task_manager_lib::TaskFactoryWaitDefault
+TaskFactoryWaitDefault	include/task_manager_lib/TaskWaitDefault.h	/^    class TaskFactoryWaitDefault : public TaskDefinition<TaskWaitConfig,TaskEnvironment, TaskWaitDefault>$/;"	c	namespace:task_manager_lib
+TaskHistory	include/task_manager_lib/TaskHistory.h	/^	class TaskHistory$/;"	c	namespace:task_manager_lib
+TaskHistory	src/TaskHistory.cpp	/^TaskHistory::TaskHistory(unsigned int id, const std::string & name, TaskParameters config, const ros::Time & tnow, const unsigned int & statusnb)$/;"	f	class:TaskHistory
+TaskId	include/task_manager_lib/TaskScheduler.h	/^			typedef unsigned int TaskId;$/;"	t	class:task_manager_lib::TaskScheduler
+TaskIdleDefault	include/task_manager_lib/TaskIdleDefault.h	/^            TaskIdleDefault(TaskDefinitionPtr def, TaskEnvironmentPtr ev) :$/;"	f	class:task_manager_lib::TaskIdleDefault
+TaskIdleDefault	include/task_manager_lib/TaskIdleDefault.h	/^    class TaskIdleDefault : public TaskInstance<MinimalTaskConfig,TaskEnvironment>$/;"	c	namespace:task_manager_lib
+TaskIndicator	include/task_manager_lib/TaskDefinition.h	/^    typedef unsigned int TaskIndicator;$/;"	t	namespace:task_manager_lib
+TaskInstance	include/task_manager_lib/TaskDefinition.h	/^                TaskInstance(TaskDefinitionPtr def, TaskEnvironmentPtr ev) $/;"	f	class:task_manager_lib::TaskInstance
+TaskInstance	include/task_manager_lib/TaskDefinition.h	/^        class TaskInstance : public TaskInstanceBase {$/;"	c	namespace:task_manager_lib
+TaskInstanceBase	include/task_manager_lib/TaskDefinition.h	/^            TaskInstanceBase(TaskDefinitionPtr def, TaskEnvironmentPtr ev) :$/;"	f	class:task_manager_lib::TaskInstanceBase
+TaskInstanceBase	include/task_manager_lib/TaskDefinition.h	/^    class TaskInstanceBase$/;"	c	namespace:task_manager_lib
+TaskInstanceConstPtr	include/task_manager_lib/TaskDefinition.h	/^    typedef boost::shared_ptr<TaskInstanceBase const> TaskInstanceConstPtr;$/;"	t	namespace:task_manager_lib
+TaskInstancePtr	include/task_manager_lib/TaskDefinition.h	/^    typedef boost::shared_ptr<TaskInstanceBase> TaskInstancePtr;$/;"	t	namespace:task_manager_lib
+TaskParameterGenerator	src/task_manager_lib/parameter_generator.py	/^def TaskParameterGenerator():$/;"	f
+TaskParameters	include/task_manager_lib/TaskDefinition.h	/^            TaskParameters() $/;"	f	class:task_manager_lib::TaskParameters
+TaskParameters	include/task_manager_lib/TaskDefinition.h	/^            TaskParameters(const TaskParameters & cfg) $/;"	f	class:task_manager_lib::TaskParameters
+TaskParameters	include/task_manager_lib/TaskDefinition.h	/^            TaskParameters(const dynamic_reconfigure::Config & cfg) $/;"	f	class:task_manager_lib::TaskParameters
+TaskParameters	include/task_manager_lib/TaskDefinition.h	/^    class TaskParameters: public dynamic_reconfigure::Config {$/;"	c	namespace:task_manager_lib
+TaskScheduler	include/task_manager_lib/TaskScheduler.h	/^	class TaskScheduler$/;"	c	namespace:task_manager_lib
+TaskScheduler	src/TaskScheduler.cpp	/^TaskScheduler::TaskScheduler(ros::NodeHandle & nh, boost::shared_ptr<TaskDefinitionBase> tidle, double deftPeriod)$/;"	f	class:TaskScheduler
+TaskServerBase	include/task_manager_lib/TaskServerDefault.h	/^            TaskServerBase(TaskEnvironmentPtr _env, TaskDefinitionPtr _idle, TaskDefinitionPtr _wait) : nh("~"), lib_path(".\/lib"), $/;"	f	class:task_manager_lib::TaskServerBase
+TaskServerBase	include/task_manager_lib/TaskServerDefault.h	/^            TaskServerBase(TaskEnvironmentPtr _env, TaskDefinitionPtr _idle, bool default_wait=false) : nh("~"), lib_path(".\/lib"), $/;"	f	class:task_manager_lib::TaskServerBase
+TaskServerBase	include/task_manager_lib/TaskServerDefault.h	/^            TaskServerBase(TaskEnvironmentPtr _env, bool default_wait=false) : nh("~"), lib_path(".\/lib"), env(_env), $/;"	f	class:task_manager_lib::TaskServerBase
+TaskServerBase	include/task_manager_lib/TaskServerDefault.h	/^    class TaskServerBase {$/;"	c	namespace:task_manager_lib
+TaskServerInterface	include/task_manager_lib/TaskServerInterface.h	/^class TaskServerInterface$/;"	c	namespace:task_manager_lib
+TaskServerInterface	src/TaskServerInterface.cpp	/^TaskServerInterface::TaskServerInterface(task_manager_lib::TaskScheduler &ts_ref)$/;"	f	class:TaskServerInterface
+TaskSet	include/task_manager_lib/TaskScheduler.h	/^			typedef std::map<unsigned int, boost::shared_ptr<ThreadParameters>, std::less<unsigned int> > TaskSet;$/;"	t	class:task_manager_lib::TaskScheduler
+TaskSetItem	include/task_manager_lib/TaskScheduler.h	/^			typedef std::pair<unsigned int, boost::shared_ptr<ThreadParameters> > TaskSetItem;$/;"	t	class:task_manager_lib::TaskScheduler
+TaskState	include/task_manager_lib/TaskClient.h	/^            struct TaskState {$/;"	s	class:task_manager_lib::TaskClient
+TaskState	src/task_manager_lib/TaskSmach.py	/^class TaskState(smach.State):$/;"	c
+TaskStatus	src/task_manager_lib/TaskClient.py	/^    class TaskStatus:$/;"	c	class:TaskClient
+TaskWaitDefault	include/task_manager_lib/TaskWaitDefault.h	/^            TaskWaitDefault(TaskDefinitionPtr def, TaskEnvironmentPtr ev) :$/;"	f	class:task_manager_lib::TaskWaitDefault
+TaskWaitDefault	include/task_manager_lib/TaskWaitDefault.h	/^    class TaskWaitDefault : public TaskInstance<TaskWaitConfig,TaskEnvironment>$/;"	c	namespace:task_manager_lib
+ThreadAction	include/task_manager_lib/TaskScheduler.h	/^			struct ThreadAction {$/;"	s	class:task_manager_lib::TaskScheduler
+ThreadAction	include/task_manager_lib/TaskScheduler.h	/^                ThreadAction() : type(NO_ACTION) {}$/;"	f	struct:task_manager_lib::TaskScheduler::ThreadAction
+ThreadParameters	include/task_manager_lib/TaskScheduler.h	/^			struct ThreadParameters {$/;"	s	class:task_manager_lib::TaskScheduler
+ThreadParameters	src/TaskScheduler.cpp	/^TaskScheduler::ThreadParameters::ThreadParameters($/;"	f	class:TaskScheduler::ThreadParameters
+ThreadParameters	src/TaskScheduler.cpp	/^TaskScheduler::ThreadParameters::ThreadParameters(ros::Publisher pub, TaskScheduler *ts, $/;"	f	class:TaskScheduler::ThreadParameters
+WAIT_CANCELLED	include/task_manager_lib/TaskScheduler.h	/^				WAIT_CANCELLED$/;"	e	enum:task_manager_lib::TaskScheduler::__anon1
+__call__	src/task_manager_lib/TaskClient.py	/^        def __call__(self,**paramdict):$/;"	m	class:TaskClient.TaskDefinition	file:
+__del__	src/task_manager_lib/TaskClient.py	/^    def __del__(self):$/;"	m	class:TaskClient	file:
+__getattr__	src/task_manager_lib/TaskClient.py	/^    def __getattr__(self,name):$/;"	m	class:TaskClient	file:
+__init__	src/task_manager_lib/TaskClient.py	/^        def __init__(self,client):$/;"	m	class:TaskClient.TaskStatus
+__init__	src/task_manager_lib/TaskClient.py	/^        def __init__(self,name,help,cfg,client):$/;"	m	class:TaskClient.TaskDefinition
+__init__	src/task_manager_lib/TaskClient.py	/^    def __init__(self, name, tc, taskId):$/;"	m	class:ConditionIsCompleted
+__init__	src/task_manager_lib/TaskClient.py	/^    def __init__(self, name, tc, taskId):$/;"	m	class:ConditionIsRunning
+__init__	src/task_manager_lib/TaskClient.py	/^    def __init__(self, value, conds):$/;"	m	class:TaskConditionException
+__init__	src/task_manager_lib/TaskClient.py	/^    def __init__(self, value,id=None,status=None):$/;"	m	class:TaskException
+__init__	src/task_manager_lib/TaskClient.py	/^    def __init__(self,cond):$/;"	m	class:NegatedCondition
+__init__	src/task_manager_lib/TaskClient.py	/^    def __init__(self,name):$/;"	m	class:Condition
+__init__	src/task_manager_lib/TaskClient.py	/^    def __init__(self,server_node,default_period):$/;"	m	class:TaskClient
+__init__	src/task_manager_lib/TaskSmach.py	/^        def __init__(self):$/;"	m	class:MissionStateMachine.TaskEpsilon
+__init__	src/task_manager_lib/TaskSmach.py	/^    def __init__(self):$/;"	m	class:MissionCompleted
+__init__	src/task_manager_lib/TaskSmach.py	/^    def __init__(self):$/;"	m	class:MissionFailed
+__init__	src/task_manager_lib/TaskSmach.py	/^    def __init__(self,tc,name,**params):$/;"	m	class:TaskState
+__init__	src/task_manager_lib/TaskSmach.py	/^    def __init__(self,tc=None):$/;"	m	class:MissionStateMachine
+__str__	src/task_manager_lib/TaskClient.py	/^        def __str__(self):$/;"	m	class:TaskClient.TaskStatus	file:
+__str__	src/task_manager_lib/TaskClient.py	/^    def __str__(self):$/;"	m	class:Condition	file:
+__str__	src/task_manager_lib/TaskClient.py	/^    def __str__(self):$/;"	m	class:TaskConditionException	file:
+__str__	src/task_manager_lib/TaskClient.py	/^    def __str__(self):$/;"	m	class:TaskException	file:
+abordComplexMission	src/TaskServerInterface.cpp	/^void TaskServerInterface::abordComplexMission(int &pid)$/;"	f	class:TaskServerInterface
+actionQueue	include/task_manager_lib/TaskScheduler.h	/^			ActionQueue actionQueue;$/;"	m	class:task_manager_lib::TaskScheduler
+actionString	src/TaskScheduler.cpp	/^const char *TaskScheduler::actionString(ActionType at)$/;"	f	class:TaskScheduler
+addCondition	src/task_manager_lib/TaskClient.py	/^    def addCondition(self,cond):$/;"	m	class:TaskClient
+addTask	src/TaskScheduler.cpp	/^void TaskScheduler::addTask(boost::shared_ptr<TaskDefinitionBase> td) $/;"	f	class:TaskScheduler
+allConditionsVerified	src/task_manager_lib/TaskClient.py	/^    def allConditionsVerified(self):$/;"	m	class:TaskClient
+anyConditionVerified	src/task_manager_lib/TaskClient.py	/^    def anyConditionVerified(self):$/;"	m	class:TaskClient
+aperiodic_task_condition	include/task_manager_lib/TaskScheduler.h	/^                boost::condition_variable aperiodic_task_condition;$/;"	m	struct:task_manager_lib::TaskScheduler::ThreadParameters
+aperiodic_task_mutex	include/task_manager_lib/TaskScheduler.h	/^                boost::mutex aperiodic_task_mutex;$/;"	m	struct:task_manager_lib::TaskScheduler::ThreadParameters
+aqCond	include/task_manager_lib/TaskScheduler.h	/^            boost::condition_variable aqCond;$/;"	m	class:task_manager_lib::TaskScheduler
+aqMutex	include/task_manager_lib/TaskScheduler.h	/^            boost::mutex aqMutex;$/;"	m	class:task_manager_lib::TaskScheduler
+aqid	include/task_manager_lib/TaskScheduler.h	/^            boost::thread aqid;$/;"	m	class:task_manager_lib::TaskScheduler
+args	node/tasklist.py	/^args = parser.parse_args()$/;"	v
+castDefinition	include/task_manager_lib/TaskDefinition.h	/^                    boost::shared_ptr<SPECIALIZED> castDefinition() {$/;"	f	class:task_manager_lib::TaskInstance
+castEnvironment	include/task_manager_lib/TaskDefinition.h	/^                boost::shared_ptr<ENV> castEnvironment() {$/;"	f	class:task_manager_lib::TaskDefinition
+castEnvironment	include/task_manager_lib/TaskDefinition.h	/^                boost::shared_ptr<ENV> castEnvironment() {$/;"	f	class:task_manager_lib::TaskInstance
+cfg	include/task_manager_lib/TaskDefinition.h	/^                CFG cfg;$/;"	m	class:task_manager_lib::TaskInstance
+cleanupTask	src/TaskScheduler.cpp	/^void TaskScheduler::cleanupTask(boost::shared_ptr<ThreadParameters> tp)$/;"	f	class:TaskScheduler
+clearAllDynamicTasks	src/TaskScheduler.cpp	/^void TaskScheduler::clearAllDynamicTasks() {$/;"	f	class:TaskScheduler
+clearConditions	src/task_manager_lib/TaskClient.py	/^    def clearConditions(self):$/;"	m	class:TaskClient
+client	src/task_manager_lib/TaskClient.py	/^        client = None$/;"	v	class:TaskClient.TaskDefinition
+concurrent_task	src/task_manager_lib/TaskSmach.py	/^    def concurrent_task(self,name,**params):$/;"	m	class:MissionStateMachine
+conditions	src/task_manager_lib/TaskClient.py	/^    conditions = []$/;"	v	class:TaskClient
+configure	include/task_manager_lib/DynamicTask.h	/^            virtual TaskIndicator configure(const TaskParameters & parameters) throw (InvalidParameter) {$/;"	f	class:task_manager_lib::DynamicTask
+configure	include/task_manager_lib/TaskDefinition.h	/^                virtual TaskIndicator configure(const TaskParameters & parameters) throw (InvalidParameter)$/;"	f	class:task_manager_lib::TaskDefinition
+configureTasks	src/TaskScheduler.cpp	/^void TaskScheduler::configureTasks()$/;"	f	class:TaskScheduler
+createBasicMissionFile	src/TaskServerInterface.cpp	/^void TaskServerInterface::createBasicMissionFile(std::vector<task_manager_msgs::TaskDescriptionLight> &basic_mission, std::string &filename) const$/;"	f	class:TaskServerInterface
+createComplexMissionFile	src/TaskServerInterface.cpp	/^void TaskServerInterface::createComplexMissionFile(std::string &complex_mission, std::string &filename) $/;"	f	class:TaskServerInterface
+createConcurrence	src/task_manager_lib/TaskSmach.py	/^    def createConcurrence(self,fg_state):$/;"	m	class:MissionStateMachine
+createSequence	src/task_manager_lib/TaskSmach.py	/^    def createSequence(self):$/;"	m	class:MissionStateMachine
+createStateMachine	src/task_manager_lib/TaskSmach.py	/^    def createStateMachine(self):$/;"	m	class:MissionStateMachine
+current_task_id	include/task_manager_lib/SequenceTask.h	/^			unsigned int current_task_id;$/;"	m	class:task_manager_lib::SequenceTask
+d	setup.py	/^d = generate_distutils_setup($/;"	v
+debug	include/task_manager_lib/TaskScheduler.h	/^			static unsigned int debug;$/;"	m	class:task_manager_lib::TaskScheduler
+debug	src/TaskDefinition.cpp	/^void TaskDefinitionBase::debug(const char *stemplate,...) const {$/;"	f	class:TaskDefinitionBase
+debug	src/TaskDefinition.cpp	/^void TaskInstanceBase::debug(const char *stemplate,...) const {$/;"	f	class:TaskInstanceBase
+debug	src/TaskScheduler.cpp	/^unsigned int TaskScheduler::debug = 1;$/;"	m	class:TaskScheduler	file:
+defaultPeriod	include/task_manager_lib/TaskScheduler.h	/^			double defaultPeriod;$/;"	m	class:task_manager_lib::TaskScheduler
+default_period	node/console.py	/^default_period = rospy.get_param("~period",default_period)$/;"	v
+default_period	node/console.py	/^default_period=0.1$/;"	v
+default_period	node/tasklist.py	/^default_period = rospy.get_param("~period",default_period)$/;"	v
+default_period	node/tasklist.py	/^default_period=0.1$/;"	v
+default_period	node/tasklist.py	/^default_period=args.period$/;"	v
+definition	include/task_manager_lib/TaskDefinition.h	/^            TaskDefinitionPtr definition;$/;"	m	class:task_manager_lib::TaskInstanceBase
+deleteTask	src/TaskScheduler.cpp	/^void TaskScheduler::deleteTask(boost::shared_ptr<ThreadParameters> tp)$/;"	f	class:TaskScheduler
+dllfilter	src/TaskScheduler.cpp	/^static int dllfilter(const struct dirent * d) {$/;"	f	file:
+doConfigure	src/TaskDefinition.cpp	/^void TaskDefinitionBase::doConfigure(unsigned int id, const TaskParameters & parameters)$/;"	f	class:TaskDefinitionBase
+doInitialise	src/TaskDefinition.cpp	/^void TaskInstanceBase::doInitialise(unsigned int runtimeId, const TaskParameters & parameters)$/;"	f	class:TaskInstanceBase
+doIterate	src/TaskDefinition.cpp	/^void TaskInstanceBase::doIterate()$/;"	f	class:TaskInstanceBase
+doTerminate	src/TaskDefinition.cpp	/^void TaskInstanceBase::doTerminate()$/;"	f	class:TaskInstanceBase
+endTime	include/task_manager_lib/TaskHistory.h	/^			ros::Time endTime;$/;"	m	class:task_manager_lib::TaskHistory
+enqueueAction	src/TaskScheduler.cpp	/^void TaskScheduler::enqueueAction(ActionType type,boost::shared_ptr<ThreadParameters> tp)$/;"	f	class:TaskScheduler
+enqueueAction	src/TaskScheduler.cpp	/^void TaskScheduler::enqueueAction(const ros::Time & when,  ActionType type,boost::shared_ptr<ThreadParameters> tp)$/;"	f	class:TaskScheduler
+env	include/task_manager_lib/TaskDefinition.h	/^                boost::shared_ptr<ENV> env;$/;"	m	class:task_manager_lib::TaskDefinition
+env	include/task_manager_lib/TaskDefinition.h	/^                boost::shared_ptr<ENV> env;$/;"	m	class:task_manager_lib::TaskInstance
+env	include/task_manager_lib/TaskServerDefault.h	/^            TaskEnvironmentPtr env;$/;"	m	class:task_manager_lib::TaskServerBase
+env_gen	include/task_manager_lib/TaskDefinition.h	/^            TaskEnvironmentPtr env_gen;$/;"	m	class:task_manager_lib::TaskDefinitionBase
+env_gen	include/task_manager_lib/TaskDefinition.h	/^            TaskEnvironmentPtr env_gen;$/;"	m	class:task_manager_lib::TaskInstanceBase
+environment_mutex	include/task_manager_lib/TaskDefinition.h	/^            boost::shared_mutex environment_mutex;$/;"	m	class:task_manager_lib::TaskEnvironment
+epsilon_task	src/task_manager_lib/TaskSmach.py	/^    def epsilon_task(self,label=None,transitions=None):$/;"	m	class:MissionStateMachine
+execute	src/task_manager_lib/TaskSmach.py	/^        def execute(self, userdata):$/;"	m	class:MissionStateMachine.TaskEpsilon
+execute	src/task_manager_lib/TaskSmach.py	/^    def execute(self, userdata):$/;"	m	class:TaskState
+executeComplexMission	src/TaskServerInterface.cpp	/^bool TaskServerInterface::executeComplexMission(task_manager_lib::ExeComplexMission::Request  &req, task_manager_lib::ExeComplexMission::Response &res )$/;"	f	class:TaskServerInterface
+executeComplexMissionsSrv	include/task_manager_lib/TaskServerInterface.h	/^		ros::ServiceServer executeComplexMissionsSrv;$/;"	m	class:task_manager_lib::TaskServerInterface
+executeSequenceTasksSrv	include/task_manager_lib/TaskScheduler.h	/^			ros::ServiceServer executeSequenceTasksSrv;$/;"	m	class:task_manager_lib::TaskScheduler
+executeTaskSequence	src/TaskScheduler.cpp	/^bool TaskScheduler::executeTaskSequence(task_manager_lib::ExeTaskSequence::Request  &req,task_manager_lib::ExeTaskSequence::Response &res)$/;"	f	class:TaskScheduler
+f	include/task_manager_lib/TaskDefinition.h	/^                        typename dynamic_reconfigure::Server<CFG>::CallbackType f;               $/;"	m	class:task_manager_lib::TaskInstance::DynRecfgData
+filename	include/task_manager_lib/DynamicTask.h	/^            std::string filename;$/;"	m	class:task_manager_lib::DynamicTask
+foreground	include/task_manager_lib/TaskClient.h	/^                bool foreground;$/;"	m	struct:task_manager_lib::TaskClient::TaskState
+foreground	include/task_manager_lib/TaskScheduler.h	/^				bool foreground,running;$/;"	m	struct:task_manager_lib::TaskScheduler::ThreadParameters
+fromConfig	include/task_manager_lib/TaskDefinition.h	/^                void fromConfig(const CFG & cfg) {$/;"	f	class:task_manager_lib::TaskParameters
+gen	cfg/MinimalTask.cfg	/^gen = TaskParameterGenerator()$/;"	v
+gen	cfg/TaskWait.cfg	/^gen = TaskParameterGenerator()$/;"	v
+generateHistory	src/TaskScheduler.cpp	/^    void TaskScheduler::generateHistory(std::vector<task_manager_msgs::TaskHistory> &output) $/;"	f	class:TaskScheduler
+generateTaskList	src/TaskScheduler.cpp	/^void TaskScheduler::generateTaskList(std::vector<task_manager_msgs::TaskDescription> & tlist) const$/;"	f	class:TaskScheduler
+generateTaskListLight	src/TaskScheduler.cpp	/^void TaskScheduler::generateTaskListLight(std::vector<task_manager_msgs::TaskDescription> &input,std::vector<task_manager_msgs::TaskDescriptionLight> &output) const$/;"	f	class:TaskScheduler
+generateTaskStatus	src/TaskScheduler.cpp	/^void TaskScheduler::generateTaskStatus(std::vector<task_manager_msgs::TaskStatus> & running,$/;"	f	class:TaskScheduler
+getAllTaskStatus	src/TaskScheduler.cpp	/^bool TaskScheduler::getAllTaskStatus(task_manager_lib::GetAllTaskStatus::Request  &req,$/;"	f	class:TaskScheduler
+getAllTaskStatusClt	include/task_manager_lib/TaskClient.h	/^            ros::ServiceClient getAllTaskStatusClt;$/;"	m	class:task_manager_lib::TaskClient
+getAllTaskStatusSrv	include/task_manager_lib/TaskScheduler.h	/^			ros::ServiceServer getAllTaskStatusSrv;$/;"	m	class:task_manager_lib::TaskScheduler
+getConfigFromServer	include/task_manager_lib/TaskDefinition.h	/^                CFG getConfigFromServer(const ros::NodeHandle & nh) {$/;"	f	class:task_manager_lib::TaskDefinition
+getDefaultParameters	include/task_manager_lib/DynamicTask.h	/^            virtual TaskParameters getDefaultParameters() const {$/;"	f	class:task_manager_lib::DynamicTask
+getDefaultParameters	include/task_manager_lib/TaskDefinition.h	/^                virtual TaskParameters getDefaultParameters() const {$/;"	f	class:task_manager_lib::TaskDefinition
+getDefinition	src/TaskDefinition.cpp	/^TaskDefinitionPtr TaskInstanceBase::getDefinition() {$/;"	f	class:TaskInstanceBase
+getDescription	include/task_manager_lib/DynamicTask.h	/^            virtual task_manager_msgs::TaskDescription getDescription() const {$/;"	f	class:task_manager_lib::DynamicTask
+getDescription	src/TaskDefinition.cpp	/^task_manager_msgs::TaskDescription TaskDefinitionBase::getDescription() const {$/;"	f	class:TaskDefinitionBase
+getDirectory	include/task_manager_lib/TaskScheduler.h	/^			const TaskDirectory & getDirectory() const {return tasks;}$/;"	f	class:task_manager_lib::TaskScheduler
+getEnvironment	include/task_manager_lib/TaskDefinition.h	/^            TaskEnvironmentPtr getEnvironment() {return env_gen;}$/;"	f	class:task_manager_lib::TaskDefinitionBase
+getEnvironment	include/task_manager_lib/TaskDefinition.h	/^            TaskEnvironmentPtr getEnvironment() {return env_gen;}$/;"	f	class:task_manager_lib::TaskInstanceBase
+getHelp	include/task_manager_lib/DynamicTask.h	/^            virtual const std::string & getHelp() const {return task->getHelp();}$/;"	f	class:task_manager_lib::DynamicTask
+getHelp	src/TaskDefinition.cpp	/^const std::string & TaskDefinitionBase::getHelp() const {$/;"	f	class:TaskDefinitionBase
+getHistory	src/TaskScheduler.cpp	/^bool TaskScheduler::getHistory(task_manager_lib::GetHistory::Request  &req, task_manager_lib::GetHistory::Response &res)$/;"	f	class:TaskScheduler
+getHistorySrv	include/task_manager_lib/TaskScheduler.h	/^			ros::ServiceServer getHistorySrv;$/;"	m	class:task_manager_lib::TaskScheduler
+getLabel	src/task_manager_lib/TaskSmach.py	/^    def getLabel(self,name):$/;"	m	class:MissionStateMachine
+getName	include/task_manager_lib/DynamicTask.h	/^            virtual const std::string & getName() const {return task->getName();}$/;"	f	class:task_manager_lib::DynamicTask
+getName	include/task_manager_lib/TaskDefinition.h	/^            const std::string & getName() const {$/;"	f	class:task_manager_lib::TaskInstanceBase
+getName	src/TaskDefinition.cpp	/^const std::string & TaskDefinitionBase::getName() const {$/;"	f	class:TaskDefinitionBase
+getNextAction	src/TaskScheduler.cpp	/^TaskScheduler::ThreadAction TaskScheduler::getNextAction()$/;"	f	class:TaskScheduler
+getNodeHandle	include/task_manager_lib/TaskDefinition.h	/^            ros::NodeHandle & getNodeHandle() {return nh;}$/;"	f	class:task_manager_lib::TaskEnvironment
+getNodeHandle	src/TaskScheduler.cpp	/^    ros::NodeHandle TaskScheduler::getNodeHandle()$/;"	f	class:TaskScheduler
+getParameter	include/task_manager_lib/TaskDefinition.h	/^                bool getParameter(const std::string &name, T &val) const$/;"	f	class:task_manager_lib::TaskParameters
+getParameterDescription	include/task_manager_lib/DynamicTask.h	/^            virtual dynamic_reconfigure::ConfigDescription getParameterDescription() const {$/;"	f	class:task_manager_lib::DynamicTask
+getParameterDescription	include/task_manager_lib/TaskDefinition.h	/^                virtual dynamic_reconfigure::ConfigDescription getParameterDescription() const {$/;"	f	class:task_manager_lib::TaskDefinition
+getParametersFromServer	include/task_manager_lib/DynamicTask.h	/^            virtual TaskParameters getParametersFromServer(const ros::NodeHandle &nh) {$/;"	f	class:task_manager_lib::DynamicTask
+getParametersFromServer	include/task_manager_lib/TaskDefinition.h	/^                virtual TaskParameters getParametersFromServer(const ros::NodeHandle & nh) {$/;"	f	class:task_manager_lib::TaskDefinition
+getRosStatus	include/task_manager_lib/TaskScheduler.h	/^				task_manager_msgs::TaskStatus getRosStatus() {$/;"	f	struct:task_manager_lib::TaskScheduler::ThreadParameters
+getRosStatus	src/TaskDefinition.cpp	/^task_manager_msgs::TaskStatus TaskInstanceBase::getRosStatus() const {$/;"	f	class:TaskInstanceBase
+getRuntimeId	src/TaskDefinition.cpp	/^unsigned int TaskInstanceBase::getRuntimeId() const {$/;"	f	class:TaskInstanceBase
+getStatus	include/task_manager_lib/DynamicTask.h	/^            virtual TaskIndicator getStatus() const {$/;"	f	class:task_manager_lib::DynamicTask
+getStatus	src/TaskDefinition.cpp	/^TaskIndicator TaskDefinitionBase::getStatus() const {$/;"	f	class:TaskDefinitionBase
+getStatus	src/TaskDefinition.cpp	/^TaskIndicator TaskInstanceBase::getStatus() const {$/;"	f	class:TaskInstanceBase
+getStatusMap	include/task_manager_lib/TaskClient.h	/^            const StatusMap & getStatusMap() const {$/;"	f	class:task_manager_lib::TaskClient
+getStatusString	include/task_manager_lib/DynamicTask.h	/^            virtual const std::string & getStatusString() const {$/;"	f	class:task_manager_lib::DynamicTask
+getStatusString	src/TaskDefinition.cpp	/^const std::string & TaskDefinitionBase::getStatusString() const {$/;"	f	class:TaskDefinitionBase
+getStatusString	src/TaskDefinition.cpp	/^const std::string & TaskInstanceBase::getStatusString() const {$/;"	f	class:TaskInstanceBase
+getTaskId	include/task_manager_lib/DynamicTask.h	/^            virtual unsigned int getTaskId() {return task->getTaskId();}$/;"	f	class:task_manager_lib::DynamicTask
+getTaskId	src/TaskDefinition.cpp	/^unsigned int TaskDefinitionBase::getTaskId() const {$/;"	f	class:TaskDefinitionBase
+getTaskList	src/TaskClient.cpp	/^const std::vector<task_manager_msgs::TaskDescription> & TaskClient::getTaskList() const$/;"	f	class:TaskClient
+getTaskList	src/TaskScheduler.cpp	/^bool TaskScheduler::getTaskList(task_manager_lib::GetTaskList::Request  &req,$/;"	f	class:TaskScheduler
+getTaskListClt	include/task_manager_lib/TaskClient.h	/^            ros::ServiceClient getTaskListClt;$/;"	m	class:task_manager_lib::TaskClient
+getTaskListLight	src/TaskScheduler.cpp	/^bool TaskScheduler::getTaskListLight(task_manager_lib::GetTaskListLight::Request  &req, task_manager_lib::GetTaskListLight::Response &res )$/;"	f	class:TaskScheduler
+getTaskListLightSrv	include/task_manager_lib/TaskScheduler.h	/^			ros::ServiceServer getTaskListLightSrv;$/;"	m	class:task_manager_lib::TaskScheduler
+getTaskListSrv	include/task_manager_lib/TaskScheduler.h	/^			ros::ServiceServer getTaskListSrv;$/;"	m	class:task_manager_lib::TaskScheduler
+getTimeout	src/TaskDefinition.cpp	/^double TaskInstanceBase::getTimeout() const {$/;"	f	class:TaskInstanceBase
+getVerifiedConditions	src/task_manager_lib/TaskClient.py	/^    def getVerifiedConditions(self):$/;"	m	class:TaskClient
+getdfltPeriod	include/task_manager_lib/TaskScheduler.h	/^			double getdfltPeriod(){return defaultPeriod;};$/;"	f	class:task_manager_lib::TaskScheduler
+getendTime	src/TaskHistory.cpp	/^const ros::Time TaskHistory::getendTime()$/;"	f	class:TaskHistory
+getid	src/TaskHistory.cpp	/^unsigned int TaskHistory::getid()$/;"	f	class:TaskHistory
+getname	src/TaskHistory.cpp	/^std::string TaskHistory::getname()$/;"	f	class:TaskHistory
+getparams	src/TaskHistory.cpp	/^TaskParameters TaskHistory::getparams()$/;"	f	class:TaskHistory
+getstartTime	src/TaskHistory.cpp	/^const ros::Time TaskHistory::getstartTime()$/;"	f	class:TaskHistory
+getstatus	src/TaskHistory.cpp	/^unsigned int TaskHistory::getstatus()$/;"	f	class:TaskHistory
+getstatus	src/TaskScheduler.cpp	/^    int TaskScheduler::getstatus(unsigned int &taskid)$/;"	f	class:TaskScheduler
+gtpid	include/task_manager_lib/TaskScheduler.h	/^				static unsigned int gtpid;$/;"	m	struct:task_manager_lib::TaskScheduler::ThreadParameters
+gtpid	src/TaskScheduler.cpp	/^unsigned int TaskScheduler::ThreadParameters::gtpid = 0;$/;"	m	class:TaskScheduler::ThreadParameters	file:
+handle	include/task_manager_lib/DynamicTask.h	/^            void * handle;$/;"	m	class:task_manager_lib::DynamicTask
+help	include/task_manager_lib/TaskDefinition.h	/^            std::string help;$/;"	m	class:task_manager_lib::TaskDefinitionBase
+help	src/task_manager_lib/TaskClient.py	/^        help = ""$/;"	v	class:TaskClient.TaskDefinition
+history	include/task_manager_lib/TaskScheduler.h	/^			std::vector<TaskHistory> history;$/;"	m	class:task_manager_lib::TaskScheduler
+history_size	include/task_manager_lib/TaskScheduler.h	/^			static const unsigned int history_size; $/;"	m	class:task_manager_lib::TaskScheduler
+history_size	src/TaskScheduler.cpp	/^const unsigned int TaskScheduler::history_size=10;$/;"	m	class:TaskScheduler	file:
+id	include/task_manager_lib/TaskClient.h	/^                TaskScheduler::TaskId id;$/;"	m	struct:task_manager_lib::TaskClient::TaskState
+idle	include/task_manager_lib/TaskScheduler.h	/^			boost::shared_ptr<TaskDefinitionBase> idle;$/;"	m	class:task_manager_lib::TaskScheduler
+idle	include/task_manager_lib/TaskServerDefault.h	/^            TaskDefinitionPtr idle;$/;"	m	class:task_manager_lib::TaskServerBase
+idle	src/TaskClient.cpp	/^int TaskClient::idle()$/;"	f	class:TaskClient
+idle	src/task_manager_lib/TaskClient.py	/^    def idle(self):$/;"	m	class:TaskClient
+idleTimeout	include/task_manager_lib/TaskScheduler.h	/^			double idleTimeout;$/;"	m	class:task_manager_lib::TaskScheduler
+index	node/console.py	/^def index():$/;"	f
+initialise	include/task_manager_lib/TaskDefinition.h	/^                virtual TaskIndicator initialise(const TaskParameters & parameters) $/;"	f	class:task_manager_lib::TaskInstance
+initialise	src/TaskWaitDefault.cpp	/^TaskIndicator TaskWaitDefault::initialise(const TaskParameters & parameters) $/;"	f	class:TaskWaitDefault
+instantiate	include/task_manager_lib/DynamicTask.h	/^            virtual TaskInstancePtr instantiate() {$/;"	f	class:task_manager_lib::DynamicTask
+instantiate	include/task_manager_lib/TaskDefinition.h	/^                virtual TaskInstancePtr instantiate() {$/;"	f	class:task_manager_lib::TaskDefinition
+isAnInstanceOf	include/task_manager_lib/TaskScheduler.h	/^                bool isAnInstanceOf(const boost::shared_ptr<TaskDefinitionBase> & def) {$/;"	f	struct:task_manager_lib::TaskScheduler::ThreadParameters
+isAnInstanceOf	src/TaskDefinition.cpp	/^bool TaskInstanceBase::isAnInstanceOf(TaskDefinitionConstPtr def) {$/;"	f	class:TaskInstanceBase
+isAnInstanceOf	src/TaskDefinition.cpp	/^bool TaskInstanceBase::isAnInstanceOf(const TaskDefinitionBase & def) {$/;"	f	class:TaskInstanceBase
+isCompleted	src/task_manager_lib/TaskClient.py	/^    def isCompleted(self,taskId,requireKnown=True):$/;"	m	class:TaskClient
+isKnown	src/task_manager_lib/TaskClient.py	/^    def isKnown(self,taskId):$/;"	m	class:TaskClient
+isPeriodic	include/task_manager_lib/DynamicTask.h	/^            virtual bool isPeriodic() const {return task->isPeriodic();}$/;"	f	class:task_manager_lib::DynamicTask
+isPeriodic	include/task_manager_lib/TaskDefinition.h	/^            bool isPeriodic() const {$/;"	f	class:task_manager_lib::TaskInstanceBase
+isPeriodic	src/TaskDefinition.cpp	/^bool TaskDefinitionBase::isPeriodic() const {$/;"	f	class:TaskDefinitionBase
+isVerified	src/task_manager_lib/TaskClient.py	/^    def isVerified(self):$/;"	m	class:ConditionIsCompleted
+isVerified	src/task_manager_lib/TaskClient.py	/^    def isVerified(self):$/;"	m	class:ConditionIsRunning
+isVerified	src/task_manager_lib/TaskClient.py	/^    def isVerified(self):$/;"	m	class:NegatedCondition
+iterate	src/SequenceTask.cpp	/^TaskIndicator SequenceTask::iterate()$/;"	f	class:SequenceTask
+iterate	src/TaskIdleDefault.cpp	/^TaskIndicator TaskIdleDefault::iterate()$/;"	f	class:TaskIdleDefault
+iterate	src/TaskWaitDefault.cpp	/^TaskIndicator TaskWaitDefault::iterate()$/;"	f	class:TaskWaitDefault
+keepAlive	include/task_manager_lib/TaskClient.h	/^            bool keepAlive;$/;"	m	class:task_manager_lib::TaskClient
+keepAlive	src/task_manager_lib/TaskClient.py	/^    keepAlive = False$/;"	v	class:TaskClient
+keepAliveCallback	src/TaskScheduler.cpp	/^void TaskScheduler::keepAliveCallback(const std_msgs::Header::ConstPtr& msg) $/;"	f	class:TaskScheduler
+keepAlivePub	include/task_manager_lib/TaskClient.h	/^            ros::Publisher keepAlivePub;$/;"	m	class:task_manager_lib::TaskClient
+keepAliveSequence	src/TaskScheduler.cpp	/^    void TaskScheduler::keepAliveSequence()$/;"	f	class:TaskScheduler
+keepAliveSub	include/task_manager_lib/TaskScheduler.h	/^			ros::Subscriber keepAliveSub;$/;"	m	class:task_manager_lib::TaskScheduler
+keepAliveTimer	include/task_manager_lib/TaskClient.h	/^            ros::Timer keepAliveTimer;$/;"	m	class:task_manager_lib::TaskClient
+lastKeepAlive	include/task_manager_lib/TaskScheduler.h	/^			ros::Time lastKeepAlive;$/;"	m	class:task_manager_lib::TaskScheduler
+launchComplexMission	src/TaskServerInterface.cpp	/^void TaskServerInterface::launchComplexMission(std::string & mission_name, int &pid) const$/;"	f	class:TaskServerInterface
+launchIdleTask	src/TaskScheduler.cpp	/^TaskScheduler::TaskId TaskScheduler::launchIdleTask()$/;"	f	class:TaskScheduler
+launchTask	src/TaskScheduler.cpp	/^TaskScheduler::TaskId TaskScheduler::launchTask(boost::shared_ptr<ThreadParameters> tp)$/;"	f	class:TaskScheduler
+launchTask	src/TaskScheduler.cpp	/^TaskScheduler::TaskId TaskScheduler::launchTask(const std::string & taskname, $/;"	f	class:TaskScheduler
+launchTaskSequence	src/TaskScheduler.cpp	/^    void TaskScheduler::launchTaskSequence(std::vector<task_manager_msgs::TaskDescriptionLight> &tasks, int &id) $/;"	f	class:TaskScheduler
+lib_path	include/task_manager_lib/TaskServerDefault.h	/^            std::string lib_path;$/;"	m	class:task_manager_lib::TaskServerBase
+listMissions	src/TaskServerInterface.cpp	/^bool TaskServerInterface::listMissions(task_manager_lib::ListMissions::Request  &req, task_manager_lib::ListMissions::Response &res )$/;"	f	class:TaskServerInterface
+listMissionsSrv	include/task_manager_lib/TaskServerInterface.h	/^		ros::ServiceServer listMissionsSrv;$/;"	m	class:task_manager_lib::TaskServerInterface
+loadAllTasks	src/TaskScheduler.cpp	/^void TaskScheduler::loadAllTasks(const std::string & dirname, $/;"	f	class:TaskScheduler
+loadTask	src/TaskScheduler.cpp	/^void TaskScheduler::loadTask(const std::string & filename, boost::shared_ptr<TaskEnvironment> env)$/;"	f	class:TaskScheduler
+mainThread	include/task_manager_lib/TaskScheduler.h	/^			boost::shared_ptr<ThreadParameters> mainThread;$/;"	m	class:task_manager_lib::TaskScheduler
+manageHistory	include/task_manager_lib/TaskScheduler.h	/^				void manageHistory()$/;"	f	struct:task_manager_lib::TaskScheduler::ThreadParameters
+messageid	include/task_manager_lib/TaskClient.h	/^            unsigned int messageid;$/;"	m	class:task_manager_lib::TaskClient
+messageid	src/task_manager_lib/TaskClient.py	/^    messageid = 0$/;"	v	class:TaskClient
+mutex	include/task_manager_lib/TaskClient.h	/^            mutable boost::mutex mutex;$/;"	m	class:task_manager_lib::TaskClient
+mutex	include/task_manager_lib/TaskDefinition.h	/^                        boost::recursive_mutex mutex;$/;"	m	class:task_manager_lib::TaskInstance::DynRecfgData
+n	include/task_manager_lib/TaskScheduler.h	/^			ros::NodeHandle n;$/;"	m	class:task_manager_lib::TaskScheduler
+name	include/task_manager_lib/TaskClient.h	/^                std::string name;$/;"	m	struct:task_manager_lib::TaskClient::TaskState
+name	include/task_manager_lib/TaskDefinition.h	/^            std::string name;$/;"	m	class:task_manager_lib::TaskDefinitionBase
+name	src/task_manager_lib/TaskClient.py	/^        name = ""$/;"	v	class:TaskClient.TaskDefinition
+nh	include/task_manager_lib/TaskDefinition.h	/^            ros::NodeHandle nh;$/;"	m	class:task_manager_lib::TaskEnvironment
+nh	include/task_manager_lib/TaskServerDefault.h	/^            ros::NodeHandle nh;$/;"	m	class:task_manager_lib::TaskServerBase
+now	include/task_manager_lib/TaskScheduler.h	/^			ros::Time now() { return ros::Time::now();}$/;"	f	class:task_manager_lib::TaskScheduler
+operator <	include/task_manager_lib/TaskScheduler.h	/^				bool operator<(const ThreadParameters & tp) {$/;"	f	struct:task_manager_lib::TaskScheduler::ThreadParameters
+package_dir	setup.py	/^   package_dir={'': 'src'}$/;"	v
+package_name	include/task_manager_lib/TaskServerInterface.h	/^		static std::string package_name;$/;"	m	class:task_manager_lib::TaskServerInterface
+packages	setup.py	/^   packages=['task_manager_lib'],$/;"	v
+param_string	node/console.py	/^def param_string(t):$/;"	f
+params	include/task_manager_lib/TaskHistory.h	/^			TaskParameters params;$/;"	m	class:task_manager_lib::TaskHistory
+params	include/task_manager_lib/TaskScheduler.h	/^				TaskParameters params;$/;"	m	struct:task_manager_lib::TaskScheduler::ThreadParameters
+parseBasicMissionFile	src/TaskServerInterface.cpp	/^void TaskServerInterface::parseBasicMissionFile(boost::filesystem::path &mission_file_path, std::vector<task_manager_msgs::BasicMission>& basic_missions) $/;"	f	class:TaskServerInterface
+parseComplexMissionFile	src/TaskServerInterface.cpp	/^void TaskServerInterface::parseComplexMissionFile(boost::filesystem::path &mission_file_path, std::vector<task_manager_msgs::ComplexMission>& complex_missions) $/;"	f	class:TaskServerInterface
+parseMissionDirectory	src/TaskServerInterface.cpp	/^void TaskServerInterface::parseMissionDirectory(std::vector<task_manager_msgs::BasicMission>& basic_missions,std::vector<task_manager_msgs::ComplexMission>& complex_missions ) $/;"	f	class:TaskServerInterface
+parseParameters	include/task_manager_lib/TaskDefinition.h	/^                virtual void parseParameters(const TaskParameters & parameters) throw (InvalidParameter) {$/;"	f	class:task_manager_lib::TaskInstance
+parseParameters	include/task_manager_lib/TaskDefinition.h	/^            virtual void parseParameters(const TaskParameters & parameters) throw (InvalidParameter) {$/;"	f	class:task_manager_lib::TaskInstanceBase
+parser	node/tasklist.py	/^parser = argparse.ArgumentParser(description='Print the list of tasks running on a given server node')$/;"	v
+period	include/task_manager_lib/TaskScheduler.h	/^				double period;$/;"	m	struct:task_manager_lib::TaskScheduler::ThreadParameters
+periodic	include/task_manager_lib/TaskDefinition.h	/^            bool periodic;$/;"	m	class:task_manager_lib::TaskDefinitionBase
+prepareParams	src/task_manager_lib/TaskClient.py	/^        def prepareParams(self,paramdict):$/;"	m	class:TaskClient.TaskDefinition
+print	include/task_manager_lib/TaskDefinition.h	/^            void print(FILE * fp=stdout) const {$/;"	f	class:task_manager_lib::TaskParameters
+printStatusMap	src/TaskClient.cpp	/^void TaskClient::printStatusMap() const$/;"	f	class:TaskClient
+printTaskDirectory	src/TaskScheduler.cpp	/^void TaskScheduler::printTaskDirectory(bool with_ros) const$/;"	f	class:TaskScheduler
+printTaskList	src/TaskClient.cpp	/^void TaskClient::printTaskList() const$/;"	f	class:TaskClient
+printTaskList	src/task_manager_lib/TaskClient.py	/^    def printTaskList(self):$/;"	m	class:TaskClient
+printTaskSet	src/TaskScheduler.cpp	/^void TaskScheduler::printTaskSet(const std::string & name, const TaskScheduler::TaskSet & ts)$/;"	f	class:TaskScheduler
+printTaskStatus	src/task_manager_lib/TaskClient.py	/^    def printTaskStatus(self):$/;"	m	class:TaskClient
+recfg	include/task_manager_lib/TaskDefinition.h	/^                boost::shared_ptr<DynRecfgData> recfg;$/;"	m	class:task_manager_lib::TaskInstance
+reconfigure	include/task_manager_lib/TaskDefinition.h	/^                virtual void reconfigure(CFG &config, uint32_t level) {$/;"	f	class:task_manager_lib::TaskInstance
+reconfigureCallback	include/task_manager_lib/TaskDefinition.h	/^                void reconfigureCallback(CFG &config, uint32_t level) {$/;"	f	class:task_manager_lib::TaskInstance
+registerStatusFunction	src/task_manager_lib/TaskClient.py	/^    def registerStatusFunction(self,f):$/;"	m	class:TaskClient
+reloadSrv	include/task_manager_lib/TaskServerDefault.h	/^            bool reloadSrv(std_srvs::Empty::Request  &req,$/;"	f	class:task_manager_lib::TaskServerBase
+reloadTasks	include/task_manager_lib/TaskServerDefault.h	/^            void reloadTasks() {$/;"	f	class:task_manager_lib::TaskServerBase
+removeConditionalIdle	src/TaskScheduler.cpp	/^void TaskScheduler::removeConditionalIdle()$/;"	f	class:TaskScheduler
+request_preempt	src/task_manager_lib/TaskSmach.py	/^    def request_preempt(self):$/;"	m	class:TaskState
+runAperiodicTask	src/TaskScheduler.cpp	/^void TaskScheduler::runAperiodicTask(boost::shared_ptr<ThreadParameters> tp)$/;"	f	class:TaskScheduler
+runId	include/task_manager_lib/TaskDefinition.h	/^            unsigned int runId;$/;"	m	class:task_manager_lib::TaskInstanceBase
+runScheduler	include/task_manager_lib/TaskScheduler.h	/^			bool runScheduler;$/;"	m	class:task_manager_lib::TaskScheduler
+runSchedulerLoop	src/TaskScheduler.cpp	/^int TaskScheduler::runSchedulerLoop()$/;"	f	class:TaskScheduler
+runTask	src/TaskScheduler.cpp	/^void TaskScheduler::runTask(boost::shared_ptr<ThreadParameters> tp)$/;"	f	class:TaskScheduler
+running	include/task_manager_lib/TaskScheduler.h	/^				bool foreground,running;$/;"	m	struct:task_manager_lib::TaskScheduler::ThreadParameters
+runningThreads	include/task_manager_lib/TaskScheduler.h	/^			TaskSet runningThreads,zombieThreads;$/;"	m	class:task_manager_lib::TaskScheduler
+saveBasicMission	src/TaskServerInterface.cpp	/^bool TaskServerInterface::saveBasicMission(task_manager_lib::SaveBasicMission::Request  &req, task_manager_lib::SaveBasicMission::Response &res )$/;"	f	class:TaskServerInterface
+saveBasicMissionSrv	include/task_manager_lib/TaskServerInterface.h	/^		ros::ServiceServer saveBasicMissionSrv;$/;"	m	class:task_manager_lib::TaskServerInterface
+saveComplexMission	src/TaskServerInterface.cpp	/^bool TaskServerInterface::saveComplexMission(task_manager_lib::SaveComplexMission::Request  &req, task_manager_lib::SaveComplexMission::Response &res )$/;"	f	class:TaskServerInterface
+saveComplexMissionSrv	include/task_manager_lib/TaskServerInterface.h	/^		ros::ServiceServer saveComplexMissionSrv;$/;"	m	class:task_manager_lib::TaskServerInterface
+sched	include/task_manager_lib/SequenceTask.h	/^			TaskScheduler *sched;$/;"	m	class:task_manager_lib::SequenceDef
+scheduler_condition	include/task_manager_lib/TaskScheduler.h	/^            boost::condition_variable scheduler_condition;$/;"	m	class:task_manager_lib::TaskScheduler
+scheduler_mutex	include/task_manager_lib/TaskScheduler.h	/^            boost::mutex scheduler_mutex;$/;"	m	class:task_manager_lib::TaskScheduler
+seq_task	src/task_manager_lib/TaskSmach.py	/^    def seq_task(self,name,**params):$/;"	m	class:MissionStateMachine
+sequence	include/task_manager_lib/SequenceTask.h	/^            std::vector<std::pair<std::string,TaskParameters > > sequence;$/;"	m	class:task_manager_lib::SequenceDef
+sequence_id	include/task_manager_lib/SequenceTask.h	/^			int sequence_id;$/;"	m	class:task_manager_lib::SequenceTask
+server_node	node/console.py	/^server_node = rospy.get_param("~server",server_node)$/;"	v
+server_node	node/console.py	/^server_node=""$/;"	v
+server_node	node/tasklist.py	/^server_node = rospy.get_param("~server",server_node)$/;"	v
+server_node	node/tasklist.py	/^server_node="\/task_server"$/;"	v
+server_node	node/tasklist.py	/^server_node=args.server[0]$/;"	v
+service	include/task_manager_lib/TaskServerDefault.h	/^            ros::ServiceServer service;$/;"	m	class:task_manager_lib::TaskServerBase
+setDefaultParameters	include/task_manager_lib/TaskDefinition.h	/^            void setDefaultParameters() {$/;"	f	class:task_manager_lib::TaskParameters
+setHelp	include/task_manager_lib/TaskDefinition.h	/^            void setHelp(const std::string & h) {help = h;}$/;"	f	class:task_manager_lib::TaskDefinitionBase
+setName	include/task_manager_lib/DynamicTask.h	/^            virtual void setName(const std::string & n) {task->setName(n);}$/;"	f	class:task_manager_lib::DynamicTask
+setName	src/TaskDefinition.cpp	/^void TaskDefinitionBase::setName(const std::string & n) {$/;"	f	class:TaskDefinitionBase
+setParameter	include/task_manager_lib/TaskDefinition.h	/^                bool setParameter(std::vector<VT> &vec, const std::string &name, const T &val)$/;"	f	class:task_manager_lib::TaskParameters
+setParameter	include/task_manager_lib/TaskDefinition.h	/^                void setParameter(const std::string &name, const T &val)$/;"	f	class:task_manager_lib::TaskParameters
+setRuntimeId	src/TaskDefinition.cpp	/^void TaskInstanceBase::setRuntimeId(unsigned int id) {$/;"	f	class:TaskInstanceBase
+setStatus	include/task_manager_lib/DynamicTask.h	/^            virtual void setStatus(const TaskIndicator & ti) {$/;"	f	class:task_manager_lib::DynamicTask
+setStatus	include/task_manager_lib/TaskScheduler.h	/^				void setStatus(TaskIndicator newstatus, const std::string & text, const ros::Time & tnow) {$/;"	f	struct:task_manager_lib::TaskScheduler::ThreadParameters
+setStatus	src/TaskDefinition.cpp	/^void TaskDefinitionBase::setStatus(const TaskIndicator & ti) {$/;"	f	class:TaskDefinitionBase
+setStatus	src/TaskDefinition.cpp	/^void TaskInstanceBase::setStatus(const TaskIndicator & ti) {$/;"	f	class:TaskInstanceBase
+setStatusString	include/task_manager_lib/DynamicTask.h	/^            virtual void setStatusString(const std::string & s) {$/;"	f	class:task_manager_lib::DynamicTask
+setStatusString	src/TaskDefinition.cpp	/^void TaskDefinitionBase::setStatusString(const std::string & s) {$/;"	f	class:TaskDefinitionBase
+setStatusString	src/TaskDefinition.cpp	/^void TaskInstanceBase::setStatusString(const std::string & s) {$/;"	f	class:TaskInstanceBase
+setTaskId	include/task_manager_lib/DynamicTask.h	/^            virtual void setTaskId(unsigned int id) {task->setTaskId(id);}$/;"	f	class:task_manager_lib::DynamicTask
+setTaskId	src/TaskDefinition.cpp	/^void TaskDefinitionBase::setTaskId(unsigned int id) {$/;"	f	class:TaskDefinitionBase
+setendTime	src/TaskHistory.cpp	/^void TaskHistory::setendTime(ros::Time time)$/;"	f	class:TaskHistory
+setid	src/TaskHistory.cpp	/^void TaskHistory::setid(unsigned int & current_id)$/;"	f	class:TaskHistory
+setname	src/TaskHistory.cpp	/^void TaskHistory::setname(std::string& current_name)$/;"	f	class:TaskHistory
+setparams	src/TaskHistory.cpp	/^void TaskHistory::setparams(TaskParameters& current_params)$/;"	f	class:TaskHistory
+setstartTime	src/TaskHistory.cpp	/^void TaskHistory::setstartTime(ros::Time time)$/;"	f	class:TaskHistory
+setstatus	src/TaskHistory.cpp	/^void TaskHistory::setstatus(const unsigned int & statusnb)$/;"	f	class:TaskHistory
+signal_handler	node/console.py	/^def signal_handler(signal, frame):$/;"	f
+sock	src/task_manager_lib/TaskClient.py	/^    sock = None$/;"	v	class:TaskClient
+spinner	include/task_manager_lib/TaskClient.h	/^            ros::AsyncSpinner spinner;$/;"	m	class:task_manager_lib::TaskClient
+split	src/TaskServerInterface.cpp	/^void TaskServerInterface::split(const std::string &s, char delim, std::vector<std::string> &elems) {$/;"	f	class:TaskServerInterface
+srv	include/task_manager_lib/TaskDefinition.h	/^                        boost::shared_ptr< dynamic_reconfigure::Server<CFG> > srv;$/;"	m	class:task_manager_lib::TaskInstance::DynRecfgData
+start	include/task_manager_lib/TaskServerDefault.h	/^            void start() {$/;"	f	class:task_manager_lib::TaskServerBase
+start	src/task_manager_lib/TaskClient.py	/^        def start(self,**paramdict):$/;"	m	class:TaskClient.TaskDefinition
+startScheduler	src/TaskScheduler.cpp	/^int TaskScheduler::startScheduler() $/;"	f	class:TaskScheduler
+startTask	src/TaskClient.cpp	/^TaskScheduler::TaskId TaskClient::startTask(const std::string & taskname, $/;"	f	class:TaskClient
+startTask	src/TaskScheduler.cpp	/^bool TaskScheduler::startTask(task_manager_lib::StartTask::Request  &req,$/;"	f	class:TaskScheduler
+startTask	src/task_manager_lib/TaskClient.py	/^    def startTask(self,paramdict,name="",foreground=True,period=-1):$/;"	m	class:TaskClient
+startTaskAndWait	src/TaskClient.cpp	/^bool TaskClient::startTaskAndWait(const std::string & taskname, $/;"	f	class:TaskClient
+startTaskAndWait	src/task_manager_lib/TaskClient.py	/^    def startTaskAndWait(self,paramdict,name="",foreground=True,period=-1.):$/;"	m	class:TaskClient
+startTaskClt	include/task_manager_lib/TaskClient.h	/^            ros::ServiceClient startTaskClt;$/;"	m	class:task_manager_lib::TaskClient
+startTaskSrv	include/task_manager_lib/TaskScheduler.h	/^			ros::ServiceServer startTaskSrv;$/;"	m	class:task_manager_lib::TaskScheduler
+startTime	include/task_manager_lib/TaskHistory.h	/^			ros::Time startTime;$/;"	m	class:task_manager_lib::TaskHistory
+startingTime	include/task_manager_lib/TaskScheduler.h	/^			double startingTime;$/;"	m	class:task_manager_lib::TaskScheduler
+status	include/task_manager_lib/TaskClient.h	/^                TaskIndicator status;$/;"	m	struct:task_manager_lib::TaskClient::TaskState
+status	include/task_manager_lib/TaskHistory.h	/^			unsigned int status;$/;"	m	class:task_manager_lib::TaskHistory
+status	include/task_manager_lib/TaskScheduler.h	/^				TaskIndicator status;$/;"	m	struct:task_manager_lib::TaskScheduler::ThreadParameters
+status	node/console.py	/^def status():$/;"	f
+statusCallback	src/TaskClient.cpp	/^void TaskClient::statusCallback(const task_manager_msgs::TaskStatus::ConstPtr& msg) $/;"	f	class:TaskClient
+statusPub	include/task_manager_lib/TaskScheduler.h	/^				ros::Publisher statusPub;$/;"	m	struct:task_manager_lib::TaskScheduler::ThreadParameters
+statusPub	include/task_manager_lib/TaskScheduler.h	/^			ros::Publisher statusPub;$/;"	m	class:task_manager_lib::TaskScheduler
+statusString	include/task_manager_lib/TaskClient.h	/^                std::string statusString;$/;"	m	struct:task_manager_lib::TaskClient::TaskState
+statusString	include/task_manager_lib/TaskDefinition.h	/^            std::string statusString;$/;"	m	class:task_manager_lib::TaskDefinitionBase
+statusString	include/task_manager_lib/TaskDefinition.h	/^            std::string statusString;$/;"	m	class:task_manager_lib::TaskInstanceBase
+statusString	include/task_manager_lib/TaskScheduler.h	/^				std::string statusString;$/;"	m	struct:task_manager_lib::TaskScheduler::ThreadParameters
+statusSub	include/task_manager_lib/TaskClient.h	/^            ros::Subscriber statusSub;$/;"	m	class:task_manager_lib::TaskClient
+statusTime	include/task_manager_lib/TaskClient.h	/^                ros::Time statusTime;$/;"	m	struct:task_manager_lib::TaskClient::TaskState
+statusTime	include/task_manager_lib/TaskScheduler.h	/^				ros::Time statusTime;$/;"	m	struct:task_manager_lib::TaskScheduler::ThreadParameters
+status_callback	src/task_manager_lib/TaskClient.py	/^    def status_callback(self,t):$/;"	m	class:TaskClient
+status_functions	src/task_manager_lib/TaskClient.py	/^    status_functions = []$/;"	v	class:TaskClient
+status_string	src/task_manager_lib/TaskClient.py	/^    def status_string(self,v):$/;"	m	class:TaskClient
+stopAllTasks	src/task_manager_lib/TaskClient.py	/^    def stopAllTasks(self):$/;"	m	class:TaskClient
+stopComplexMission	src/TaskServerInterface.cpp	/^bool TaskServerInterface::stopComplexMission(task_manager_lib::StopComplexMission::Request  &req, task_manager_lib::StopComplexMission::Response &res )$/;"	f	class:TaskServerInterface
+stopComplexMissionsSrv	include/task_manager_lib/TaskServerInterface.h	/^		ros::ServiceServer stopComplexMissionsSrv;$/;"	m	class:task_manager_lib::TaskServerInterface
+stopScheduler	src/TaskScheduler.cpp	/^int TaskScheduler::stopScheduler()$/;"	f	class:TaskScheduler
+stopTask	src/TaskScheduler.cpp	/^bool TaskScheduler::stopTask(task_manager_lib::StopTask::Request  &req,$/;"	f	class:TaskScheduler
+stopTask	src/task_manager_lib/TaskClient.py	/^    def stopTask(self,id):$/;"	m	class:TaskClient
+stopTaskClt	include/task_manager_lib/TaskClient.h	/^            ros::ServiceClient stopTaskClt;$/;"	m	class:task_manager_lib::TaskClient
+stopTaskSrv	include/task_manager_lib/TaskScheduler.h	/^			ros::ServiceServer stopTaskSrv;$/;"	m	class:task_manager_lib::TaskScheduler
+t0	include/task_manager_lib/TaskWaitDefault.h	/^            ros::Time t0;$/;"	m	class:task_manager_lib::TaskWaitDefault
+task	include/task_manager_lib/DynamicTask.h	/^            boost::shared_ptr<TaskDefinitionBase> task;$/;"	m	class:task_manager_lib::DynamicTask
+task	include/task_manager_lib/TaskScheduler.h	/^				boost::shared_ptr<TaskInstanceBase> task;$/;"	m	struct:task_manager_lib::TaskScheduler::ThreadParameters
+task	src/task_manager_lib/TaskSmach.py	/^    def task(self,name,**params):$/;"	m	class:MissionStateMachine
+taskId	include/task_manager_lib/TaskDefinition.h	/^            unsigned int taskId;$/;"	m	class:task_manager_lib::TaskDefinitionBase
+taskList	include/task_manager_lib/TaskClient.h	/^            std::vector<task_manager_msgs::TaskDescription> taskList; $/;"	m	class:task_manager_lib::TaskClient
+taskStatus	include/task_manager_lib/TaskClient.h	/^            StatusMap taskStatus;$/;"	m	class:task_manager_lib::TaskClient
+taskStatus	include/task_manager_lib/TaskDefinition.h	/^            TaskIndicator taskStatus;$/;"	m	class:task_manager_lib::TaskDefinitionBase
+taskStatus	include/task_manager_lib/TaskDefinition.h	/^            TaskIndicator taskStatus;$/;"	m	class:task_manager_lib::TaskInstanceBase
+taskStatusId	src/task_manager_lib/TaskClient.py	/^    taskStatusId = dict([(v,k) for k,v in taskStatusStrings.iteritems()])$/;"	v	class:TaskClient
+taskStatusStrings	src/task_manager_lib/TaskClient.py	/^    taskStatusStrings = dict([( TaskStatus.__dict__[k],k) for k in TaskStatus.__dict__.keys() if k[0:5]=="TASK_"])$/;"	v	class:TaskClient
+taskStatusToString	src/TaskDefinition.cpp	/^const char * task_manager_lib::taskStatusToString(TaskIndicator ts)$/;"	f	class:task_manager_lib
+task_condition	include/task_manager_lib/TaskScheduler.h	/^                boost::condition_variable task_condition;$/;"	m	struct:task_manager_lib::TaskScheduler::ThreadParameters
+task_manager_lib	include/task_manager_lib/DynamicTask.h	/^namespace task_manager_lib {$/;"	n
+task_manager_lib	include/task_manager_lib/SequenceTask.h	/^namespace task_manager_lib {$/;"	n
+task_manager_lib	include/task_manager_lib/TaskClient.h	/^namespace task_manager_lib {$/;"	n
+task_manager_lib	include/task_manager_lib/TaskDefinition.h	/^namespace task_manager_lib {$/;"	n
+task_manager_lib	include/task_manager_lib/TaskHistory.h	/^namespace task_manager_lib {$/;"	n
+task_manager_lib	include/task_manager_lib/TaskIdleDefault.h	/^namespace task_manager_lib {$/;"	n
+task_manager_lib	include/task_manager_lib/TaskScheduler.h	/^namespace task_manager_lib {$/;"	n
+task_manager_lib	include/task_manager_lib/TaskServerDefault.h	/^namespace task_manager_lib {$/;"	n
+task_manager_lib	include/task_manager_lib/TaskServerInterface.h	/^namespace task_manager_lib {$/;"	n
+task_manager_lib	include/task_manager_lib/TaskWaitDefault.h	/^namespace task_manager_lib {$/;"	n
+task_mutex	include/task_manager_lib/TaskScheduler.h	/^                boost::mutex task_mutex;$/;"	m	struct:task_manager_lib::TaskScheduler::ThreadParameters
+tasklist	src/task_manager_lib/TaskClient.py	/^    tasklist = {}$/;"	v	class:TaskClient
+tasks	include/task_manager_lib/TaskScheduler.h	/^			TaskDirectory tasks;$/;"	m	class:task_manager_lib::TaskScheduler
+taskstatus	src/task_manager_lib/TaskClient.py	/^    taskstatus = {}$/;"	v	class:TaskClient
+tc	node/console.py	/^tc = TaskClient(server_node,default_period)$/;"	v
+tc	node/tasklist.py	/^tc = TaskClient(server_node,default_period)$/;"	v
+terminate	include/task_manager_lib/TaskDefinition.h	/^                virtual TaskIndicator terminate()$/;"	f	class:task_manager_lib::TaskInstance
+terminate	src/SequenceTask.cpp	/^TaskIndicator SequenceTask::terminate()$/;"	f	class:SequenceTask
+terminateAllTasks	src/TaskScheduler.cpp	/^int TaskScheduler::terminateAllTasks()$/;"	f	class:TaskScheduler
+terminateTask	src/TaskScheduler.cpp	/^    int TaskScheduler::terminateTask(unsigned int &taskid)$/;"	f	class:TaskScheduler
+terminateTask	src/TaskScheduler.cpp	/^void TaskScheduler::terminateTask(boost::shared_ptr<ThreadParameters> tp)$/;"	f	class:TaskScheduler
+text	include/task_manager_lib/DynamicTask.h	/^                std::string text;$/;"	m	struct:task_manager_lib::DynamicTask::DLLoadError
+text	include/task_manager_lib/TaskDefinition.h	/^        std::string text;$/;"	m	struct:task_manager_lib::InvalidParameter
+that	include/task_manager_lib/TaskScheduler.h	/^				TaskScheduler *that;$/;"	m	struct:task_manager_lib::TaskScheduler::ThreadParameters
+thid	include/task_manager_lib/TaskHistory.h	/^			unsigned int thid;$/;"	m	class:task_manager_lib::TaskHistory
+thname	include/task_manager_lib/TaskHistory.h	/^			std::string thname;$/;"	m	class:task_manager_lib::TaskHistory
+tid	include/task_manager_lib/TaskScheduler.h	/^                boost::shared_ptr<boost::thread> tid;$/;"	m	struct:task_manager_lib::TaskScheduler::ThreadParameters
+timeout	include/task_manager_lib/TaskDefinition.h	/^            double timeout;$/;"	m	class:task_manager_lib::TaskInstanceBase
+timerCallback	src/TaskClient.cpp	/^void TaskClient::timerCallback(const ros::TimerEvent &) {$/;"	f	class:TaskClient
+timerCallback	src/task_manager_lib/TaskClient.py	/^    def timerCallback(self,timerEvent):$/;"	m	class:TaskClient
+toConfig	include/task_manager_lib/TaskDefinition.h	/^                CFG toConfig() const {$/;"	f	class:task_manager_lib::TaskParameters
+tp	include/task_manager_lib/TaskScheduler.h	/^				boost::shared_ptr<ThreadParameters> tp;$/;"	m	struct:task_manager_lib::TaskScheduler::ThreadAction
+tpid	include/task_manager_lib/TaskScheduler.h	/^				unsigned int tpid;$/;"	m	struct:task_manager_lib::TaskScheduler::ThreadParameters
+ts	include/task_manager_lib/TaskServerDefault.h	/^            TaskScheduler ts;$/;"	m	class:task_manager_lib::TaskServerBase
+tsi	include/task_manager_lib/TaskServerDefault.h	/^            TaskServerInterface tsi;$/;"	m	class:task_manager_lib::TaskServerBase
+type	include/task_manager_lib/TaskScheduler.h	/^				ActionType type;$/;"	m	struct:task_manager_lib::TaskScheduler::ThreadAction
+update	include/task_manager_lib/TaskDefinition.h	/^            void update(const TaskParameters & tnew) {$/;"	f	class:task_manager_lib::TaskParameters
+updateAllStatus	src/TaskClient.cpp	/^void TaskClient::updateAllStatus()$/;"	f	class:TaskClient
+updateStatus	include/task_manager_lib/TaskScheduler.h	/^				void updateStatus(const ros::Time & tnow) {$/;"	f	struct:task_manager_lib::TaskScheduler::ThreadParameters
+updateTaskHistory	src/TaskHistory.cpp	/^void TaskHistory::updateTaskHistory(ros::Time tnow, const unsigned int & statusnb)$/;"	f	class:TaskHistory
+updateTaskList	src/TaskClient.cpp	/^int TaskClient::updateTaskList()$/;"	f	class:TaskClient
+updateTaskList	src/task_manager_lib/TaskClient.py	/^    def updateTaskList(self):$/;"	m	class:TaskClient
+updateTaskStatus	src/task_manager_lib/TaskClient.py	/^    def updateTaskStatus(self):$/;"	m	class:TaskClient
+verbose	src/task_manager_lib/TaskClient.py	/^    verbose = 0$/;"	v	class:TaskClient
+wait	include/task_manager_lib/TaskServerDefault.h	/^            TaskDefinitionPtr wait;$/;"	m	class:task_manager_lib::TaskServerBase
+waitAllTasks	src/task_manager_lib/TaskClient.py	/^    def waitAllTasks(self,ids):$/;"	m	class:TaskClient
+waitAnyTasks	src/task_manager_lib/TaskClient.py	/^    def waitAnyTasks(self,ids,stop_others=True):$/;"	m	class:TaskClient
+waitTask	src/TaskClient.cpp	/^bool TaskClient::waitTask(TaskScheduler::TaskId tid)$/;"	f	class:TaskClient
+waitTask	src/task_manager_lib/TaskClient.py	/^    def waitTask(self,id):$/;"	m	class:TaskClient
+waitTaskCompletion	src/TaskScheduler.cpp	/^int TaskScheduler::waitTaskCompletion(TaskId id, double timeout)$/;"	f	class:TaskScheduler
+waitTaskList	src/task_manager_lib/TaskClient.py	/^    def waitTaskList(self,ids,wait_for_all, stop_others):$/;"	m	class:TaskClient
+what	include/task_manager_lib/DynamicTask.h	/^                virtual const char *what() const throw () {$/;"	f	struct:task_manager_lib::DynamicTask::DLLoadError
+what	include/task_manager_lib/TaskDefinition.h	/^        virtual const char * what() const throw () {$/;"	f	struct:task_manager_lib::InvalidParameter
+zombieThreads	include/task_manager_lib/TaskScheduler.h	/^			TaskSet runningThreads,zombieThreads;$/;"	m	class:task_manager_lib::TaskScheduler
+~DLLoadError	include/task_manager_lib/DynamicTask.h	/^                virtual ~DLLoadError() throw () {}$/;"	f	struct:task_manager_lib::DynamicTask::DLLoadError
+~DynamicTask	src/DynamicTask.cpp	/^DynamicTask::~DynamicTask()$/;"	f	class:DynamicTask
+~InvalidParameter	include/task_manager_lib/TaskDefinition.h	/^        virtual ~InvalidParameter() throw () {}$/;"	f	struct:task_manager_lib::InvalidParameter
+~SequenceDef	include/task_manager_lib/SequenceTask.h	/^            virtual ~SequenceDef(){};$/;"	f	class:task_manager_lib::SequenceDef
+~SequenceTask	include/task_manager_lib/SequenceTask.h	/^            virtual ~SequenceTask() {} $/;"	f	class:task_manager_lib::SequenceTask
+~TaskClient	src/TaskClient.cpp	/^TaskClient::~TaskClient()$/;"	f	class:TaskClient
+~TaskDefinition	include/task_manager_lib/TaskDefinition.h	/^                virtual ~TaskDefinition() {}$/;"	f	class:task_manager_lib::TaskDefinition
+~TaskDefinitionBase	include/task_manager_lib/TaskDefinition.h	/^            virtual ~TaskDefinitionBase() {$/;"	f	class:task_manager_lib::TaskDefinitionBase
+~TaskEnvironment	include/task_manager_lib/TaskDefinition.h	/^            virtual ~TaskEnvironment() {}$/;"	f	class:task_manager_lib::TaskEnvironment
+~TaskFactoryIdleDefault	include/task_manager_lib/TaskIdleDefault.h	/^            virtual ~TaskFactoryIdleDefault() {};$/;"	f	class:task_manager_lib::TaskFactoryIdleDefault
+~TaskFactoryWaitDefault	include/task_manager_lib/TaskWaitDefault.h	/^            virtual ~TaskFactoryWaitDefault() {};$/;"	f	class:task_manager_lib::TaskFactoryWaitDefault
+~TaskIdleDefault	include/task_manager_lib/TaskIdleDefault.h	/^            virtual ~TaskIdleDefault() {}$/;"	f	class:task_manager_lib::TaskIdleDefault
+~TaskInstance	include/task_manager_lib/TaskDefinition.h	/^                virtual ~TaskInstance() {}$/;"	f	class:task_manager_lib::TaskInstance
+~TaskInstanceBase	include/task_manager_lib/TaskDefinition.h	/^            virtual ~TaskInstanceBase() {$/;"	f	class:task_manager_lib::TaskInstanceBase
+~TaskScheduler	src/TaskScheduler.cpp	/^TaskScheduler::~TaskScheduler()$/;"	f	class:TaskScheduler
+~TaskWaitDefault	include/task_manager_lib/TaskWaitDefault.h	/^            virtual ~TaskWaitDefault() {};$/;"	f	class:task_manager_lib::TaskWaitDefault
+~ThreadParameters	src/TaskScheduler.cpp	/^TaskScheduler::ThreadParameters::~ThreadParameters()$/;"	f	class:TaskScheduler::ThreadParameters

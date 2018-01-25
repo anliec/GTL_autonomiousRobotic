@@ -1,0 +1,15 @@
+#!/usr/bin/python3
+# ROS specific imports
+import roslib; roslib.load_manifest('button_server')
+import rospy
+
+
+from button_server.ButtonServer import ButtonServer
+
+if __name__ == '__main__':
+    try:
+        server = ButtonServer()
+        server.run()
+    except rospy.ROSInterruptException: 
+        pass
+
