@@ -8,6 +8,9 @@ using namespace floor_nav;
 SimTasksEnv::SimTasksEnv(ros::NodeHandle & n) : task_manager_lib::TaskEnvironment(n),
     paused(false), manualControl(true), joystick_topic("/teleop/twistCommand"), auto_topic("/mux/autoCommand"), base_frame("/bubbleRob"), reference_frame("/world")
 {
+    facePosition = 0;
+    lastFaceTime = ros::Time(0.0);
+
     nh.getParam("joystick_topic",joystick_topic);
     nh.getParam("auto_topic",auto_topic);
     nh.getParam("base_frame",base_frame);
@@ -20,7 +23,7 @@ SimTasksEnv::SimTasksEnv(ros::NodeHandle & n) : task_manager_lib::TaskEnvironmen
     pointCloud2DSub = nh.subscribe("/vrep/hokuyoSensor",1,&SimTasksEnv::pointCloud2DCallback,this);
     laserscanSub = nh.subscribe("/scan",1,&SimTasksEnv::laserScanCallback,this);
     velPub = nh.advertise<geometry_msgs::Twist>(auto_topic,1);
-    roiSub = nh.subscribe("/1faceROI",1,&SimTasksEnv::faceCallback,this);
+    roiSub = nh.subscribe("/one_face_roi",1,&SimTasksEnv::faceCallback,this);
 }
 
 void SimTasksEnv::setManualControl()

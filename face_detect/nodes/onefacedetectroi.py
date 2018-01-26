@@ -58,8 +58,8 @@ if __name__ == '__main__':
                     # add ROI to roi_msg
                     if size > max_size:
                         max_size = size
-                        roi.x_offset = 128 - x
-                        roi.y_offset = 128 - y
+                        roi.x_offset = x
+                        roi.y_offset = y
                         roi.height = h
                         roi.width = w
                 pub_roi.publish(roi)

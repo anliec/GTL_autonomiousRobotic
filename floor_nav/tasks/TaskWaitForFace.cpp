@@ -16,7 +16,9 @@ TaskIndicator TaskWaitForFace::iterate()
     lastFaceTime = env->getLastFaceTime();
     deltaTime = currentTime - lastFaceTime;
 
-    if (deltaTime.toSec() < 1.0) {
+    ROS_DEBUG("delta Time from last seen face is %f", deltaTime.toSec());
+
+    if (deltaTime.sec == 0) {
         ROS_INFO("Detected Face %.2f seconds ago",deltaTime.toSec());
 		return TaskStatus::TASK_COMPLETED;
     }
