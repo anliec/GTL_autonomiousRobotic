@@ -27,11 +27,7 @@ TaskIndicator TaskStareAtFace::initialise()
     double target_position_rel = env->getFacePosition() - CAMERA_WIDTH / 2;
     target_angle = -target_position_rel * CAMERA_ANGLE / 180 * 3.1416 / CAMERA_WIDTH;
 
-    ROS_INFO("Position to target on camera: %d (relative: %.2f)", env->getFacePosition(), target_position_rel);
     ROS_INFO("Rotation angle to reach target: %.2f rad = %.2f deg", target_angle, target_angle * 180 / 3.1416);
-    ROS_INFO("initial_heading: %.2f", initial_heading);
-
-    ROS_INFO("M_PI = %f", M_PI);
 
 //    target_angle += initial_heading;
 

@@ -15,14 +15,22 @@ rospy.loginfo("Mission connected to server: " + server_node)
 
 tc.WaitForAuto()
 try:
-    w4roi = tc.WaitForFace(foreground=False)
-    tc.addCondition(ConditionIsCompleted("Face fund condition", tc, w4roi))
-    try:
-        tc.Wander(max_linear_speed=0.5)
-    except TaskConditionException, e:
-        rospy.loginfo("Path following interrupted on condition: %s"
-                      "or ".join([str(c) for c in e.conditions]))
-        tc.TaskStareAtFace(angle_threshold=0.01)
+    while True:
+        w4roi = tc.WaitForFace(foreground=False)
+        tc.addCondition(ConditionIsCompleted("Face fund condition", tc, w4roi))
+        try:
+            tc.Wander(max_linear_speed=0.5)
+        except TaskConditionException, e:
+            rospy.loginfo("Path following interrupted on condition: %s"
+                          "or ".join([str(c) for c in e.conditions]))
+            tc.TaskStareAtFace(angle_threshold=0.01)
+            tc.Wait(duration=3.0)
+        timer = tc.Wait(duration=5.0, foreground=False)
+        tc.addCondition(ConditionIsCompleted("Timer condition", tc, timer))
+        try:
+            tc.Wander(max_linear_speed=0.5)
+        except TaskConditionException, e:
+            pass
 
 except TaskException, e:
     rospy.logerr("Exception caught: " + str(e))
