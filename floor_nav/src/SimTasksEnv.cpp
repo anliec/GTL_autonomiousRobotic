@@ -3,12 +3,14 @@
 #include <topic_tools/MuxSelect.h>
 #include <boost/algorithm/string.hpp>
 
+
 using namespace floor_nav;
 
 SimTasksEnv::SimTasksEnv(ros::NodeHandle & n) : task_manager_lib::TaskEnvironment(n),
     paused(false), manualControl(true), joystick_topic("/teleop/twistCommand"), auto_topic("/mux/autoCommand"), base_frame("/bubbleRob"), reference_frame("/world")
 {
     facePosition = 0;
+    faceWidth = 0;
     lastFaceTime = ros::Time(0.0);
 
     nh.getParam("joystick_topic",joystick_topic);
@@ -77,7 +79,7 @@ geometry_msgs::Pose SimTasksEnv::getPose() const {
 }
 
 int SimTasksEnv::getFacePosition() const {
-    return facePosition;
+    return facePosition + (faceWidth / 2);
 }
 
 ros::Time SimTasksEnv::getLastFaceTime() const {
@@ -159,7 +161,8 @@ void SimTasksEnv::pointCloud2DCallback(const sensor_msgs::PointCloud2ConstPtr ms
 }
 
 void SimTasksEnv::faceCallback(const sensor_msgs::RegionOfInterest msg) {
-    facePosition = msg.x_offset + (msg.width)/2;
+    facePosition = msg.x_offset;
+    faceWidth = msg.width;
     lastFaceTime = ros::Time::now();
 }
 

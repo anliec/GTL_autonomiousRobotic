@@ -38,6 +38,7 @@ namespace floor_nav {
 
             bool manualControl;
             int facePosition;
+            int faceWidth;
             ros::Time lastFaceTime;
             std::string joystick_topic;
             std::string auto_topic;
