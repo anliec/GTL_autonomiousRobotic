@@ -36,15 +36,16 @@ find_package(Boost REQUIRED COMPONENTS system)
 #   Service2.srv
 # )
 generate_dynamic_reconfigure_options(
-  cfg/TaskGoTo.cfg
-  cfg/TaskPlanTo.cfg
-  cfg/TaskSetHeading.cfg
-  cfg/TaskSetManual.cfg
-  cfg/TaskWaitForAuto.cfg
-  cfg/TaskWaitForROI.cfg
-  cfg/TaskWaitForFace.cfg
-  cfg/TaskWander.cfg
-  cfg/TaskStareAtFace.cfg
+        cfg/TaskGoTo.cfg
+        cfg/TaskPlanTo.cfg
+        cfg/TaskSetHeading.cfg
+        cfg/TaskSetManual.cfg
+        cfg/TaskWaitForAuto.cfg
+        cfg/TaskWaitForROI.cfg
+        cfg/TaskWaitForFace.cfg
+        cfg/TaskWander.cfg
+        cfg/TaskStareAtFace.cfg
+        cfg/TaskGoToPose.cfg
 )
 
 ## Generate added messages and services with any dependencies listed here
@@ -140,6 +141,9 @@ ADD_LIBRARY( TaskWander SHARED tasks/TaskWander.cpp)
 TARGET_LINK_LIBRARIES(TaskWander ${catkin_LIBRARIES} dl)
 add_dependencies(TaskWander ${${PROJECT_NAME}_EXPORTED_TARGETS})
 
+ADD_LIBRARY( TaskGoToPose SHARED tasks/TaskGoToPose.cpp)
+TARGET_LINK_LIBRARIES(TaskGoToPose ${catkin_LIBRARIES} dl)
+add_dependencies(TaskGoToPose ${${PROJECT_NAME}_EXPORTED_TARGETS})
 
 #############
 ## Install ##
