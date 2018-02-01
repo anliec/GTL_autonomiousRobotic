@@ -11,7 +11,7 @@ namespace floor_nav {
     class TaskGoToPose : public TaskInstance<TaskGoToPoseConfig,SimTasksEnv>
     {
         protected:
-            double x_init,y_init;
+            double x_init,y_init, theta_init;
         public:
             TaskGoToPose(TaskDefinitionPtr def, TaskEnvironmentPtr env) : Parent(def,env) {}
             virtual ~TaskGoToPose() {};

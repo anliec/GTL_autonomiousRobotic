@@ -18,9 +18,11 @@ TaskIndicator TaskGoToPose::initialise()
         const geometry_msgs::Pose2D & tpose = env->getPose2D();
         x_init = tpose.x;
         y_init = tpose.y;
+        theta_init = tpose.theta;
     } else {
         x_init = 0.0;
         y_init = 0.0;
+        theta_init = 0.0;
     }
     return TaskStatus::TASK_INITIALISED;
 }
@@ -31,7 +33,7 @@ TaskIndicator TaskGoToPose::iterate()
     const geometry_msgs::Pose2D & tpose = env->getPose2D();
     double r = hypot(y_init + cfg.goal_y-tpose.y,x_init + cfg.goal_x-tpose.x);
     // theta is defined as the angular difference between current heading and goal angle
-    double theta = remainder(tpose.theta - cfg.goal_theta ,2*M_PI);
+    double theta = remainder(tpose.theta - (cfg.goal_theta + theta_init) ,2*M_PI);
     if ((r < cfg.dist_threshold) && (theta < cfg.angular_threshold)){
 		return TaskStatus::TASK_COMPLETED;
     }
@@ -44,7 +46,7 @@ TaskIndicator TaskGoToPose::iterate()
     if (cfg.smart) {// smart method
         if (r > cfg.dist_threshold) {// step 1
             // TODO: check what happends if tposx-goal_X < 0 (seems ok according to doc)
-            double rot = rot = ((alpha > 0) ? +1 : -1) * cfg.max_angular_velocity;
+            double rot = (alpha/M_PI) * cfg.max_angular_velocity;
             double vel = (cfg.max_velocity*hypot(tpose.x-cfg.goal_x, tpose.x-cfg.goal_x));
             if (vel > cfg.max_velocity) vel = cfg.max_velocity;
             vel = vel*exp(-pow(rot, 2)/cfg.sigma2);/*pow usage need to be checked*/
@@ -61,14 +63,14 @@ TaskIndicator TaskGoToPose::iterate()
         }
     } else {// dumb method
         if ((fabs(alpha) > M_PI / 9) && (r > cfg.dist_threshold)) {// step 1
-            double rot = ((alpha > 0) ? +1 : -1) * cfg.max_angular_velocity;
+            double rot = (alpha/M_PI) * cfg.max_angular_velocity;
 #ifdef DEBUG_GOTOPOSE
             printf("Cmd v % .2f r %.2f\n",0.,rot);
 #endif
             env->publishVelocity(0, rot);
-        } else if (r < cfg.dist_threshold) {//step 2
+        } else if (r > cfg.dist_threshold) {//step 2
             double vel = cfg.k_v * r;
-            double rot = std::max(std::min(cfg.k_alpha * alpha, cfg.max_angular_velocity), -cfg.max_angular_velocity);
+            double rot = (alpha/M_PI) * cfg.max_angular_velocity;
             if (vel > cfg.max_velocity) vel = cfg.max_velocity;
 #ifdef DEBUG_GOTOPOSE
             printf("Cmd v %.2f r %.2f\n",vel,rot);
