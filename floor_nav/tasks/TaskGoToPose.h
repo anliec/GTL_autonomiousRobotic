@@ -3,18 +3,18 @@
 
 #include "task_manager_lib/TaskDefinition.h"
 #include "floor_nav/SimTasksEnv.h"
-#include "floor_nav/TaskGotoPoseConfig.h"
+#include "floor_nav/TaskGoToPoseConfig.h"
 
 using namespace task_manager_lib;
 
 namespace floor_nav {
-    class TaskGotoPose : public TaskInstance<TaskGotoPoseConfig,SimTasksEnv>
+    class TaskGoToPose : public TaskInstance<TaskGoToPoseConfig,SimTasksEnv>
     {
         protected:
             double x_init,y_init;
         public:
-            TaskGotoPose(TaskDefinitionPtr def, TaskEnvironmentPtr env) : Parent(def,env) {}
-            virtual ~TaskGotoPose() {};
+            TaskGoToPose(TaskDefinitionPtr def, TaskEnvironmentPtr env) : Parent(def,env) {}
+            virtual ~TaskGoToPose() {};
 
             virtual TaskIndicator initialise() ;
 
@@ -22,13 +22,13 @@ namespace floor_nav {
 
             virtual TaskIndicator terminate();
     };
-    class TaskFactoryGotoPose : public TaskDefinition<TaskGotoPoseConfig, SimTasksEnv, TaskGotoPose>
+    class TaskFactoryGoToPose : public TaskDefinition<TaskGoToPoseConfig, SimTasksEnv, TaskGoToPose>
     {
 
         public:
-            TaskFactoryGotoPose(TaskEnvironmentPtr env) : 
-                Parent("GotoPose","Reach a desired destination and set heading",true,env) {}
-            virtual ~TaskFactoryGotoPose() {};
+            TaskFactoryGoToPose(TaskEnvironmentPtr env) : 
+                Parent("GoToPose","Reach a desired destination and set heading",true,env) {}
+            virtual ~TaskFactoryGoToPose() {};
     };
 };
 
