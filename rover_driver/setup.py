@@ -5,7 +5,7 @@ from catkin_pkg.python_setup import generate_distutils_setup
 
 d = generate_distutils_setup(
     install_requires=['rospy'],
-   packages=['rover_driver_base'],
+   packages=['rover_driver'],
    package_dir={'': 'src'}
     )
 

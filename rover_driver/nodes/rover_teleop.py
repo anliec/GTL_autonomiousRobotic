@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-import roslib; roslib.load_manifest('rover_driver_base')
+import roslib; roslib.load_manifest('rover_driver')
 import rospy
 from sensor_msgs.msg import Joy
 from geometry_msgs.msg import Twist

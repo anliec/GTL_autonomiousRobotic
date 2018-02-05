@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # source for this file:
 # http://ftp.isr.ist.utl.pt/pub/roswiki/stage%282f%29Tutorials%282f%29SimulatingOneRobot.html
-import roslib; roslib.load_manifest('rover_driver_base')
+import roslib; roslib.load_manifest('rover_driver')
 import rospy
 from geometry_msgs.msg import Twist
 import sys, select, termios, tty

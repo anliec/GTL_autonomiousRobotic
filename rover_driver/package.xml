@@ -1,8 +1,8 @@
 <?xml version="1.0"?>
 <package>
-  <name>rover_driver_base</name>
+  <name>rover_driver</name>
   <version>0.0.0</version>
-  <description>The rover_driver_base package</description>
+  <description>The rover_driver package</description>
 
   <!-- One maintainer tag required, multiple allowed, one person per tag --> 
   <!-- Example:  -->

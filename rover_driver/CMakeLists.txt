@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 2.8.3)
-project(rover_driver_base)
+project(rover_driver)
 
 ## Find catkin macros and libraries
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
@@ -84,7 +84,7 @@ catkin_python_setup()
 ## DEPENDS: system dependencies of this project that dependent projects also need
 catkin_package(
 #  INCLUDE_DIRS include
-#  LIBRARIES rover_driver_base
+#  LIBRARIES rover_driver
 #  CATKIN_DEPENDS geometry_msgs rospy sensor_msgs std_msgs tf
 #  DEPENDS system_lib
 )
@@ -101,8 +101,8 @@ include_directories(
 )
 
 ## Declare a cpp library
-# add_library(rover_driver_base
-#   src/${PROJECT_NAME}/rover_driver_base.cpp
+# add_library(rover_driver
+#   src/${PROJECT_NAME}/rover_driver.cpp
 # )
 
 ## Declare a cpp executable
@@ -146,7 +146,7 @@ install(DIRECTORY src/rover_driver/
 # )
 
 ## Mark executables and/or libraries for installation
-# install(TARGETS rover_driver_base rover_driver_base_node
+# install(TARGETS rover_driver rover_driver_base_node
 #   ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
 #   LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
 #   RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
