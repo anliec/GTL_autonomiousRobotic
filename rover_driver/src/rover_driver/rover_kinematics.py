@@ -6,7 +6,7 @@ import rospy
 from geometry_msgs.msg import Twist
 import numpy
 from numpy.linalg import pinv
-from math import atan2, hypot, pi, cos, sin
+from math import atan2, hypot, pi, cos, sin, fmod, fabs
 
 prefix = ["FL", "FR", "CL", "CR", "RL", "RR"]
 
@@ -45,15 +45,22 @@ class RoverKinematics:
             for k, w in drive_cfg.items():
                 # Insert here the steering and velocity of 
                 # each wheel in skid-steer mode
-                ground_speed = (w.y * twist.angular.z) + twist.linear.x
+                ground_speed_x = (w.y * twist.angular.z) + twist.linear.x
                 motors.steering[k] = 0
-                motors.drive[k] = ground_speed / w.radius * 2 * pi
+                motors.drive[k] = ground_speed_x / w.radius * 2 * pi
         else:
-            for k in drive_cfg.keys():
+            for k, w in drive_cfg.items():
                 # Insert here the steering and velocity of 
                 # each wheel in rolling-without-slipping mode
-                motors.steering[k] = 0
-                motors.drive[k] = 0
+                ground_speed_x = (w.y * twist.angular.z) + twist.linear.x
+                ground_speed_y = (w.x * twist.angular.z) + twist.linear.y
+                angle = -atan2(ground_speed_y, ground_speed_x)
+                speed = hypot(ground_speed_x, ground_speed_y)
+                if fabs(fmod(angle - self.motor_state.steering[k], 2 * pi)) > pi / 2.0:
+                    speed = -speed
+                    angle = fmod(angle + pi, 2 * pi)
+                motors.steering[k] = angle
+                motors.drive[k] = speed / w.radius * 2 * pi
         return motors
 
     def integrate_odometry(self, motor_state, drive_cfg):
