@@ -46,6 +46,7 @@ generate_dynamic_reconfigure_options(
         cfg/TaskWander.cfg
         cfg/TaskStareAtFace.cfg
         cfg/TaskGoToPose.cfg
+        cfg/TaskGoToDock.cfg
 )
 
 ## Generate added messages and services with any dependencies listed here
@@ -144,6 +145,10 @@ add_dependencies(TaskWander ${${PROJECT_NAME}_EXPORTED_TARGETS})
 ADD_LIBRARY( TaskGoToPose SHARED tasks/TaskGoToPose.cpp)
 TARGET_LINK_LIBRARIES(TaskGoToPose ${catkin_LIBRARIES} dl)
 add_dependencies(TaskGoToPose ${${PROJECT_NAME}_EXPORTED_TARGETS})
+
+ADD_LIBRARY( TaskGoToDock SHARED tasks/TaskGoToDock.cpp)
+TARGET_LINK_LIBRARIES(TaskGoToDock ${catkin_LIBRARIES} dl)
+add_dependencies(TaskGoToDock ${${PROJECT_NAME}_EXPORTED_TARGETS})
 
 #############
 ## Install ##
