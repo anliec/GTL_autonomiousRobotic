@@ -43,7 +43,31 @@ TaskIndicator TaskGoToPose::iterate()
             tpose.x, tpose.y, tpose.theta*180./M_PI,
             cfg.goal_x,cfg.goal_y,r,alpha*180./M_PI);
 #endif
-    if (cfg.smart) {// smart method
+    if(cfg.holonomic)
+    {
+        double vel_x, vel_y, rot;
+        // compute x and y velocity
+        vel_x = x_init + cfg.goal_x-tpose.x;
+        vel_y = y_init + cfg.goal_y-tpose.y;
+        // apply the limit
+        if (fabs(vel_x) > cfg.max_velocity)
+        {
+            vel_x = vel_x>0 ? cfg.max_velocity : -cfg.max_velocity;
+        }
+        if (fabs(vel_y) > cfg.max_velocity)
+        {
+            vel_y = vel_y>0 ? cfg.max_velocity : -cfg.max_velocity;
+        }
+        // apply angle limit
+        rot = alpha;
+        if (fabs(rot) > cfg.max_angular_velocity)
+        {
+            rot = rot>0 ? cfg.max_angular_velocity : -cfg.max_angular_velocity;
+        }
+        // publish movement and rotation
+        env->publishVelocity(vel_x, vel_y, rot);
+    }
+    else if (cfg.smart) {// smart method
         if (r > cfg.dist_threshold) {// step 1
             // TODO: check what happends if tposx-goal_X < 0 (seems ok according to doc)
             double rot = (alpha/M_PI) * cfg.max_angular_velocity;
