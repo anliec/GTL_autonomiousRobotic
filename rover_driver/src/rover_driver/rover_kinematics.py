@@ -35,9 +35,11 @@ class DriveConfiguration:
 
 class RoverKinematics:
     def __init__(self):
+        self.num_of_wheels = None
         self.X = numpy.asmatrix(numpy.zeros((3, 1)))
         self.motor_state = RoverMotors()
         self.first_run = True
+        self.odo_dict = {}
 
     def twist_to_motors(self, twist, drive_cfg, skidsteer=False):
         motors = RoverMotors()
@@ -67,11 +69,26 @@ class RoverKinematics:
         # The first time, we need to initialise the state
         if self.first_run:
             self.motor_state.copy(motor_state)
+            self.num_of_wheels = len(drive_cfg.keys())
+            for k, w in drive_cfg.items():
+                self.compute_pseudoinverse(k, w)
             self.first_run = False
             return self.X
         # Insert here your odometry code
-        self.X[0, 0] += 0.0
-        self.X[1, 0] += 0.0
-        self.X[2, 0] += 0.0
+        Xvotes = numpy.zeros((3, self.num_of_wheels))
+        for i in range(self.num_of_wheels):
+            key = drive_cfg.keys()[i]
+            motor_i = [
+                motor_state.drive[key] * numpy.math.cos(motor_state.steering[key]),
+                motor_state.drive[key] * numpy.math.sin(motor_state.steering[key])
+            ]
+            Xvotes[:, i] = numpy.matmul(self.odo_dict[key], motor_i)
+        print(self.X[:, 0])
+        print(numpy.transpose(Xvotes.mean(1)))
+        print(numpy.add(self.X[:, 0], Xvotes.mean(1))[0, :])
+        self.X[:, 0] = numpy.transpose(numpy.add(self.X[:, 0], Xvotes.mean(1))[0, :])
         self.motor_state.copy(motor_state)
         return self.X
+
+    def compute_pseudoinverse(self, wheel_key, wheel_config):
+        self.odo_dict[wheel_key] = pinv([[1, 0, -wheel_config.y], [0, 1, wheel_config.x]], 0)
