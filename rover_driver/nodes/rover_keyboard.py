@@ -1,7 +1,9 @@
 #!/usr/bin/env python
 # source for this file:
 # http://ftp.isr.ist.utl.pt/pub/roswiki/stage%282f%29Tutorials%282f%29SimulatingOneRobot.html
-import roslib; roslib.load_manifest('rover_driver')
+import roslib;
+
+roslib.load_manifest('rover_driver')
 import rospy
 from geometry_msgs.msg import Twist
 import sys, select, termios, tty
@@ -23,30 +25,31 @@ CTRL-C to quit
 """
 
 moveBindings = {
-        'i':(1,0),
-        'o':(1,-1),
-        'j':(0,1),
-        'l':(0,-1),
-        'k':(0,0),
-        'u':(1,1),
-        ',':(-1,0),
-        '.':(-1,1),
-        'm':(-1,-1),
+    'i': (1, 0),
+    'o': (1, -1),
+    'j': (0, 1),
+    'l': (0, -1),
+    'k': (0, 0),
+    'u': (1, 1),
+    ',': (-1, 0),
+    '.': (-1, 1),
+    'm': (-1, -1),
 }
 angularBindings = {
-        'a':+1,
-        's':0,
-        'd':-1,
+    'a': +1,
+    's': 0,
+    'd': -1,
 }
 
-speedBindings={
-        'q':(1.1,1.1),
-        'z':(.9,.9),
-        'w':(1.1,1),
-        'x':(.9,1),
-        'e':(1,1.1),
-        'c':(1,.9),
-          }
+speedBindings = {
+    'q': (1.1, 1.1),
+    'z': (.9, .9),
+    'w': (1.1, 1),
+    'x': (.9, 1),
+    'e': (1, 1.1),
+    'c': (1, .9),
+}
+
 
 def getKey():
     tty.setraw(sys.stdin.fileno())
@@ -55,15 +58,18 @@ def getKey():
     termios.tcsetattr(sys.stdin, termios.TCSADRAIN, settings)
     return key
 
+
 speed = .5
 turn = 1
 
-def vels(speed,turn):
-    return "currently:\tspeed %s\tturn %s " % (speed,turn)
 
-if __name__=="__main__":
+def vels(speed, turn):
+    return "currently:\tspeed %s\tturn %s " % (speed, turn)
+
+
+if __name__ == "__main__":
     settings = termios.tcgetattr(sys.stdin)
-    
+
     rospy.init_node('teleop_twist_keyboard')
     twist_topic = rospy.resolve_name("output")
     pub = rospy.Publisher(twist_topic, Twist)
@@ -75,12 +81,12 @@ if __name__=="__main__":
 
     try:
         print msg
-        print vels(speed,turn)
-        while(1):
+        print vels(speed, turn)
+        while (1):
             key = getKey()
             if key in moveBindings.keys():
-                x,y = moveBindings[key]
-                print "Direction: %.1f %.1f" % (x*speed,y*speed)
+                x, y = moveBindings[key]
+                print "Direction: %.1f %.1f" % (x * speed, y * speed)
             elif key in angularBindings.keys():
                 th = angularBindings[key]
                 print "Angular: %.1f " % th
@@ -88,7 +94,7 @@ if __name__=="__main__":
                 speed = speed * speedBindings[key][0]
                 turn = turn * speedBindings[key][1]
 
-                print vels(speed,turn)
+                print vels(speed, turn)
                 if (status == 14):
                     print msg
                 status = (status + 1) % 15
@@ -99,12 +105,12 @@ if __name__=="__main__":
                     break
 
             twist = Twist()
-            twist.linear.x = x*speed; 
-            twist.linear.y = y*speed; 
+            twist.linear.x = x * speed;
+            twist.linear.y = y * speed;
             twist.linear.z = 0
-            twist.angular.x = 0; 
-            twist.angular.y = 0; 
-            twist.angular.z = th*turn
+            twist.angular.x = 0;
+            twist.angular.y = 0;
+            twist.angular.z = th * turn
             pub.publish(twist)
 
     except e:
@@ -112,7 +118,11 @@ if __name__=="__main__":
 
     finally:
         twist = Twist()
-        twist.linear.x = 0; twist.linear.y = 0; twist.linear.z = 0
-        twist.angular.x = 0; twist.angular.y = 0; twist.angular.z = 0
+        twist.linear.x = 0;
+        twist.linear.y = 0;
+        twist.linear.z = 0
+        twist.angular.x = 0;
+        twist.angular.y = 0;
+        twist.angular.z = 0
         pub.publish(twist)
         termios.tcsetattr(sys.stdin, termios.TCSADRAIN, settings)
