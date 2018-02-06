@@ -39,7 +39,8 @@ class RoverKinematics:
         self.X = numpy.asmatrix(numpy.zeros((3, 1)))
         self.motor_state = RoverMotors()
         self.first_run = True
-        self.odo_dict = {}
+        self.A = []
+        self.Ainv = []
 
     def twist_to_motors(self, twist, drive_cfg, skidsteer=False):
         motors = RoverMotors()
@@ -72,23 +73,19 @@ class RoverKinematics:
             self.num_of_wheels = len(drive_cfg.keys())
             for k, w in drive_cfg.items():
                 self.compute_pseudoinverse(k, w)
+            self.Ainv = pinv(self.A)
             self.first_run = False
             return self.X
         # Insert here your odometry code
-        Xvotes = numpy.zeros((3, self.num_of_wheels))
-        for i in range(self.num_of_wheels):
-            key = drive_cfg.keys()[i]
-            motor_i = [
-                motor_state.drive[key] * numpy.math.cos(motor_state.steering[key]),
-                motor_state.drive[key] * numpy.math.sin(motor_state.steering[key])
-            ]
-            Xvotes[:, i] = numpy.matmul(self.odo_dict[key], motor_i)
-        print(self.X[:, 0])
-        print(numpy.transpose(Xvotes.mean(1)))
-        print(numpy.add(self.X[:, 0], Xvotes.mean(1))[0, :])
-        self.X[:, 0] = numpy.transpose(numpy.add(self.X[:, 0], Xvotes.mean(1))[0, :])
+        motors_mat = []
+        for key, w in drive_cfg.items():
+            motors_mat.append([motor_state.drive[key] * numpy.math.cos(motor_state.steering[key]) * w.radius])
+            motors_mat.append([motor_state.drive[key] * numpy.math.sin(motor_state.steering[key]) * w.radius])
+        self.X[:, 0] = numpy.add(self.X[:, 0], numpy.matmul(self.Ainv, motors_mat))
+        #  print numpy.matmul(self.Ainv, motors_mat)
         self.motor_state.copy(motor_state)
         return self.X
 
     def compute_pseudoinverse(self, wheel_key, wheel_config):
-        self.odo_dict[wheel_key] = pinv([[1, 0, -wheel_config.y], [0, 1, wheel_config.x]], 0)
+        self.A.append([1, 0, -wheel_config.y])  # TODO: check if third term is ok
+        self.A.append([0, 1, wheel_config.x])  # TODO: check if thrid term is ok
