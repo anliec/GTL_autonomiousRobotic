@@ -90,9 +90,11 @@ class RoverKinematics:
         # Insert here your odometry code
         motors_mat = []
         for key, w in drive_cfg.items():
-            motors_mat.append([motor_state.drive[key] * numpy.math.cos(motor_state.steering[key]) * w.radius])
-            motors_mat.append([motor_state.drive[key] * numpy.math.sin(motor_state.steering[key]) * w.radius])
-        self.X[:, 0] = numpy.add(self.X[:, 0], numpy.matmul(self.Ainv, motors_mat))
+            delta_wheel = fmod((motor_state.drive[key] - self.motor_state.drive[key]+(3*pi)), 2*pi)-pi
+            motors_mat.append([delta_wheel * w.radius * numpy.math.cos(motor_state.steering[key])])
+            motors_mat.append([delta_wheel * w.radius * numpy.math.sin(motor_state.steering[key])])
+        rot = [[cos(self.X[2]), -sin(self.X[2]), 0], [sin(self.X[2]), cos(self.X[2]), 0], [0, 0, 1]]
+        self.X[:, 0] = numpy.add(self.X[:,0],numpy.matmul(rot,numpy.matmul(self.Ainv, motors_mat)))
         #  print numpy.matmul(self.Ainv, motors_mat)
         self.motor_state.copy(motor_state)
         return self.X
