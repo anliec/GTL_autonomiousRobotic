@@ -5,3 +5,4 @@ beginner_tutorials
 cmake-build-debug
 
 *.pyc
+*.tar.gz

@@ -106,7 +106,6 @@ class RoverPF(RoverKinematics):
         score = self.particles[:, 2, 0] - angle + 3 * pi
         score = np.fmod(score, 2 * pi) - pi
         score = np.exp(np.abs(score) / -Uncertainty)
-        print(np.max(score))
         score /= np.sum(score)
 
         indices = np.random.choice(len(self.particles), size=self.N, replace=True, p=score)
