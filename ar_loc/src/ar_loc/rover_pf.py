@@ -10,6 +10,7 @@ from geometry_msgs.msg import *
 import tf
 import bisect
 import threading
+import math
 
 from rover_kinematics import *
 
@@ -22,7 +23,7 @@ class RoverPF(RoverKinematics):
         self.X = np.mat(np.vstack(initial_pose))
         # Initialisation of the particle cloud around the initial position
         self.N = 500
-        self.particles = [self.X + self.drawNoise(initial_uncertainty) for i in range(0, self.N)]
+        self.particles = np.array([self.X + self.drawNoise(initial_uncertainty) for i in range(0, self.N)])
         self.pa_pub = rospy.Publisher("~particles", PoseArray, queue_size=1)
 
     def getRotation(self, theta):
@@ -36,9 +37,9 @@ class RoverPF(RoverKinematics):
     # Draw a vector uniformly around [0,0,0], scaled by norm
     def drawNoise(self, norm):
         if type(norm) == list:
-            return np.mat(np.vstack(norm) * (2 * np.random.rand(3, 1) - np.np.vstack([1, 1, 1])))
+            return np.mat(np.vstack(norm) * (2 * np.random.rand(3, 1) - np.vstack([1, 1, 1])))
         else:
-            return np.mat(np.multiply(norm, ((2 * np.random.rand(3, 1) - np.vstack([1, 1, 1])))))
+            return np.mat(np.multiply(norm, (2 * np.random.rand(3, 1) - np.vstack([1, 1, 1]))))
 
     def predict(self, motor_state, drive_cfg, encoder_precision):
         self.lock.acquire()
@@ -54,7 +55,7 @@ class RoverPF(RoverKinematics):
         self.motor_state.copy(motor_state)
 
         # Apply the particle filter prediction step here
-        
+
         # Estimate DeltaX using the pseudo-inverse method
         DeltaX = iW * S
         for p in self.particles:
@@ -62,8 +63,10 @@ class RoverPF(RoverKinematics):
             Rtheta = np.mat([[cos(theta), -sin(theta), 0],
                              [sin(theta), cos(theta),  0],
                              [0,          0,           1]])
-            p += DeltaX * Rtheta
-            p += np.random.normal(0.0, encoder_precision, (3, 1))
+            movement = np.matmul(Rtheta, DeltaX)
+            dist = np.hypot(movement[0], movement[1])
+            p += movement
+            p += np.random.normal(0.0, encoder_precision * dist * 10, (3, 1))
 
         # self.particles = ...
 
@@ -71,25 +74,46 @@ class RoverPF(RoverKinematics):
 
     def update_ar(self, Z, L, Uncertainty):
         self.lock.acquire()
-        print "Update: L=" + str(L.T)
+        # print "Update: L=" + str(L.T)
         # Implement particle filter update using landmarks here
         # Note: the function bisect.bisect_left could be useful to implement
         # the resampling process efficiently
-        # TODO
-        # for p in self.particles:
+        score = np.zeros(len(self.particles))
+        for i, p in enumerate(self.particles):
+            theta = p[2, 0]
+            Rtheta = np.mat([[cos(theta), -sin(theta)],
+                             [sin(theta), cos(theta)]])
+            diff = p[0:2] + np.matmul(Rtheta, Z) - L
+            score[i] = np.sum(np.abs(diff))
 
-
+        score = np.exp(score / -Uncertainty)
+        score /= np.sum(score)
+        indices = np.random.choice(len(self.particles), size=self.N, replace=True, p=score)
+        survivor = self.particles[indices]
+        noise = np.random.normal(0.0, 0.01, (self.N, 3, 1))
+        noise[:, 2, 0] /= 2 * pi * 5
+        self.particles = survivor + noise
         # self.particles = ...
 
         self.lock.release()
 
     def update_compass(self, angle, Uncertainty):
         self.lock.acquire()
-        print "Update: C=" + str(angle)
+        # print "Update: C=" + str(angle)
         # Implement particle filter update using landmarks here
         # Note: the function bisect.bisect_left could be useful to implement
         # the resampling process efficiently
-        # TODO
+        score = self.particles[:, 2, 0] - angle + 3 * pi
+        score = np.fmod(score, 2 * pi) - pi
+        score = np.exp(np.abs(score) / -Uncertainty)
+        print(np.max(score))
+        score /= np.sum(score)
+
+        indices = np.random.choice(len(self.particles), size=self.N, replace=True, p=score)
+        survivor = self.particles[indices]
+        noise = np.random.normal(0.0, 0.01, (self.N, 3, 1))
+        noise[:, 2, 0] /= 2 * pi * 5
+        self.particles = survivor + noise
 
         # self.particles = ...
 
