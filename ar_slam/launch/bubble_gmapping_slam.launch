@@ -10,6 +10,10 @@
     <param name="autorepeat_rate" value="10.0" />
   </node>
 
+  <!-- path exporting node -->
+  <!-- <node respawn="true" pkg="ar_slam" type="PathExporter.py" name="pathexport" > -->
+  <!-- </node> -->
+
   <!-- Axes -->
   <node pkg="vrep_ros_teleop" type="teleop.py" name="teleop">
     <param name="axis_linear_x" value="1" type="int"/>
