@@ -11,17 +11,18 @@ if __name__ == '__main__':
     rospy.init_node('path_exporter')
 
     path = Path()
+    path.header.frame_id = 'map'
     path.poses = []
 
     tfBuffer = tf2_ros.Buffer()
     listener = tf2_ros.TransformListener(tfBuffer)
 
-    rate = rospy.Rate(10.0)
+    rate = rospy.Rate(10)
 
     pub = rospy.Publisher('path', Path, queue_size=1)
     while not rospy.is_shutdown():
         try:
-            trans = tfBuffer.lookup_transform('world', 'Hokuyo', rospy.Time(), timeout=rospy.Duration(10))
+            trans = tfBuffer.lookup_transform('map', 'Hokuyo', rospy.Time(), timeout=rospy.Duration(10))
         except (tf2_ros.LookupException, tf2_ros.ConnectivityException, tf2_ros.ExtrapolationException):
             rate.sleep()
             continue

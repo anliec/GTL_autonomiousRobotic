@@ -11,8 +11,8 @@
   </node>
 
   <!-- path exporting node -->
-  <!-- <node respawn="true" pkg="ar_slam" type="PathExporter.py" name="pathexport" > -->
-  <!-- </node> -->
+  <node respawn="true" pkg="ar_slam" type="PathExporter.py" name="pathexport" >
+  </node>
 
   <!-- Axes -->
   <node pkg="vrep_ros_teleop" type="teleop.py" name="teleop">
@@ -51,7 +51,7 @@
     <param name="stt" value="0.02"/>
     <param name="linearUpdate" value="0.5"/>
     <param name="angularUpdate" value="0.436"/>
-    <param name="temporalUpdate" value="-1.0"/>
+    <param name="temporalUpdate" value="1.0"/>
     <param name="resampleThreshold" value="0.5"/>
     <param name="particles" value="200"/>
     <param name="xmin" value="-100.0"/>
