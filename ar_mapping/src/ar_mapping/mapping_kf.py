@@ -19,6 +19,11 @@ class Landmark:
         # current position X and uncertainty R
         self.L = np.vstack([0, 0])
         self.P = np.mat([[0, 0], [0, 0]])
+        self.H = np.mat(
+            [
+                [1, 0, -Z[0,0]*sin(X[2, 0]+Z[1, 0])],
+                [0, 1, Z[0,0]*cos(X[2, 0]+Z[1, 0])]
+            ])
         theta = Z[1, 0] + X[2, 0]
         self.L = X[0:2] + float(Z[0, 0]) * np.mat([[cos(theta)], [sin(theta)]])
 
