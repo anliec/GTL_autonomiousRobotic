@@ -28,6 +28,8 @@ class Landmark:
         # current position X and uncertainty R
         self.L = np.vstack([0, 0])
         self.P = np.mat([[0, 0], [0, 0]])
+        # from wolfram alpha: jacobian (sqrt((a-x)^2+(b-y)^2), atan2(y-a,x-b))
+        # https://www.wolframalpha.com/input/?i=jacobian+(sqrt((a-x)%5E2%2B(b-y)%5E2),+atan2(y-a,x-b))
         self.H = np.transpose(np.mat(
             [
                 [1, 0, -Z[0, 0] * sin(X[2, 0] + Z[1, 0])],
