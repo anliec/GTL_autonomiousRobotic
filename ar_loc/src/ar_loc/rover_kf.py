@@ -2,7 +2,7 @@ import roslib;
 
 roslib.load_manifest('ar_loc')
 import rospy
-from numpy import *
+import numpy as np
 from numpy.linalg import pinv, inv
 from math import pi, sin, cos
 from geometry_msgs.msg import PoseWithCovarianceStamped, PoseStamped
@@ -17,18 +17,29 @@ class RoverKF(RoverKinematics):
     def __init__(self, initial_pose, initial_uncertainty):
         RoverKinematics.__init__(self)
         self.lock = threading.Lock()
-        self.X = mat(vstack(initial_pose))
-        self.P = mat(diag(initial_uncertainty))
+        self.X = np.mat(np.vstack(initial_pose))
+        self.P = np.mat(np.diag(initial_uncertainty))
         self.ellipse_pub = rospy.Publisher("~ellipse", Marker, queue_size=1)
         self.pose_with_cov_pub = rospy.Publisher("~pose_with_covariance", PoseWithCovarianceStamped, queue_size=1)
 
     def getRotation(self, theta):
-        R = mat(zeros((2, 2)))
+        R = np.mat(np.zeros((2, 2)))
         R[0, 0] = cos(theta)
         R[0, 1] = -sin(theta)
         R[1, 0] = sin(theta)
         R[1, 1] = cos(theta)
         return R
+
+    @staticmethod
+    def h(X, L):
+        dist = L - X[0:2]
+        pos_lm_rover_frame = np.mat(
+            [
+                [np.linalg.norm(dist, 2)],
+                [atan2(dist[0, 0], dist[1, 0]) - X[2]]
+            ]
+        )
+        return pos_lm_rover_frame, dist
 
     def predict(self, motor_state, drive_cfg, encoder_precision):
         self.lock.acquire()
@@ -38,17 +49,31 @@ class RoverKF(RoverKinematics):
             self.first_run = False
             self.lock.release()
             return
-            # Prepare odometry matrices (check rover_odo.py for usage)
+        # Prepare odometry matrices (check rover_odo.py for usage)
         iW = self.prepare_inversion_matrix(drive_cfg)
         S = self.prepare_displacement_matrix(self.motor_state, motor_state, drive_cfg)
         self.motor_state.copy(motor_state)
 
         # Implement Kalman prediction here
-        # TODO
+        DeltaX = iW * S
+
+        Q = np.mat(
+            [
+                [0.01, 0, 0],
+                [0, 0.01, 0],
+                [0, 0, 0.01]
+            ])
+        # TODO: compute the real F matrix...
+        F = np.mat(
+            [
+                [1, 0, 0],
+                [0, 1, 0],
+                [0, 0, 1]
+            ])
 
         # ultimately : 
-        # self.X =  
-        # self.P = 
+        self.X += DeltaX
+        self.P = F * self.P * F.T + Q
 
         self.lock.release()
 
@@ -57,8 +82,20 @@ class RoverKF(RoverKinematics):
         print "Update: L=" + str(L.T) + " X=" + str(self.X.T)
         # Implement kalman update using landmarks here
         # TODO
+
+        y, dist = Z - self.h(self.X, L)
+        H = np.mat(  # TODO: H is the jacobian of h -> cf code mapping
+            [
+                [],
+                []
+            ]
+        )
+        R = np.zeros(2, 2)  # TODO: R is not zero
+        S = H * self.P * H.T + R
+        K = self.P * H.T * np.mat(np.linalg.inv(S))
+
         # self.X = 
-        # self.P = 
+        self.P = (np.identity(3) - K * H) * self.P
         self.lock.release()
 
     def update_compass(self, Z, uncertainty):
@@ -108,8 +145,8 @@ class RoverKF(RoverKinematics):
         marker.type = Marker.SPHERE
         marker.action = Marker.ADD
         marker.pose = pose.pose.pose
-        marker.scale.x = 3 * sqrt(self.P[0, 0])
-        marker.scale.y = 3 * sqrt(self.P[1, 1])
+        marker.scale.x = 3 * np.sqrt(self.P[0, 0])
+        marker.scale.y = 3 * np.sqrt(self.P[1, 1])
         marker.scale.z = 0.1
         marker.color.a = 1.0
         marker.color.r = 1.0
