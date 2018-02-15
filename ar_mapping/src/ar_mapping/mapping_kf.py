@@ -15,31 +15,39 @@ from rover_driver.rover_kinematics import *
 
 class Landmark:
 
-    @staticmethod
-    def h(X, Z):
-        theta = Z[1, 0] + X[2, 0]
-        return X[0:2] + float(Z[0, 0]) * np.mat([[cos(theta)], [sin(theta)]])
+    def h(self, X):
+        xr = X[0, 0]
+        yr = X[1, 0]
+        tr = X[2, 0]
+        xl = self.L[0, 0]
+        yl = self.L[1, 0]
+        return np.mat([[np.sqrt((xr - xl) ** 2 + (yr - yl) ** 2)], [np.math.atan2(yl - yr, xl - xr)-tr]])
 
     def __init__(self, Z, X, R):
         # Initialise a landmark based on measurement Z, 
         # current position X and uncertainty R
         self.L = np.vstack([0, 0])
         self.P = np.mat([[0, 0], [0, 0]])
-        self.H = np.mat(
+        self.H = np.transpose(np.mat(
             [
-                [1, 0, -Z[0,0]*sin(X[2, 0]+Z[1, 0])],
-                [0, 1, Z[0,0]*cos(X[2, 0]+Z[1, 0])]
-            ])
-        self.L = self.h(X, Z)
+                [1, 0, -Z[0, 0] * sin(X[2, 0] + Z[1, 0])],
+                [0, 1, Z[0, 0] * cos(X[2, 0] + Z[1, 0])]
+            ]))
+        theta = Z[1, 0] + X[2, 0]
+        self.L = X[0:2] + float(Z[0, 0]) * np.mat([[cos(theta)], [sin(theta)]])
 
     def update(self, Z, X, R):
-        # Update the landmark based on measurement Z, 
-        # current position X and uncertainty R
-        # as R is diagonal R^-1
-        y = Z - self.H*X
-        S = R + self.H*self.P
-        R_inv = np.mat(np.reciprocal(R))
-
+        # # Update the landmark based on measurement Z,
+        # # current position X and uncertainty R
+        # print("Z:", Z)
+        # print("X:", X)
+        # print("R:", R)
+        # print("H:", self.H)
+        # y = Z - self.h(X)
+        # S = R + self.H * self.P * np.mat(np.transpose(self.H))
+        # K = self.P * np.mat(np.transpose(self.H)) * np.mat(np.linalg.inv(S))
+        # self.L = self.L + K * y
+        # self.P = (np.mat(np.identity(2)) - K*self.H) * self.P
         return
 
 
