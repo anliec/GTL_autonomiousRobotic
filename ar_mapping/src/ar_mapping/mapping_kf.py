@@ -17,9 +17,10 @@ class Landmark:
     def __init__(self, Z, X, R):
         # Initialise a landmark based on measurement Z, 
         # current position X and uncertainty R
-        # TODO
         self.L = vstack([0, 0])
         self.P = mat([[0, 0], [0, 0]])
+        theta = Z[1, 0] + X[2, 0]
+        self.L = X[0:1, 0] + Z[0, 0] * mat([[cos(theta)], [sin(theta)]])
 
     def update(self, Z, X, R):
         # Update the landmark based on measurement Z, 
@@ -43,6 +44,10 @@ class MappingKF:
         # such that current landmark can be retrieved as self.marker_list[Id] 
         # At initialisation, self.marker_list is empty
         # TODO
+        if Id in self.marker_list:
+            self.marker_list[Id].update(Z, X, R)
+        else:
+            self.marker_list[Id] = Landmark(Z, X, R)
         self.lock.release()
 
     def publish(self, target_frame, timestamp):
