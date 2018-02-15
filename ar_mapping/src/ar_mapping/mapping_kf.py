@@ -14,6 +14,12 @@ from rover_driver.rover_kinematics import *
 
 
 class Landmark:
+
+    @staticmethod
+    def h(X, Z):
+        theta = Z[1, 0] + X[2, 0]
+        return X[0:2] + float(Z[0, 0]) * np.mat([[cos(theta)], [sin(theta)]])
+
     def __init__(self, Z, X, R):
         # Initialise a landmark based on measurement Z, 
         # current position X and uncertainty R
@@ -24,13 +30,16 @@ class Landmark:
                 [1, 0, -Z[0,0]*sin(X[2, 0]+Z[1, 0])],
                 [0, 1, Z[0,0]*cos(X[2, 0]+Z[1, 0])]
             ])
-        theta = Z[1, 0] + X[2, 0]
-        self.L = X[0:2] + float(Z[0, 0]) * np.mat([[cos(theta)], [sin(theta)]])
+        self.L = self.h(X, Z)
 
     def update(self, Z, X, R):
         # Update the landmark based on measurement Z, 
         # current position X and uncertainty R
-        # TODO
+        # as R is diagonal R^-1
+        y = Z - self.H*X
+        S = R + self.H*self.P
+        R_inv = np.mat(np.reciprocal(R))
+
         return
 
 
