@@ -2,7 +2,7 @@ import roslib;
 
 roslib.load_manifest('ar_mapping')
 import rospy
-from numpy import *
+import numpy as np
 from numpy.linalg import inv
 from math import pi, sin, cos
 from visualization_msgs.msg import Marker, MarkerArray
@@ -17,10 +17,10 @@ class Landmark:
     def __init__(self, Z, X, R):
         # Initialise a landmark based on measurement Z, 
         # current position X and uncertainty R
-        self.L = vstack([0, 0])
-        self.P = mat([[0, 0], [0, 0]])
+        self.L = np.vstack([0, 0])
+        self.P = np.mat([[0, 0], [0, 0]])
         theta = Z[1, 0] + X[2, 0]
-        self.L = X[0:1, 0] + Z[0, 0] * mat([[cos(theta)], [sin(theta)]])
+        self.L = X[0:2] + float(Z[0, 0]) * np.mat([[cos(theta)], [sin(theta)]])
 
     def update(self, Z, X, R):
         # Update the landmark based on measurement Z, 
@@ -37,8 +37,8 @@ class MappingKF:
 
     def update_ar(self, Z, X, Id, uncertainty):
         self.lock.acquire()
-        print "Update: Z=" + str(Z.T) + " X=" + str(X.T) + " Id=" + str(Id)
-        R = mat(diag([uncertainty, uncertainty]))
+        # print "Update: Z=" + str(Z.T) + " X=" + str(X.T) + " Id=" + str(Id)
+        R = np.mat(np.diag([uncertainty, uncertainty]))
         # Take care of the landmark Id observed as Z from X
         # self.marker_list is expected to be a dictionary of Landmark
         # such that current landmark can be retrieved as self.marker_list[Id] 
@@ -68,8 +68,8 @@ class MappingKF:
             marker.pose.orientation.y = 0
             marker.pose.orientation.z = 1
             marker.pose.orientation.w = 0
-            marker.scale.x = max(3 * sqrt(Lkf.P[0, 0]), 0.05)
-            marker.scale.y = max(3 * sqrt(Lkf.P[1, 1]), 0.05)
+            marker.scale.x = max(3 * np.sqrt(Lkf.P[0, 0]), 0.05)
+            marker.scale.y = max(3 * np.sqrt(Lkf.P[1, 1]), 0.05)
             marker.scale.z = 0.5
             marker.color.a = 1.0
             marker.color.r = 1.0

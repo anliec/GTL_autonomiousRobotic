@@ -4,7 +4,7 @@ import rospy
 from geometry_msgs.msg import PointStamped
 import tf
 from tf.transformations import euler_from_quaternion
-import numpy
+import numpy as np
 
 from ar_mapping.mapping_kf import *
 
@@ -36,12 +36,12 @@ class RoverMapping:
             self.listener.waitForTransform("/%s/ground"%self.name,m.header.frame_id, m.header.stamp, rospy.Duration(1.0))
             ((x,y,z),rot) = self.listener.lookupTransform(self.target_frame,'/%s/ground'%self.name, m.header.stamp)
             euler = euler_from_quaternion(rot)
-            X = vstack([x,y,euler[2]])
+            X = np.vstack([x,y,euler[2]])
             m_pose = PointStamped()
             m_pose.header = m.header
             m_pose.point = m.pose.pose.position
             m_pose = self.listener.transformPoint("/%s/ground"%self.name,m_pose)
-            Z = vstack([m_pose.point.x,m_pose.point.y])
+            Z = np.vstack([m_pose.point.x,m_pose.point.y])
             self.mapper.update_ar(Z,X,m.id,self.ar_precision)
         self.mapper.publish(self.target_frame,markers.header.stamp)
 
