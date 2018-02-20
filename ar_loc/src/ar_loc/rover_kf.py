@@ -15,10 +15,15 @@ from rover_kinematics import *
 
 class RoverKF(RoverKinematics):
     def __init__(self, initial_pose, initial_uncertainty):
+        """
+        :param initial_pose:
+        :param initial_uncertainty: [1.0, 1.0, 1.0]
+        """
+        print "initial_uncertainty:", initial_uncertainty
         RoverKinematics.__init__(self)
         self.lock = threading.Lock()
-        self.X = np.mat(np.vstack(initial_pose))
-        self.P = np.mat(np.diag(initial_uncertainty))
+        self.X = np.mat(np.vstack(initial_pose))  # 1x3
+        self.P = np.mat(np.diag(initial_uncertainty))  # 3x3
         self.ellipse_pub = rospy.Publisher("~ellipse", Marker, queue_size=1)
         self.pose_with_cov_pub = rospy.Publisher("~pose_with_covariance", PoseWithCovarianceStamped, queue_size=1)
 
@@ -32,6 +37,13 @@ class RoverKF(RoverKinematics):
 
     @staticmethod
     def h(X, L):
+        """
+        Compute the position of L in the X frame
+            :param X: position of the rover [[x],[y],[theta]] on world frame
+            :param L: position of the landmark [[x],[y]] on world frame
+            :return pos_lm_frame: polar coordinate of L in the X frame (rover frame)
+            :return dist: cartesian coordinate of the vector from X to L (world frame)
+        """
         dist = L - X[0:2]
         pos_lm_rover_frame = np.mat(
             [
@@ -78,24 +90,40 @@ class RoverKF(RoverKinematics):
         self.lock.release()
 
     def update_ar(self, Z, L, uncertainty):
+        """
+        :param Z: observation in the rover frame [[d],[theta]]
+        :param L: position of the landmark on world frame [[x],[y]]
+        :param uncertainty:
+        :return:
+        """
         self.lock.acquire()
-        print "Update: L=" + str(L.T) + " X=" + str(self.X.T)
+        print "Update: L=" + str(L.T) + " X=" + str(self.X.T) + " uncertainty=" + str(uncertainty)
         # Implement kalman update using landmarks here
         # TODO
 
-        y, dist = Z - self.h(self.X, L)
-        H = np.mat(  # TODO: H is the jacobian of h -> cf code mapping
+        y_polar, _ = Z - self.h(self.X, L)
+        theta = y_polar[1] + self.X[2, 0]
+        y_cart = np.mat(
             [
-                [],
-                []
+                [cos(theta) * y_polar[0, 0]],
+                [sin(theta) * y_polar[0, 0]],
+                [y_polar[1, 0]]
             ]
         )
-        R = np.zeros(2, 2)  # TODO: R is not zero
-        S = H * self.P * H.T + R
-        K = self.P * H.T * np.mat(np.linalg.inv(S))
+        squared_norme = np.sum(np.power(self.X[0:2], 2))
+        norme = np.sqrt(squared_norme)
+        H = np.mat(  # done ? H is the jacobian of h -> cf code mapping
+            [
+                [self.X[0, 0] / norme,          self.X[1, 0] / norme,         0],
+                [-self.X[1, 0] / squared_norme, self.X[0, 0] / squared_norme, 0]
+            ]
+        )
+        R = np.diag([uncertainty] * 2)  # 2x2  # done ? R is not zero
+        S = H * self.P * H.T + R  # 2x2
+        K = self.P * H.T * np.mat(np.linalg.inv(S))  # 2x3
 
-        # self.X = 
-        self.P = (np.identity(3) - K * H) * self.P
+        self.X += K * y_cart  # 1x3
+        self.P = (np.identity(3) - K * H) * self.P  # 3x3
         self.lock.release()
 
     def update_compass(self, Z, uncertainty):
