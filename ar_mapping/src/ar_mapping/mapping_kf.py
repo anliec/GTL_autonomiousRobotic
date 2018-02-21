@@ -27,25 +27,40 @@ class Landmark:
         # Initialise a landmark based on measurement Z, 
         # current position X and uncertainty R
         self.L = np.vstack([0, 0])
-        self.P = np.mat([[0, 0], [0, 0]])
+        self.P = np.mat([[0.1, 0], [0, 0.1]])
+
+        xr = X[0, 0]
+        yr = X[1, 0]
+        tr = X[2, 0]
+        xl = self.L[0, 0]
+        yl = self.L[1, 0]
+        divider = np.math.sqrt((xr-xl)**2+(yr-yl)**2)
+        divider2 = (xl-yr)**2+(yl-xr)**2
         # from wolfram alpha: jacobian (sqrt((a-x)^2+(b-y)^2), atan2(y-a,x-b))
         # https://www.wolframalpha.com/input/?i=jacobian+(sqrt((a-x)%5E2%2B(b-y)%5E2),+atan2(y-a,x-b))
         self.H = np.transpose(np.mat(
             [
-                [cos(X[2, 0] - Z[1, 0]), Z[0, 0] * sin(X[2, 0] - Z[1, 0])],
-                [-sin(X[2, 0] - Z[1, 0]), Z[0, 0] * cos(X[2, 0] - Z[1, 0])]
+                [-(xr-xl)/divider, -(yr-yl)/divider],
+                [(xr-yl)/divider2, (xl-yr)/divider2]
             ]))
         theta = Z[1, 0] + X[2, 0]
         self.L = X[0:2] + float(Z[0, 0]) * np.mat([[cos(theta)], [sin(theta)]])
 
     def update(self, Z, X, R):
+        """
+        :param Z: position of the landmark in the Robot frame
+        :param X: position of the robot in the world frame
+        :param R: covariance matrix of the observation noise
+        :return:
+        """
         # Update the landmark based on measurement Z,
         # current position X and uncertainty R
         y = Z - self.h(X)
-        S = R + self.H * self.P * np.mat(np.transpose(self.H))
-        K = self.P * np.mat(np.transpose(self.H)) * np.mat(np.linalg.inv(S))
+        S = R + self.H * self.P * self.H.T
+        K = self.P * self.H.T * np.mat(np.linalg.inv(S))
         self.L = self.L + K * y
         self.P = (np.mat(np.identity(2)) - K * self.H) * self.P
+        print ("P:"+str(self.P))
         return self.L
 
 
