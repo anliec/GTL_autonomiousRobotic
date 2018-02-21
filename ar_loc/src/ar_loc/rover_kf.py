@@ -19,13 +19,14 @@ class RoverKF(RoverKinematics):
         :param initial_pose:
         :param initial_uncertainty: [1.0, 1.0, 1.0]
         """
-        print "initial_uncertainty:", initial_uncertainty
         RoverKinematics.__init__(self)
         self.lock = threading.Lock()
         self.X = np.mat(np.vstack(initial_pose))  # 1x3
         self.P = np.mat(np.diag(initial_uncertainty))  # 3x3
         self.ellipse_pub = rospy.Publisher("~ellipse", Marker, queue_size=1)
         self.pose_with_cov_pub = rospy.Publisher("~pose_with_covariance", PoseWithCovarianceStamped, queue_size=1)
+        print type(self.X), type(self.P)
+        assert type(self.X) == np.matrixlib.defmatrix.matrix and type(self.P) == np.matrixlib.defmatrix.matrix
 
     def getRotation(self, theta):
         R = np.mat(np.zeros((2, 2)))
@@ -54,6 +55,7 @@ class RoverKF(RoverKinematics):
         return pos_lm_rover_frame, dist
 
     def predict(self, motor_state, drive_cfg, encoder_precision):
+        assert type(self.X) == np.matrixlib.defmatrix.matrix and type(self.P) == np.matrixlib.defmatrix.matrix
         self.lock.acquire()
         # The first time, we need to initialise the state
         if self.first_run:
@@ -71,9 +73,9 @@ class RoverKF(RoverKinematics):
 
         Q = np.mat(
             [
-                [encoder_precision, 0,                 0],
-                [0,                 encoder_precision, 0],
-                [0,                 0,                 0.01]
+                [encoder_precision, 0, 0],
+                [0, encoder_precision, 0],
+                [0, 0, encoder_precision]
             ])
         # TODO: compute the real F matrix...
         F = np.mat(
@@ -83,11 +85,19 @@ class RoverKF(RoverKinematics):
                 [0, 0, 1]
             ])
 
+        theta = self.X[2, 0]
+        Rtheta = np.mat([[cos(theta), -sin(theta), 0],
+                         [sin(theta), cos(theta), 0],
+                         [0, 0, 1]])
+        movement = np.matmul(Rtheta, DeltaX)
         # ultimately : 
-        self.X += DeltaX
+        self.X += movement
         self.P = F * self.P * F.T + Q
 
         self.lock.release()
+        assert type(F) == np.matrixlib.defmatrix.matrix and type(Q) == np.matrixlib.defmatrix.matrix
+        assert type(self.P) == np.matrixlib.defmatrix.matrix
+        assert type(self.X) == np.matrixlib.defmatrix.matrix and type(self.P) == np.matrixlib.defmatrix.matrix
 
     def update_ar(self, Z, L, uncertainty):
         """
@@ -97,11 +107,12 @@ class RoverKF(RoverKinematics):
         :return:
         """
         self.lock.acquire()
-        print "Update: L=" + str(L.T) + " X=" + str(self.X.T) + " uncertainty=" + str(uncertainty)
+        assert type(self.X) == np.matrixlib.defmatrix.matrix and type(self.P) == np.matrixlib.defmatrix.matrix
+        # print "Update: L=" + str(L.T) + " X=" + str(self.X.T) + " uncertainty=" + str(uncertainty)
         # Implement kalman update using landmarks here
-        # TODO
 
-        y_polar, _ = Z - self.h(self.X, L)
+        y_polar, dist = Z - self.h(self.X, L)
+        y_polar = np.mat(y_polar)
         # theta = y_polar[1] + self.X[2, 0]
         # y_cart = np.mat(
         #     [
@@ -110,44 +121,58 @@ class RoverKF(RoverKinematics):
         #         [y_polar[1, 0]]
         #     ]
         # )
-        squared_norme = np.sum(np.power(self.X[0:2], 2))
+        squared_norme = np.sum(np.power(dist[0:2], 2))
         norme = np.sqrt(squared_norme)
-        H = np.mat(
+        H = np.mat(  # TODO: double check H !!! https://www.wolframalpha.com/input/?i=jacobian(%5B%5Bsqrt((a-x)%5E2%2B(b-y)%5E2)%5D,+%5Batan2((b-y),+(a-x))+-+t%5D%5D)
             [
-                [self.X[0, 0] / norme,          self.X[1, 0] / norme,         0],
-                [-self.X[1, 0] / squared_norme, self.X[0, 0] / squared_norme, 0]
+                [-dist[0, 0] / norme,        -dist[1, 0] / norme,          0],
+                [dist[1, 0] / squared_norme, -dist[0, 0] / squared_norme, -1]
             ]
         )
-        R = np.diag([uncertainty] * 2)  # 2x2
+        R = np.mat(np.diag([uncertainty] * 2))  # 2x2
         S = H * self.P * H.T + R  # 2x2
         K = self.P * H.T * np.mat(np.linalg.inv(S))  # 2x3
 
         self.X += K * y_polar  # 1x3
         self.P = (np.identity(3) - K * H) * self.P  # 3x3
+
         self.lock.release()
+        assert type(self.X) == np.matrixlib.defmatrix.matrix and type(self.P) == np.matrixlib.defmatrix.matrix
+        assert type(H) == np.matrixlib.defmatrix.matrix and type(S) == np.matrixlib.defmatrix.matrix
+        assert type(K) == np.matrixlib.defmatrix.matrix and type(y_polar) == np.matrixlib.defmatrix.matrix
+        assert type(R) == np.matrixlib.defmatrix.matrix
 
     def update_compass(self, Z, uncertainty):
+        assert type(self.X) == np.matrixlib.defmatrix.matrix and type(self.P) == np.matrixlib.defmatrix.matrix
         self.lock.acquire()
-        print "Update: S=" + str(Z) + " X=" + str(self.X.T)
+        # print "Update: S=" + str(Z) + " X=" + str(self.X.T)
         # Implement kalman update using compass here
-        y_polar = Z - self.X[2, 0]
-        H = np.mat(
+        y_polar = np.mat([[Z - self.X[2, 0]]])  # 1x1
+        H = np.mat(  # 3x1
             [
                 [0, 0, 1],
             ]
         )
-        R = np.diag([uncertainty] * 1)  # 1x1
+        R = np.mat(np.diag([uncertainty] * 1))  # 1x1
         S = H * self.P * H.T + R  # 1x1
         K = self.P * H.T * np.mat(np.linalg.inv(S))  # 1x3
 
         self.X += K * y_polar  # 1x3
         self.P = (np.identity(3) - K * H) * self.P  # 3x3
         self.lock.release()
-        return
-
-        # this publishes the pose but also the pose with covariance and the error ellipse in rviz
+        assert type(y_polar) == np.matrixlib.defmatrix.matrix and type(H) == np.matrixlib.defmatrix.matrix
+        assert type(R) == np.matrixlib.defmatrix.matrix
+        assert type(S) == np.matrixlib.defmatrix.matrix and type(K) == np.matrixlib.defmatrix.matrix
+        assert type(self.X) == np.matrixlib.defmatrix.matrix and type(self.P) == np.matrixlib.defmatrix.matrix
 
     def publish(self, pose_pub, target_frame, stamp):
+        """
+        This publishes the pose but also the pose with covariance and the error ellipse in rviz
+        :param pose_pub:
+        :param target_frame:
+        :param stamp:
+        :return:
+        """
         pose = PoseWithCovarianceStamped()
         pose.header.frame_id = target_frame
         pose.header.stamp = stamp
