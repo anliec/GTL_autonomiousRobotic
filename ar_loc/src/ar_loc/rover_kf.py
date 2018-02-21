@@ -71,9 +71,9 @@ class RoverKF(RoverKinematics):
 
         Q = np.mat(
             [
-                [0.01, 0, 0],
-                [0, 0.01, 0],
-                [0, 0, 0.01]
+                [encoder_precision, 0,                 0],
+                [0,                 encoder_precision, 0],
+                [0,                 0,                 0.01]
             ])
         # TODO: compute the real F matrix...
         F = np.mat(
@@ -102,27 +102,27 @@ class RoverKF(RoverKinematics):
         # TODO
 
         y_polar, _ = Z - self.h(self.X, L)
-        theta = y_polar[1] + self.X[2, 0]
-        y_cart = np.mat(
-            [
-                [cos(theta) * y_polar[0, 0]],
-                [sin(theta) * y_polar[0, 0]],
-                [y_polar[1, 0]]
-            ]
-        )
+        # theta = y_polar[1] + self.X[2, 0]
+        # y_cart = np.mat(
+        #     [
+        #         [cos(theta) * y_polar[0, 0]],
+        #         [sin(theta) * y_polar[0, 0]],
+        #         [y_polar[1, 0]]
+        #     ]
+        # )
         squared_norme = np.sum(np.power(self.X[0:2], 2))
         norme = np.sqrt(squared_norme)
-        H = np.mat(  # done ? H is the jacobian of h -> cf code mapping
+        H = np.mat(
             [
                 [self.X[0, 0] / norme,          self.X[1, 0] / norme,         0],
                 [-self.X[1, 0] / squared_norme, self.X[0, 0] / squared_norme, 0]
             ]
         )
-        R = np.diag([uncertainty] * 2)  # 2x2  # done ? R is not zero
+        R = np.diag([uncertainty] * 2)  # 2x2
         S = H * self.P * H.T + R  # 2x2
         K = self.P * H.T * np.mat(np.linalg.inv(S))  # 2x3
 
-        self.X += K * y_cart  # 1x3
+        self.X += K * y_polar  # 1x3
         self.P = (np.identity(3) - K * H) * self.P  # 3x3
         self.lock.release()
 
@@ -130,9 +130,18 @@ class RoverKF(RoverKinematics):
         self.lock.acquire()
         print "Update: S=" + str(Z) + " X=" + str(self.X.T)
         # Implement kalman update using compass here
-        # TODO
-        # self.X = 
-        # self.P = 
+        y_polar = Z - self.X[2, 0]
+        H = np.mat(
+            [
+                [0, 0, 1],
+            ]
+        )
+        R = np.diag([uncertainty] * 1)  # 1x1
+        S = H * self.P * H.T + R  # 1x1
+        K = self.P * H.T * np.mat(np.linalg.inv(S))  # 1x3
+
+        self.X += K * y_polar  # 1x3
+        self.P = (np.identity(3) - K * H) * self.P  # 3x3
         self.lock.release()
         return
 
