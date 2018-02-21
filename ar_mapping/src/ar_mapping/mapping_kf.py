@@ -21,7 +21,7 @@ class Landmark:
         tr = X[2, 0]
         xl = self.L[0, 0]
         yl = self.L[1, 0]
-        return np.mat([[np.sqrt((xr - xl) ** 2 + (yr - yl) ** 2)], [np.math.atan2(yl - yr, xl - xr)-tr]])
+        return np.mat([[np.sqrt((xr - xl) ** 2 + (yr - yl) ** 2)], [np.math.atan2(yl - yr, xl - xr) - tr]])
 
     def __init__(self, Z, X, R):
         # Initialise a landmark based on measurement Z, 
@@ -32,25 +32,21 @@ class Landmark:
         # https://www.wolframalpha.com/input/?i=jacobian+(sqrt((a-x)%5E2%2B(b-y)%5E2),+atan2(y-a,x-b))
         self.H = np.transpose(np.mat(
             [
-                [1, 0, -Z[0, 0] * sin(X[2, 0] + Z[1, 0])],
-                [0, 1, Z[0, 0] * cos(X[2, 0] + Z[1, 0])]
+                [cos(X[2, 0] - Z[1, 0]), Z[0, 0] * sin(X[2, 0] - Z[1, 0])],
+                [-sin(X[2, 0] - Z[1, 0]), Z[0, 0] * cos(X[2, 0] - Z[1, 0])]
             ]))
         theta = Z[1, 0] + X[2, 0]
         self.L = X[0:2] + float(Z[0, 0]) * np.mat([[cos(theta)], [sin(theta)]])
 
     def update(self, Z, X, R):
-        # # Update the landmark based on measurement Z,
-        # # current position X and uncertainty R
-        # print("Z:", Z)
-        # print("X:", X)
-        # print("R:", R)
-        # print("H:", self.H)
-        # y = Z - self.h(X)
-        # S = R + self.H * self.P * np.mat(np.transpose(self.H))
-        # K = self.P * np.mat(np.transpose(self.H)) * np.mat(np.linalg.inv(S))
-        # self.L = self.L + K * y
-        # self.P = (np.mat(np.identity(2)) - K*self.H) * self.P
-        return
+        # Update the landmark based on measurement Z,
+        # current position X and uncertainty R
+        y = Z - self.h(X)
+        S = R + self.H * self.P * np.mat(np.transpose(self.H))
+        K = self.P * np.mat(np.transpose(self.H)) * np.mat(np.linalg.inv(S))
+        self.L = self.L + K * y
+        self.P = (np.mat(np.identity(2)) - K * self.H) * self.P
+        return self.L
 
 
 class MappingKF:
@@ -62,7 +58,7 @@ class MappingKF:
     def update_ar(self, Z, X, Id, uncertainty):
         self.lock.acquire()
         # print "Update: Z=" + str(Z.T) + " X=" + str(X.T) + " Id=" + str(Id)
-        R = np.mat(np.diag([uncertainty, uncertainty]))
+        R = np.mat(np.diag([uncertainty ** 2, uncertainty ** 2]))
         # Take care of the landmark Id observed as Z from X
         # self.marker_list is expected to be a dictionary of Landmark
         # such that current landmark can be retrieved as self.marker_list[Id] 
@@ -70,6 +66,8 @@ class MappingKF:
         # TODO
         if Id in self.marker_list:
             self.marker_list[Id].update(Z, X, R)
+            print('Id:' + str(Id))
+            print(self.marker_list[Id].L)
         else:
             self.marker_list[Id] = Landmark(Z, X, R)
         self.lock.release()
