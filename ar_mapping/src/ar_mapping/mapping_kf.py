@@ -12,7 +12,6 @@ import threading
 import rover_driver
 from rover_driver.rover_kinematics import *
 
-
 class Landmark:
 
     def h(self, X):
@@ -21,30 +20,42 @@ class Landmark:
         tr = X[2, 0]
         xl = self.L[0, 0]
         yl = self.L[1, 0]
-        return np.mat([[np.sqrt((xr - xl) ** 2 + (yr - yl) ** 2)], [np.math.atan2(yl - yr, xl - xr) - tr]])
+        # use of homogenous coordinates to compute base change
+        return np.mat([
+            [ (xl-xr)*cos(tr)+(yl-yr)*sin(tr)],
+            [-(xl-xr)*sin(tr)+(yl-yr)*cos(tr)]
+        ])
 
     def __init__(self, Z, X, R):
         # Initialise a landmark based on measurement Z, 
         # current position X and uncertainty R
         self.L = np.vstack([0, 0])
-        self.P = np.mat([[0.1, 0], [0, 0.1]])
-
         xr = X[0, 0]
         yr = X[1, 0]
         tr = X[2, 0]
         xl = self.L[0, 0]
         yl = self.L[1, 0]
-        divider = np.math.sqrt((xr-xl)**2+(yr-yl)**2)
-        divider2 = (xl-yr)**2+(yl-xr)**2
-        # from wolfram alpha: jacobian (sqrt((a-x)^2+(b-y)^2), atan2(y-a,x-b))
-        # https://www.wolframalpha.com/input/?i=jacobian+(sqrt((a-x)%5E2%2B(b-y)%5E2),+atan2(y-a,x-b))
-        self.H = np.transpose(np.mat(
+        # dfdz = np.mat(
+        #     [
+        #         [-cos(tr), sin(tr), -(yl-yr)*cos(tr)-(xl-xr)*sin(tr)],
+        #         [sin(tr), -cos(tr), (xl-xr)*cos(tr)-(yl-yr)*sin(tr)]
+        #     ]
+        # )
+        self.H = np.mat(
             [
-                [-(xr-xl)/divider, -(yr-yl)/divider],
-                [(xr-yl)/divider2, (xl-yr)/divider2]
-            ]))
-        theta = Z[1, 0] + X[2, 0]
-        self.L = X[0:2] + float(Z[0, 0]) * np.mat([[cos(theta)], [sin(theta)]])
+                [cos(tr), -sin(tr)],
+                [sin(tr), cos(tr)]
+            ])
+        dfdz = self.H # in this case h and baseChange has the same Jacobian
+        self.P = dfdz*R*dfdz.T
+        # from wolfram alpha:
+        # https://www.wolframalpha.com/input/?i=jacobian+(+(x-a)*cos(c)-(y-b)*sin(c)+,+(y-b)*cos(c)%2B(x-a)*sin(c)+)
+
+        baseChange = np.mat([
+            [cos(tr), -sin(tr), xr],
+            [sin(tr),  cos(tr), yr]
+        ])
+        self.L = baseChange * np.vstack((Z, [1]))
 
     def update(self, Z, X, R):
         """
@@ -55,12 +66,19 @@ class Landmark:
         """
         # Update the landmark based on measurement Z,
         # current position X and uncertainty R
+        tr = X[2, 0]
+        H = np.mat(
+            [
+                [cos(tr), -sin(tr)],
+                [sin(tr), cos(tr)]
+            ])
         y = Z - self.h(X)
-        S = R + self.H * self.P * self.H.T
-        K = self.P * self.H.T * np.mat(np.linalg.inv(S))
+        S = R + H * self.P * H.T
+        K = self.P * H.T * np.mat(np.linalg.inv(S))
         self.L = self.L + K * y
-        self.P = (np.mat(np.identity(2)) - K * self.H) * self.P
-        print ("P:"+str(self.P))
+        self.P = (np.mat(np.identity(2)) - K * H) * self.P
+        print ("X:"+str(X))
+        print ("Z:"+str(Z))
         return self.L
 
 
