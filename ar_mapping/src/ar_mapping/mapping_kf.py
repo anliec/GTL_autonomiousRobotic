@@ -12,6 +12,7 @@ import threading
 import rover_driver
 from rover_driver.rover_kinematics import *
 
+
 class Landmark:
 
     def h(self, X):
@@ -22,8 +23,8 @@ class Landmark:
         yl = self.L[1, 0]
         # use of homogenous coordinates to compute base change
         return np.mat([
-            [ (xl-xr)*cos(tr)+(yl-yr)*sin(tr)],
-            [-(xl-xr)*sin(tr)+(yl-yr)*cos(tr)]
+            [(xl - xr) * cos(tr) + (yl - yr) * sin(tr)],
+            [-(xl - xr) * sin(tr) + (yl - yr) * cos(tr)]
         ])
 
     def __init__(self, Z, X, R):
@@ -46,14 +47,14 @@ class Landmark:
                 [cos(tr), -sin(tr)],
                 [sin(tr), cos(tr)]
             ])
-        dfdz = self.H # in this case h and baseChange has the same Jacobian
-        self.P = dfdz*R*dfdz.T
+        dfdz = self.H  # in this case h and baseChange has the same Jacobian
+        self.P = dfdz * R * dfdz.T
         # from wolfram alpha:
         # https://www.wolframalpha.com/input/?i=jacobian+(+(x-a)*cos(c)-(y-b)*sin(c)+,+(y-b)*cos(c)%2B(x-a)*sin(c)+)
 
         baseChange = np.mat([
             [cos(tr), -sin(tr), xr],
-            [sin(tr),  cos(tr), yr]
+            [sin(tr), cos(tr), yr]
         ])
         self.L = baseChange * np.vstack((Z, [1]))
 
@@ -77,8 +78,8 @@ class Landmark:
         K = self.P * H.T * np.mat(np.linalg.inv(S))
         self.L = self.L + K * y
         self.P = (np.mat(np.identity(2)) - K * H) * self.P
-        print ("X:"+str(X))
-        print ("Z:"+str(Z))
+        print ("X:" + str(X))
+        print ("Z:" + str(Z))
         return self.L
 
 
