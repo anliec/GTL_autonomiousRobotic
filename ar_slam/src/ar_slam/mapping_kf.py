@@ -244,7 +244,7 @@ class MappingKF(RoverKinematics):
         #     marker.ns = "landmark_kf"
         #     marker.id = id
         #     marker.type = Marker.CYLINDER
-        #     marker.action = Marker.ADD
+        #     marker.action = Marker.ADDfrontCamera
         #     l = self.idx[id]
         #     marker.pose.position.x = self.X[l, 0]
         #     marker.pose.position.y = self.X[l + 1, 0]
