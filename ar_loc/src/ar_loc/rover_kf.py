@@ -69,9 +69,9 @@ class RoverKF(RoverKinematics):
         # TODO: encoder_precision is the error on S
         Q = np.mat(
             [
-                [encoder_precision, 0, 0],
-                [0, encoder_precision, 0],
-                [0, 0, encoder_precision]
+                [encoder_precision**2, 0, 0],
+                [0, encoder_precision**2, 0],
+                [0, 0, encoder_precision**2]
             ])
         # TODO: compute the real F matrix...
         F = np.mat(
