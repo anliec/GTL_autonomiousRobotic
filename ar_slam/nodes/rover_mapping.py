@@ -5,7 +5,7 @@ from std_msgs.msg import Float64,Float32
 from sensor_msgs.msg import JointState
 from geometry_msgs.msg import PointStamped
 import tf
-import numpy
+from numpy import *
 import message_filters
 
 from ar_slam.mapping_kf import *

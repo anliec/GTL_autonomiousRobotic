@@ -125,7 +125,6 @@ class RoverKF(RoverKinematics):
         self.P = (np.identity(3) - K * H) * self.P  # 3x3
 
         self.lock.release()
-        print(y_cart)
         assert type(self.X) == np.matrixlib.defmatrix.matrix and type(self.P) == np.matrixlib.defmatrix.matrix
         assert type(H) == np.matrixlib.defmatrix.matrix and type(S) == np.matrixlib.defmatrix.matrix
         assert type(K) == np.matrixlib.defmatrix.matrix and type(y_cart) == np.matrixlib.defmatrix.matrix
