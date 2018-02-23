@@ -79,15 +79,16 @@ class MappingKF(RoverKinematics):
         # TODO: compute the real F matrix...
         F = np.mat(
             [
-                [1, 0, 0],
-                [0, 1, 0],
-                [0, 0, 1]
+                [1, 0, -sin(theta) * DeltaX[0, 0] - cos(theta) * DeltaX[1, 0]],
+                [0, 1,  cos(theta) * DeltaX[0, 0] - sin(theta) * DeltaX[1, 0]],
+                [0, 0,                                                      1]
             ])
 
         movement = np.matmul(Rtheta, DeltaX)
+        movement[2, 0] = ((movement[2, 0] + pi) % (2 * pi)) - pi  # ensure movement angle in [-pi;pi]
         # ultimately :
         self.X[0:3, 0] += movement
-        self.P[0:3, 0:3] = F * self.P * F.T + Q
+        self.P[0:3, 0:3] = F.T * self.P * F + Q
 
         self.lock.release()
         assert type(F) == np.matrixlib.defmatrix.matrix and type(Q) == np.matrixlib.defmatrix.matrix
@@ -109,15 +110,15 @@ class MappingKF(RoverKinematics):
             # https://www.wolframalpha.com/input/?i=jacobian(%5B%5Bcos(z)*(a-x)+-+sin(z)*(b-y)%5D,+%5Bsin(z)*(a-x)+%2B+cos(z)*(b-y)%5D%5D)
             H = np.mat(
                 [
-                    [-cos(theta), -sin(theta),  dist[1, 0] * cos(theta) - dist[0, 0] * sin(theta)],
-                    [sin(theta),  -cos(theta), -dist[0, 0] * cos(theta) - dist[1, 0] * sin(theta)]
+                    [-cos(theta), -sin(theta), dist[1, 0] * cos(theta) - dist[0, 0] * sin(theta)],
+                    [sin(theta),  -cos(theta), dist[0, 0] * cos(theta) - dist[1, 0] * sin(theta)]
                 ]
             )
             S = H * self.P[0:3, 0:3] * H.T + R  # 2x2
             K = self.P[0:3, 0:3] * H.T * np.mat(np.linalg.inv(S))  # 2x3
 
             self.X[0:3, 0] += K * y_cart  # 1x3
-            self.P[0:3, 0:3] = (np.identity(3) - K * H) * self.P[0:3, 0:3]  # 3x3
+            self.P[0:3, 0:3] = (np.mat(np.identity(3)) - K * H) * self.P[0:3, 0:3]  # 3x3
 
             # update landmark position
             self.idx[id].update(Z, self.X, R)

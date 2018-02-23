@@ -74,23 +74,25 @@ class RoverKF(RoverKinematics):
                 [0, 0, encoder_precision**2]
             ])
         # TODO: compute the real F matrix...
+        theta = self.X[2, 0]
         F = np.mat(
             [
-                [1, 0, 0],
-                [0, 1, 0],
-                [0, 0, 1]
+                [1, 0, -sin(theta) * DeltaX[0, 0] - cos(theta) * DeltaX[1, 0]],
+                [0, 1,  cos(theta) * DeltaX[0, 0] - sin(theta) * DeltaX[1, 0]],
+                [0, 0,                                                      1]
             ])
 
-        theta = self.X[2, 0]
         Rtheta = np.mat([[cos(theta), -sin(theta), 0],
-                         [sin(theta), cos(theta), 0],
-                         [0, 0, 1]])
+                         [sin(theta),  cos(theta), 0],
+                         [0,           0,          1]])
         movement = np.matmul(Rtheta, DeltaX)
+        movement[2, 0] = ((movement[2, 0] + pi) % (2 * pi)) - pi  # ensure movement angle in [-pi;pi]
         # ultimately : 
         self.X += movement
-        self.P = F * self.P * F.T + Q
+        self.P = F.T * self.P * F + Q
 
         self.lock.release()
+        # print self.X[2, 0], movement[2, 0]
         assert type(F) == np.matrixlib.defmatrix.matrix and type(Q) == np.matrixlib.defmatrix.matrix
         assert type(self.P) == np.matrixlib.defmatrix.matrix
         assert type(self.X) == np.matrixlib.defmatrix.matrix and type(self.P) == np.matrixlib.defmatrix.matrix
@@ -113,8 +115,8 @@ class RoverKF(RoverKinematics):
         # https://www.wolframalpha.com/input/?i=jacobian(%5B%5Bcos(z)*(a-x)+-+sin(z)*(b-y)%5D,+%5Bsin(z)*(a-x)+%2B+cos(z)*(b-y)%5D%5D)
         H = np.mat(
             [
-                [-cos(theta), -sin(theta),  dist[1, 0] * cos(theta) - dist[0, 0] * sin(theta)],
-                [sin(theta),  -cos(theta), -dist[0, 0] * cos(theta) - dist[1, 0] * sin(theta)]
+                [-cos(theta), -sin(theta), dist[1, 0] * cos(theta) - dist[0, 0] * sin(theta)],
+                [sin(theta),  -cos(theta), dist[0, 0] * cos(theta) - dist[1, 0] * sin(theta)]
             ]
         )
         R = np.mat(np.diag([uncertainty] * 2))  # 2x2
@@ -122,7 +124,7 @@ class RoverKF(RoverKinematics):
         K = self.P * H.T * np.mat(np.linalg.inv(S))  # 2x3
 
         self.X += K * y_cart  # 1x3
-        self.P = (np.identity(3) - K * H) * self.P  # 3x3
+        self.P = (np.mat(np.identity(3)) - K * H) * self.P  # 3x3
 
         self.lock.release()
         assert type(self.X) == np.matrixlib.defmatrix.matrix and type(self.P) == np.matrixlib.defmatrix.matrix
