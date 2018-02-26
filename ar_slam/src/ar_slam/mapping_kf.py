@@ -110,8 +110,8 @@ class MappingKF(RoverKinematics):
             # https://www.wolframalpha.com/input/?i=jacobian(%5B%5Bcos(z)*(a-x)+-+sin(z)*(b-y)%5D,+%5Bsin(z)*(a-x)+%2B+cos(z)*(b-y)%5D%5D)
             H = np.mat(
                 [
-                    [-cos(theta), -sin(theta), dist[1, 0] * cos(theta) - dist[0, 0] * sin(theta)],
-                    [sin(theta),  -cos(theta), dist[0, 0] * cos(theta) - dist[1, 0] * sin(theta)]
+                    [-cos(theta), -sin(theta),  dist[1, 0] * cos(theta) - dist[0, 0] * sin(theta)],
+                    [sin(theta),  -cos(theta), -dist[0, 0] * cos(theta) - dist[1, 0] * sin(theta)]
                 ]
             )
             S = H * self.P[0:3, 0:3] * H.T + R  # 2x2
@@ -148,6 +148,7 @@ class MappingKF(RoverKinematics):
         S = H * self.P * H.T + R  # 1x1
         K = self.P * H.T * np.mat(np.linalg.inv(S))  # 1x3
 
+        y_polar[0, 0] = ((y_polar[0, 0] + pi) % (2 * pi)) - pi  # ensure movement angle in [-pi;pi]
         self.X += K * y_polar  # 1x3
         self.P = (np.identity(3) - K * H) * self.P  # 3x3
         self.lock.release()
