@@ -86,7 +86,7 @@ class RoverKF(RoverKinematics):
                          [sin(theta),  cos(theta), 0],
                          [0,           0,          1]])
         movement = np.matmul(Rtheta, DeltaX)
-        movement[2, 0] = ((movement[2, 0] + pi) % (2 * pi)) - pi  # ensure movement angle in [-pi;pi]
+        # movement[2, 0] = ((movement[2, 0] + pi) % (2 * pi)) - pi  # ensure movement angle in [-pi;pi]
         # ultimately : 
         self.X += movement
         self.P = F.T * self.P * F + Q
@@ -115,8 +115,8 @@ class RoverKF(RoverKinematics):
         # https://www.wolframalpha.com/input/?i=jacobian(%5B%5Bcos(z)*(a-x)+-+sin(z)*(b-y)%5D,+%5Bsin(z)*(a-x)+%2B+cos(z)*(b-y)%5D%5D)
         H = np.mat(
             [
-                [-cos(theta), -sin(theta), dist[1, 0] * cos(theta) - dist[0, 0] * sin(theta)],
-                [sin(theta),  -cos(theta), dist[0, 0] * cos(theta) - dist[1, 0] * sin(theta)]
+                [-cos(theta), -sin(theta),  dist[1, 0] * cos(theta) - dist[0, 0] * sin(theta)],
+                [sin(theta),  -cos(theta), -dist[0, 0] * cos(theta) - dist[1, 0] * sin(theta)]
             ]
         )
         R = np.mat(np.diag([uncertainty] * 2))  # 2x2
@@ -147,6 +147,7 @@ class RoverKF(RoverKinematics):
         S = H * self.P * H.T + R  # 1x1
         K = self.P * H.T * np.mat(np.linalg.inv(S))  # 1x3
 
+        y_polar[0, 0] = ((y_polar[0, 0] + pi) % (2 * pi)) - pi  # ensure movement angle in [-pi;pi]
         self.X += K * y_polar  # 1x3
         self.P = (np.identity(3) - K * H) * self.P  # 3x3
         self.lock.release()
