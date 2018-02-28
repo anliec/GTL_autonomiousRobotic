@@ -8,8 +8,8 @@ import tf
 from sensor_msgs.msg import JointState
 from geometry_msgs.msg import Twist
 from visualization_msgs.msg import Marker, MarkerArray
-from geometry_msgs.msg import PointStamped, PoseStamped
-from tf.transformations import euler_from_matrix, decompose_matrix, quaternion_from_euler
+from geometry_msgs.msg import PointStamped, PoseStamped, PoseArray, Pose
+from tf.transformations import euler_from_matrix, decompose_matrix, quaternion_from_euler, euler_from_quaternion
 import message_filters
 import threading
 import numpy as np
@@ -52,6 +52,7 @@ class BubbleSLAM:
         self.idx = dict()
         self.pose_pub = rospy.Publisher("~pose", PoseStamped, queue_size=1)
         self.marker_pub = rospy.Publisher("~landmarks", MarkerArray, queue_size=1)
+        self.marker_pub_pose = rospy.Publisher("~landmarks_pose", PoseArray, queue_size=1)
 
         rospy.sleep(1.0)
         now = rospy.Time.now()
@@ -89,18 +90,10 @@ class BubbleSLAM:
         R[1, 1] = cos(theta)
         return R
 
-    @staticmethod
-    def get_rotation_3x3(theta):
-        R = np.mat(np.zeros((3, 3)))
-        R[:2, :2] = BubbleSLAM.getRotation(theta)
-        R[2, 2] = 1.0
-        return R
-
     def update_ar(self, Z, id, uncertainty):
         # Z is a dictionary of id->np.vstack([x,y])
         # print "Update: Z=" + str(Z.T) + " X=" + str(self.X.T) + " Id=" + str(id)
         (n, _) = self.X.shape
-        R = np.mat(np.diag([uncertainty, uncertainty]))
         theta = self.X[2, 0]
         Rtheta = self.getRotation(theta)
         Rmtheta = self.getRotation(-theta)
@@ -116,26 +109,40 @@ class BubbleSLAM:
             if min_dist > DIST_NEW_LANDMARK_THRESHOLD:
                 print "same landmark but too far, dist=", sqrt(min_dist), "id=", id, "list_size=", len(self.idx[id])
                 self.idx[id].append(n)
-                self.X = np.concatenate((self.X, self.X[0:2, 0] + (Rtheta * Z)))
-                Pnew = np.mat(np.diag([uncertainty] * (n + 2)))
+                p_landmark = self.X[:2, 0] + (Rtheta * np.mat(Z[:2, 0]).T)
+                a_landmark = np.mat(Z[2, 0] - theta)
+                self.X = np.concatenate([self.X, p_landmark, a_landmark])
+                Pnew = np.mat(np.diag([uncertainty] * (n + 3)))
                 Pnew[0:n, 0:n] = self.P
                 self.P = Pnew
             else:
-                H = np.mat(np.zeros((2, n)))
-                H[0:2, 0:2] = -Rmtheta
-                H[0:2, 2] = np.mat(np.vstack(
-                    [-(self.X[l + 0, 0] - self.X[0, 0]) * sin(theta) + (self.X[l + 1, 0] - self.X[1, 0]) * cos(theta),
-                     -(self.X[l + 0, 0] - self.X[0, 0]) * cos(theta) - (self.X[l + 1, 0] - self.X[1, 0]) * sin(theta)]))
-                H[0:2, l:l + 2] = Rmtheta
-                Zpred = Rmtheta * (self.X[l:l + 2, 0] - self.X[0:2, 0])
-                S = H * self.P * H.T + R
-                K = self.P * H.T * np.linalg.inv(S)
-                self.X = self.X + K * (Z - Zpred)
+                H = np.mat(np.zeros((3, n)))
+                H[0:2, 0:2] = -Rtheta
+                H[0:3, 2] = np.mat(np.vstack(
+                    [-(self.X[l + 0, 0] - self.X[0, 0]) * sin(theta) - (self.X[l + 1, 0] - self.X[1, 0]) * cos(theta),
+                     (self.X[l + 0, 0] - self.X[0, 0]) * cos(theta) - (self.X[l + 1, 0] - self.X[1, 0]) * sin(theta),
+                     -1]
+                ))
+                H[0:2, l:l + 2] = Rtheta
+                H[0:3, l + 2] = np.mat(np.vstack(
+                    [0,
+                     0,
+                     1]
+                ))
+                Zpred = np.mat(np.zeros((3, 1)))
+                Zpred[:2, 0] = Rmtheta * (self.X[l:l + 2, 0] - self.X[0:2, 0])
+                Zpred[2, 0] = norm_angle(self.X[l + 2, 0] - theta)
+                R = np.mat(np.diag([uncertainty, uncertainty, pi / 2]))  # 3x3
+                S = H * self.P * H.T + R  # 3x3
+                K = self.P * H.T * np.linalg.inv(S)  # 6x3
+                self.X += K * (Z - Zpred)
                 self.P = (np.mat(np.eye(n)) - K * H) * self.P
         else:
             self.idx[id] = [n]
-            self.X = np.concatenate((self.X, self.X[0:2, 0] + (Rtheta * Z)))
-            Pnew = np.mat(np.diag([uncertainty] * (n + 2)))
+            p_landmark = self.X[:2, 0] + (Rtheta * np.mat(Z[:2, 0]).T)
+            a_landmark = np.mat(Z[2, 0] - theta)
+            self.X = np.concatenate([self.X, p_landmark, a_landmark])
+            Pnew = np.mat(np.diag([uncertainty] * (n + 3)))
             Pnew[0:n, 0:n] = self.P
             self.P = Pnew
         return self.X, self.P
@@ -145,11 +152,17 @@ class BubbleSLAM:
             if m.id > 32:
                 continue
             self.listener.waitForTransform(self.body_frame, m.header.frame_id, m.header.stamp, rospy.Duration(1.0))
-            m_pose = PointStamped()
+            # m_pose = PointStamped()
+            # m_pose.header = m.header
+            # m_pose.point = m.pose.pose.position
+            # m_pose = self.listener.transformPoint(self.body_frame, m_pose)
+            m_pose = PoseStamped()
+            m_pose.pose = m.pose.pose
             m_pose.header = m.header
-            m_pose.point = m.pose.pose.position
-            m_pose = self.listener.transformPoint(self.body_frame, m_pose)
-            Z = np.vstack([m_pose.point.x, m_pose.point.y])
+            m_pose = self.listener.transformPose(self.body_frame, m_pose)
+            q = m_pose.pose.orientation
+            _, _, theta = euler_from_quaternion([q.x, q.y, q.z, q.w])
+            Z = np.vstack([m_pose.pose.position.x, m_pose.pose.position.y, theta])
             self.lock.acquire()
             if self.ignore_id:
                 self.update_ar(Z, 0, self.ar_precision)
@@ -217,9 +230,23 @@ class BubbleSLAM:
         marker.color.g = 1.0
         marker.color.b = 1.0
         ma.markers.append(marker)
+        pa = PoseArray()
+        pa.header = pose.header
         self.lock.acquire()
         for i in self.idx.iterkeys():
             for l in self.idx[i]:
+                # pose
+                landmark_pose = Pose()
+                landmark_pose.position.x = self.X[l, 0]
+                landmark_pose.position.y = self.X[l + 1, 0]
+                landmark_pose.position.z = 0.0
+                Q = quaternion_from_euler(0, 0, self.X[l + 2, 0])
+                landmark_pose.orientation.x = Q[0]
+                landmark_pose.orientation.y = Q[1]
+                landmark_pose.orientation.z = Q[2]
+                landmark_pose.orientation.w = Q[3]
+                pa.poses.append(landmark_pose)
+                # markers
                 marker = Marker()
                 marker.header.stamp = timestamp
                 marker.header.frame_id = self.target_frame
@@ -269,6 +296,7 @@ class BubbleSLAM:
                 ma.markers.append(marker)
         self.lock.release()
         self.marker_pub.publish(ma)
+        self.marker_pub_pose.publish(pa)
 
 
 if __name__ == "__main__":

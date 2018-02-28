@@ -1,0 +1,57 @@
+<launch>
+	<arg name="marker_size" default="19.4" />
+	<arg name="max_new_marker_error" default="0.08" />
+	<arg name="max_track_error" default="0.2" />
+	<arg name="cam_image_topic" default="/camera/rgb/image_color" />
+    <arg name="cam_info_topic" default="/camera/rgb/camera_info" />
+	<arg name="output_frame" default="/camera_rgb_frame" />
+	<node name="ar_track_alvar" pkg="ar_track_alvar" type="individualMarkersNoKinect" respawn="false" output="screen" args="$(arg marker_size) $(arg max_new_marker_error) $(arg max_track_error) $(arg cam_image_topic) $(arg cam_info_topic) $(arg output_frame)" />
+
+
+    <!-- joy node -->
+    <node respawn="false" pkg="joy" type="joy_node" name="joy" >
+        <param name="dev" type="string" value="/dev/input/js0" />
+        <!-- <param name="deadzone" value="0.12" /> -->
+        <param name="autorepeat_rate" value="10.0" />
+    </node>
+
+    <!-- Axes -->
+
+    <node pkg="vrep_ros_teleop" type="teleop.py" name="teleop">
+        <param name="axis_linear" value="1" type="int"/>
+        <param name="axis_angular" value="0" type="int"/>
+        <param name="scale_linear" value="0.3" type="double"/>
+        <param name="scale_angular" value="-1.0" type="double"/>
+        <remap from="/teleop/joy" to="/joy"/>
+    </node>
+
+    <node pkg="topic_tools" type="mux" name="cmd_mux"
+          args="/cmd_vel_mux/input/navi /teleop/twistCommand /mux/autoCommand">
+    </node>
+
+    <node pkg="vrep_ros_teleop" type="teleop_mux.py" name="teleop_mux">
+        <param name="joystick_button" value="0" type="int"/>
+        <param name="joystick_topic" value="/teleop/twistCommand"/>
+        <param name="auto_button" value="1" type="int"/>
+        <param name="auto_topic" value="/mux/autoCommand"/>
+        <remap from="/teleop_mux/joy" to="/joy"/>
+    </node>
+
+    <node pkg="ar_slam" type="turtle_slam_angle.py" name="slam" output="screen">
+        <param name="ignore_id" value="False"/>
+        <param name="target_frame" value="/map"/>
+        <param name="odom_frame" value="/odom"/>
+        <param name="body_frame" value="/base_link"/>
+        <!-- Expected precision of wheel displacement measurement (in meter) -->
+        <param name="position_uncertainty" value="0.01"/>
+        <param name="angular_uncertainty" value="0.01"/>
+        <!-- Expected precision of ar_tag localisation (in meter) -->
+        <param name="ar_precision" value="0.10"/>
+        <!-- Initial value of X,Y,Theta -->
+        <param name="initial_x" value="0.0"/>
+        <param name="initial_y" value="0.0"/>
+        <param name="initial_theta" value="0.0"/>
+    </node>
+
+
+</launch>
