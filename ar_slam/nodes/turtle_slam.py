@@ -18,7 +18,7 @@ from math import atan2, hypot, pi, cos, sin, fmod, sqrt
 
 from ar_track_alvar_msgs.msg import AlvarMarkers
 
-DIST_NEW_LANDMARK_THRESHOLD = 10
+DIST_NEW_LANDMARK_THRESHOLD = 3
 
 
 def norm_angle(x):
@@ -90,7 +90,7 @@ class BubbleSLAM:
 
     def update_ar(self, Z, id, uncertainty):
         # Z is a dictionary of id->np.vstack([x,y])
-        print "Update: Z=" + str(Z.T) + " X=" + str(self.X.T) + " Id=" + str(id)
+        # print "Update: Z=" + str(Z.T) + " X=" + str(self.X.T) + " Id=" + str(id)
         (n, _) = self.X.shape
         R = np.mat(np.diag([uncertainty, uncertainty]))
         theta = self.X[2, 0]
@@ -106,6 +106,7 @@ class BubbleSLAM:
                     min_dist = dist
                     l = i
             if min_dist > DIST_NEW_LANDMARK_THRESHOLD:
+                print "same landmark but too far, dist=", min_dist, "id=", id
                 self.idx[id].append(n)
                 self.X = np.concatenate((self.X, self.X[0:2, 0] + (Rtheta * Z)))
                 Pnew = np.mat(np.diag([uncertainty] * (n + 2)))
@@ -206,6 +207,7 @@ class BubbleSLAM:
         marker.color.g = 1.0
         marker.color.b = 1.0
         ma.markers.append(marker)
+        self.lock.acquire()
         for i in self.idx.iterkeys():
             for l in self.idx[i]:
                 marker = Marker()
@@ -222,8 +224,8 @@ class BubbleSLAM:
                 marker.pose.orientation.y = 0
                 marker.pose.orientation.z = 1
                 marker.pose.orientation.w = 0
-                marker.scale.x = 3 * sqrt(self.P[l, l])
-                marker.scale.y = 3 * sqrt(self.P[l + 1, l + 1])
+                marker.scale.x = 3 * sqrt(abs(self.P[l, l]))
+                marker.scale.y = 3 * sqrt(abs(self.P[l + 1, l + 1]))
                 marker.scale.z = 0.1
                 marker.color.a = 1.0
                 marker.color.r = 1.0
@@ -255,6 +257,7 @@ class BubbleSLAM:
                 marker.color.b = 1.0
                 marker.lifetime.secs = 3.0
                 ma.markers.append(marker)
+        self.lock.release()
         self.marker_pub.publish(ma)
 
 
