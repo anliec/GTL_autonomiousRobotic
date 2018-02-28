@@ -68,14 +68,12 @@ class MappingKF(RoverKinematics):
         DeltaX = iW * S
         # Update the state using odometry (same code as for the localisation
         # homework), but we only need to deal with a subset of the state:
-        # TODO: encoder_precision is the error on S
         Q = np.mat(
             [
                 [encoder_precision**2, 0, 0],
                 [0, encoder_precision**2, 0],
                 [0, 0, encoder_precision**2]
             ])
-        # TODO: compute the real F matrix...
         F = np.mat(
             [
                 [1, 0, -sin(theta) * DeltaX[0, 0] - cos(theta) * DeltaX[1, 0]],
@@ -87,7 +85,7 @@ class MappingKF(RoverKinematics):
         movement[2, 0] = ((movement[2, 0] + pi) % (2 * pi)) - pi  # ensure movement angle in [-pi;pi]
         # ultimately :
         self.X[0:3, 0] += movement
-        self.P[0:3, 0:3] = F.T * self.P[0:3, 0:3] * F + Q
+        self.P[0:3, 0:3] = F * self.P[0:3, 0:3] * F.T + Q
 
         self.lock.release()
         assert type(F) == np.matrixlib.defmatrix.matrix and type(Q) == np.matrixlib.defmatrix.matrix
@@ -98,7 +96,6 @@ class MappingKF(RoverKinematics):
     def update_ar(self, Z, id, uncertainty):
         # Landmark id has been observed as Z with a given uncertainty
         self.lock.acquire()
-        print "Update: Z=" + str(Z.T) + " X=" + str(self.X.T) + " Id=" + str(id)
         # Update the full state self.X and self.P based on landmark id
         # be careful that this might be the first time that id is observed
         R = np.mat(np.diag([uncertainty**2] * 2))  # 2x2
@@ -139,7 +136,6 @@ class MappingKF(RoverKinematics):
     def update_compass(self, Z, uncertainty):
         assert type(self.X) == np.matrixlib.defmatrix.matrix and type(self.P) == np.matrixlib.defmatrix.matrix
         self.lock.acquire()
-        # print "Update: S=" + str(Z) + " X=" + str(self.X.T)
         # Implement kalman update using compass here
         y_polar = np.mat([[Z - self.X[2, 0]]])  # 1x1
         H = np.mat(  # 3x1
@@ -240,54 +236,4 @@ class MappingKF(RoverKinematics):
             marker.color.b = 1.0
             marker.lifetime.secs = 3.0
             ma.markers.append(marker)
-
-        # for id in self.idx.iterkeys():
-        #     marker = Marker()
-        #     marker.header.stamp = timestamp
-        #     marker.header.frame_id = target_frame
-        #     marker.ns = "landmark_kf"
-        #     marker.id = id
-        #     marker.type = Marker.CYLINDER
-        #     marker.action = Marker.ADDfrontCamera
-        #     l = self.idx[id]
-        #     marker.pose.position.x = self.X[l, 0]
-        #     marker.pose.position.y = self.X[l + 1, 0]
-        #     marker.pose.position.z = -0.1
-        #     marker.pose.orientation.x = 0
-        #     marker.pose.orientation.y = 0
-        #     marker.pose.orientation.z = 1
-        #     marker.pose.orientation.w = 0
-        #     marker.scale.x = 3 * np.sqrt(self.P[l, l])
-        #     marker.scale.y = 3 * np.sqrt(self.P[l + 1, l + 1])
-        #     marker.scale.z = 0.1
-        #     marker.color.a = 1.0
-        #     marker.color.r = 1.0
-        #     marker.color.g = 1.0
-        #     marker.color.b = 0.0
-        #     marker.lifetime.secs = 3.0
-        #     ma.markers.append(marker)
-        #     marker = Marker()
-        #     marker.header.stamp = timestamp
-        #     marker.header.frame_id = target_frame
-        #     marker.ns = "landmark_kf"
-        #     marker.id = 1000 + id
-        #     marker.type = Marker.TEXT_VIEW_FACING
-        #     marker.action = Marker.ADD
-        #     marker.pose.position.x = self.X[l + 0, 0]
-        #     marker.pose.position.y = self.X[l + 1, 0]
-        #     marker.pose.position.z = 1.0
-        #     marker.pose.orientation.x = 0
-        #     marker.pose.orientation.y = 0[:3, :3]
-        #     marker.pose.orientation.z = 1
-        #     marker.pose.orientation.w = 0
-        #     marker.text = str(id)
-        #     marker.scale.x = 1.0
-        #     marker.scale.y = 1.0
-        #     marker.scale.z = 0.2
-        #     marker.color.a = 1.0
-        #     marker.color.r = 1.0
-        #     marker.color.g = 1.0
-        #     marker.color.b = 1.0
-        #     marker.lifetime.secs = 3.0
-        #     ma.markers.append(marker)
         self.marker_pub.publish(ma)
