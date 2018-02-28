@@ -7,12 +7,77 @@ from numpy.linalg import inv
 from math import pi, sin, cos
 from visualization_msgs.msg import Marker, MarkerArray
 from geometry_msgs.msg import Point, Pose, PoseStamped
-from ar_mapping.mapping_kf import Landmark
 import tf
 import threading
 
 import rover_driver
 from ar_loc.rover_kinematics import *
+
+
+class Landmark:
+
+    def __init__(self, Z, X, R, Px):
+        # Initialise a landmark based on measurement Z,
+        # current position X and uncertainty R
+        self.L = np.vstack([0, 0])
+        xr = X[0, 0]
+        yr = X[1, 0]
+        tr = X[2, 0]
+        xl = self.L[0, 0]
+        yl = self.L[1, 0]
+        self.H = np.mat(
+            [
+                [-cos(tr), -sin(tr),  (yl-yr)*cos(tr)-(xl-xr)*sin(tr),  cos(tr), -sin(tr)],
+                [sin(tr),  -cos(tr), -(xl-xr)*cos(tr)-(yl-yr)*sin(tr),  sin(tr), cos(tr)]
+            ]
+        )
+        # self.dfdz = np.mat(
+        #     [
+        #         [cos(tr), sin(tr)],
+        #         [-sin(tr), cos(tr)]
+        #     ])
+        dfdz = self.H[:, 3:5]  # in this case h and baseChange has the same Jacobian
+        self.P = np.mat(np.zeros((5, 5)))
+        self.P[0:3, 0:3] = Px
+        print dfdz * R * dfdz.T
+        self.P[3:5, 3:5] = dfdz * R * dfdz.T  #
+        # from wolfram alpha:
+        # https://www.wolframalpha.com/input/?i=jacobian+(+(x-a)*cos(c)-(y-b)*sin(c)+,+(y-b)*cos(c)%2B(x-a)*sin(c)+)
+
+        baseChange = np.mat([
+            [cos(tr), -sin(tr), xr],
+            [sin(tr), cos(tr), yr]
+        ])
+        self.L = baseChange * np.vstack((Z, [1]))
+
+    def update(self, Z, X, R, Px):
+        """
+        :param Z: position of the landmark in the Robot frame
+        :param X: position of the robot in the world frame
+        :param R: covariance matrix of the observation noise
+        :param Px: covariance matrix of the robot localisation
+        :return:
+        """
+        # Update the landmark based on measurement Z,
+        # current position X and uncertainty R
+        tr = X[2, 0]
+        self.P[0:3, 0:3] = Px
+        y = Z - MappingKF.h_loc(X, self.L)  # 2x1 + 2x1
+
+        dfdz = self.H[:, 3:5]
+
+        S = dfdz * R * dfdz + self.H * self.P * self.H.T  # 2x2 + 2x5 * 5x5 * 5x2
+        K = self.P * self.H.T * np.mat(np.linalg.inv(S))  # 5x5 * 5x2 * 2x2
+        new_X = np.mat(np.vstack((X, self.L))) + K * y  # 5x1 + 5x2 * 2x1
+        self.L = new_X[3:5, 0]
+        X = new_X[0:3, 0]
+        self.P = (np.mat(np.identity(5)) - K * self.H) * self.P  # (5x5 - 5x2*2x5) * 5x5
+        print ("X:" + str(X))
+        print ("Z:" + str(Z))
+        assert type(self.H) == np.matrixlib.defmatrix.matrix and type(S) == np.matrixlib.defmatrix.matrix
+        assert type(K) == np.matrixlib.defmatrix.matrix
+        assert type(R) == np.matrixlib.defmatrix.matrix
+        return X, self.P[0:3, 0:3]
 
 
 class MappingKF(RoverKinematics):
@@ -104,29 +169,26 @@ class MappingKF(RoverKinematics):
         # be careful that this might be the first time that id is observed
         R = np.mat(np.diag([uncertainty**2] * 2))  # 2x2
         if id in self.idx:
-            y_cart, dist = self.h_loc(self.X[0:3, 0], self.idx[id].L)
-            y_cart = Z - y_cart
-            theta = self.X[2, 0]
-            # https://www.wolframalpha.com/input/?i=jacobian(%5B%5Bcos(z)*(a-x)+-+sin(z)*(b-y)%5D,+%5Bsin(z)*(a-x)+%2B+cos(z)*(b-y)%5D%5D)
-            H = np.mat(
-                [
-                    [-cos(theta), -sin(theta),  dist[1, 0] * cos(theta) - dist[0, 0] * sin(theta)],
-                    [sin(theta),  -cos(theta), -dist[0, 0] * cos(theta) - dist[1, 0] * sin(theta)]
-                ]
-            )
-            S = H * self.P[0:3, 0:3] * H.T + R  # 2x2
-            K = self.P[0:3, 0:3] * H.T * np.mat(np.linalg.inv(S))  # 2x3
+            # y_cart, dist = self.h_loc(self.X[0:3, 0], self.idx[id].L)
+            # y_cart = Z - y_cart
+            # theta = self.X[2, 0]
+            # # https://www.wolframalpha.com/input/?i=jacobian(%5B%5Bcos(z)*(a-x)+-+sin(z)*(b-y)%5D,+%5Bsin(z)*(a-x)+%2B+cos(z)*(b-y)%5D%5D)
+            # H = np.mat(
+            #     [
+            #         [-cos(theta), -sin(theta),  dist[1, 0] * cos(theta) - dist[0, 0] * sin(theta)],
+            #         [sin(theta),  -cos(theta), -dist[0, 0] * cos(theta) - dist[1, 0] * sin(theta)]
+            #     ]
+            # )
+            # S = H * self.P[0:3, 0:3] * H.T + R  # 2x2
+            # K = self.P[0:3, 0:3] * H.T * np.mat(np.linalg.inv(S))  # 2x3
+            #
+            # self.X[0:3, 0] += K * y_cart  # 1x3
+            # self.P[0:3, 0:3] = (np.identity(3) - K * H) * self.P[0:3, 0:3]  # 3x3
 
-            self.X[0:3, 0] += K * y_cart  # 1x3
-            self.P[0:3, 0:3] = (np.mat(np.identity(3)) - K * H) * self.P[0:3, 0:3]  # 3x3
-
-            # update landmark position
-            self.idx[id].update(Z, self.X, R)
-            assert type(H) == np.matrixlib.defmatrix.matrix and type(S) == np.matrixlib.defmatrix.matrix
-            assert type(K) == np.matrixlib.defmatrix.matrix and type(y_cart) == np.matrixlib.defmatrix.matrix
-            assert type(R) == np.matrixlib.defmatrix.matrix
+            # update landmark and rover position
+            (self.X, self.P) = self.idx[id].update(Z, self.X, R, self.P)
         else:
-            self.idx[id] = Landmark(Z, self.X, R)
+            self.idx[id] = Landmark(Z, self.X, R, self.P)
 
         self.lock.release()
 
