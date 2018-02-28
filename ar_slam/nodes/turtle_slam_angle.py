@@ -94,6 +94,7 @@ class BubbleSLAM:
         # Z is a dictionary of id->np.vstack([x,y])
         # print "Update: Z=" + str(Z.T) + " X=" + str(self.X.T) + " Id=" + str(id)
         (n, _) = self.X.shape
+        Z = np.mat(Z)
         theta = self.X[2, 0]
         Rtheta = self.getRotation(theta)
         Rmtheta = self.getRotation(-theta)
@@ -101,7 +102,7 @@ class BubbleSLAM:
         if id in self.idx.keys():
             min_dist = None
             l = None
-            p_landmark = self.X[:2, 0] + (Rtheta * np.mat(Z[:2, 0]).T)
+            p_landmark = self.X[:2, 0] + (Rtheta * np.mat(Z[:2, 0]))
             for i in self.idx[id]:
                 dist = np.sum(np.power(self.X[i:i + 2, 0] - p_landmark, 2))
                 if min_dist is None or dist < min_dist:
@@ -110,7 +111,7 @@ class BubbleSLAM:
             if min_dist > DIST_NEW_LANDMARK_THRESHOLD:
                 print "same landmark but too far, dist=", sqrt(min_dist), "id=", id, "list_size=", len(self.idx[id])
                 self.idx[id].append(n)
-                p_landmark = self.X[:2, 0] + (Rtheta * np.mat(Z[:2, 0]).T)
+                p_landmark = self.X[:2, 0] + (Rtheta * np.mat(Z[:2, 0]))
                 a_landmark = np.mat(Z[2, 0] - theta)
                 self.X = np.concatenate([self.X, p_landmark, a_landmark])
                 Pnew = np.mat(np.diag([uncertainty] * (n + 3)))
@@ -140,7 +141,7 @@ class BubbleSLAM:
                 self.P = (np.mat(np.eye(n)) - K * H) * self.P
         else:
             self.idx[id] = [n]
-            p_landmark = self.X[:2, 0] + (Rtheta * np.mat(Z[:2, 0]).T)
+            p_landmark = self.X[:2, 0] + (Rtheta * np.mat(Z[:2, 0]))
             a_landmark = np.mat(Z[2, 0] - theta)
             self.X = np.concatenate([self.X, p_landmark, a_landmark])
             Pnew = np.mat(np.diag([uncertainty] * (n + 3)))

@@ -78,6 +78,7 @@ class BubbleSLAM:
         Qs = np.mat(np.diag([self.position_uncertainty ** 2] * 3))
         P = self.P[0:3, 0:3]
         self.P[0:3, 0:3] = Jx * P * Jx.T + Qs
+        assert type(self.X) == np.matrixlib.defmatrix.matrix and type(self.P) == np.matrixlib.defmatrix.matrix
         return self.X, self.P
 
     @staticmethod
@@ -97,10 +98,11 @@ class BubbleSLAM:
         return R
 
     def update_ar(self, Z, id, uncertainty):
+        assert type(self.X) == np.matrixlib.defmatrix.matrix and type(self.P) == np.matrixlib.defmatrix.matrix
         # Z is a dictionary of id->np.vstack([x,y])
         # print "Update: Z=" + str(Z.T) + " X=" + str(self.X.T) + " Id=" + str(id)
         (n, _) = self.X.shape
-        R = np.mat(np.diag([uncertainty, uncertainty]))
+        Z = np.mat(Z)
         theta = self.X[2, 0]
         Rtheta = self.getRotation(theta)
         Rmtheta = self.getRotation(-theta)
@@ -108,7 +110,7 @@ class BubbleSLAM:
         if id in self.idx.keys():
             min_dist = None
             l = None
-            p_landmark = self.X[:2, 0] + (Rtheta * np.mat(Z[:2, 0]).T)
+            p_landmark = self.X[:2, 0] + (Rtheta * np.mat(Z[:2, 0]))
             for i in self.idx[id]:
                 dist = np.sum(np.power(self.X[i:i + 2, 0] - p_landmark, 2))
                 if min_dist is None or dist < min_dist:
@@ -129,16 +131,22 @@ class BubbleSLAM:
                      -(self.X[l + 0, 0] - self.X[0, 0]) * cos(theta) - (self.X[l + 1, 0] - self.X[1, 0]) * sin(theta)]))
                 H[0:2, l:l + 2] = Rmtheta
                 Zpred = Rmtheta * (self.X[l:l + 2, 0] - self.X[0:2, 0])
+                R = np.mat(np.diag([uncertainty, uncertainty]))
                 S = H * self.P * H.T + R
                 K = self.P * H.T * np.mat(np.linalg.inv(S))
                 self.X = self.X + K * (Z - Zpred)
                 self.P = (np.mat(np.eye(n)) - K * H) * self.P
+                assert type(S) == np.matrixlib.defmatrix.matrix and type(Z) == np.matrixlib.defmatrix.matrix
+                assert type(K) == np.matrixlib.defmatrix.matrix and type(Zpred) == np.matrixlib.defmatrix.matrix
+                assert type(H) == np.matrixlib.defmatrix.matrix
         else:
             self.idx[id] = [n]
             self.X = np.concatenate((self.X, self.X[0:2, 0] + (Rtheta * Z)))
             Pnew = np.mat(np.diag([uncertainty] * (n + 2)))
             Pnew[0:n, 0:n] = self.P
             self.P = Pnew
+        assert type(self.X) == np.matrixlib.defmatrix.matrix and type(self.P) == np.matrixlib.defmatrix.matrix
+        assert type(Rmtheta) == np.matrixlib.defmatrix.matrix and type(Rtheta) == np.matrixlib.defmatrix.matrix
         return self.X, self.P
 
     def ar_cb(self, markers):
