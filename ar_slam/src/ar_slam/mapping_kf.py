@@ -106,7 +106,7 @@ class MappingKF(RoverKinematics):
         (lx, _) = self.X.shape
         if id in self.idx:
             lid = self.idx[id]
-            y_cart, dist = self.h_loc(self.X[0:3, 0], self.X[lid:lid+3, 0])
+            y_cart, dist = self.h_loc(self.X[0:3, 0], self.X[lid:lid+2, 0])
             y = Z - y_cart
             H = np.mat(np.zeros((2, lx)))
             H[:, 0:3] = np.mat(
@@ -115,7 +115,7 @@ class MappingKF(RoverKinematics):
                     [sin(theta),  -cos(theta), -dist[0, 0] * cos(theta) - dist[1, 0] * sin(theta)]
                 ]
             )
-            H[0:2, lid:lid+3] = self.getRotation(-theta)
+            H[0:2, lid:lid+2] = self.getRotation(-theta)
             S = H * self.P * H.T + R  # 2x2
             K = self.P * H.T * np.mat(np.linalg.inv(S))  # 2x3
 
@@ -124,7 +124,7 @@ class MappingKF(RoverKinematics):
 
             # update landmark and rover position
         else:
-            L = self.getRotation(theta) * (self.X[0:2] - Z)
+            L = self.X[0:2] + (self.getRotation(theta) * Z)
             self.X = np.vstack((self.X, L))
             new_P = np.mat(np.identity(lx+2)) * uncertainty
             new_P[0:lx, 0:lx] = self.P
@@ -137,30 +137,29 @@ class MappingKF(RoverKinematics):
         return self.X, self.P
 
     def update_compass(self, Z, uncertainty):
-        pass
-        # assert type(self.X) == np.matrixlib.defmatrix.matrix and type(self.P) == np.matrixlib.defmatrix.matrix
-        # self.lock.acquire()
-        # # print "Update: S=" + str(Z) + " X=" + str(self.X.T)
-        # # Implement kalman update using compass here
-        # y_polar = np.mat([[Z - self.X[2, 0]]])  # 1x1
-        # H = np.mat(  # 3x1
-        #     [
-        #         [0, 0, 1],
-        #     ]
-        # )
-        # R = np.mat(np.diag([uncertainty] * 1))  # 1x1
-        # S = H * self.P * H.T + R  # 1x1
-        # K = self.P * H.T * np.mat(np.linalg.inv(S))  # 1x3
-        #
-        # y_polar[0, 0] = ((y_polar[0, 0] + pi) % (2 * pi)) - pi  # ensure movement angle in [-pi;pi]
-        # self.X += K * y_polar  # 1x3
-        # self.P = (np.identity(3) - K * H) * self.P  # 3x3
-        # self.lock.release()
-        # assert type(y_polar) == np.matrixlib.defmatrix.matrix and type(H) == np.matrixlib.defmatrix.matrix
-        # assert type(R) == np.matrixlib.defmatrix.matrix
-        # assert type(S) == np.matrixlib.defmatrix.matrix and type(K) == np.matrixlib.defmatrix.matrix
-        # assert type(self.X) == np.matrixlib.defmatrix.matrix and type(self.P) == np.matrixlib.defmatrix.matrix
-        # return self.X, self.P
+        assert type(self.X) == np.matrixlib.defmatrix.matrix and type(self.P) == np.matrixlib.defmatrix.matrix
+        self.lock.acquire()
+        # print "Update: S=" + str(Z) + " X=" + str(self.X.T)
+        # Implement kalman update using compass here
+        y_polar = np.mat([[Z - self.X[2, 0]]])  # 1x1
+        H = np.mat(  # 3x1
+            [
+                [0, 0, 1],
+            ]
+        )
+        R = np.mat(np.diag([uncertainty] * 1))  # 1x1
+        S = H * self.P[:3, :3] * H.T + R  # 1x1
+        K = self.P[:3, :3] * H.T * np.mat(np.linalg.inv(S))  # 1x3
+
+        y_polar[0, 0] = ((y_polar[0, 0] + pi) % (2 * pi)) - pi  # ensure movement angle in [-pi;pi]
+        self.X[:3, 0] += K * y_polar  # 1x3
+        self.P[:3, :3] = (np.identity(3) - K * H) * self.P[:3, :3]  # 3x3
+        self.lock.release()
+        assert type(y_polar) == np.matrixlib.defmatrix.matrix and type(H) == np.matrixlib.defmatrix.matrix
+        assert type(R) == np.matrixlib.defmatrix.matrix
+        assert type(S) == np.matrixlib.defmatrix.matrix and type(K) == np.matrixlib.defmatrix.matrix
+        assert type(self.X) == np.matrixlib.defmatrix.matrix and type(self.P) == np.matrixlib.defmatrix.matrix
+        return self.X, self.P
 
     def publish(self, target_frame, timestamp):
         pose = PoseStamped()
@@ -278,7 +277,7 @@ class MappingKF(RoverKinematics):
         #     marker.pose.position.y = self.X[l + 1, 0]
         #     marker.pose.position.z = 1.0
         #     marker.pose.orientation.x = 0
-        #     marker.pose.orientation.y = 0
+        #     marker.pose.orientation.y = 0[:3, :3]
         #     marker.pose.orientation.z = 1
         #     marker.pose.orientation.w = 0
         #     marker.text = str(id)

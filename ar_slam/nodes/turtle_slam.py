@@ -18,7 +18,7 @@ from math import atan2, hypot, pi, cos, sin, fmod, sqrt
 
 from ar_track_alvar_msgs.msg import AlvarMarkers
 
-DIST_NEW_LANDMARK_THRESHOLD = 3
+DIST_NEW_LANDMARK_THRESHOLD = 4**2
 
 
 def norm_angle(x):
@@ -80,12 +80,20 @@ class BubbleSLAM:
         self.P[0:3, 0:3] = Jx * P * Jx.T + Qs
         return self.X, self.P
 
-    def getRotation(self, theta):
+    @staticmethod
+    def getRotation(theta):
         R = np.mat(np.zeros((2, 2)))
         R[0, 0] = cos(theta)
         R[0, 1] = -sin(theta)
         R[1, 0] = sin(theta)
         R[1, 1] = cos(theta)
+        return R
+
+    @staticmethod
+    def get_rotation_3x3(theta):
+        R = np.mat(np.zeros((3, 3)))
+        R[:2, :2] = BubbleSLAM.getRotation(theta)
+        R[2, 2] = 1.0
         return R
 
     def update_ar(self, Z, id, uncertainty):
@@ -101,12 +109,12 @@ class BubbleSLAM:
             min_dist = None
             l = None
             for i in self.idx[id]:
-                dist = np.linalg.norm((self.X[i:i + 2, 0] - self.X[0:2, 0]), 2)
+                dist = np.sum(np.power(self.X[i:i + 2, 0] - self.X[0:2, 0], 2))
                 if min_dist is None or dist < min_dist:
                     min_dist = dist
                     l = i
             if min_dist > DIST_NEW_LANDMARK_THRESHOLD:
-                print "same landmark but too far, dist=", min_dist, "id=", id
+                print "same landmark but too far, dist=", sqrt(min_dist), "id=", id, "list_size=", len(self.idx[id])
                 self.idx[id].append(n)
                 self.X = np.concatenate((self.X, self.X[0:2, 0] + (Rtheta * Z)))
                 Pnew = np.mat(np.diag([uncertainty] * (n + 2)))
@@ -141,7 +149,7 @@ class BubbleSLAM:
             m_pose.header = m.header
             m_pose.point = m.pose.pose.position
             m_pose = self.listener.transformPoint(self.body_frame, m_pose)
-            Z = np.vstack([m_pose.point.x, m_pose.point.y])
+            Z = np.vstack([m_pose.point.x, m_pose.point.y])  # , m_pose.orientation.z])
             self.lock.acquire()
             if self.ignore_id:
                 self.update_ar(Z, 0, self.ar_precision)
@@ -178,6 +186,8 @@ class BubbleSLAM:
             rate.sleep()
 
     def publish(self, timestamp):
+        # if np.min(self.P) < 0.0:
+        #     print "negative value in P"
         pose = PoseStamped()
         pose.header.frame_id = self.target_frame
         pose.header.stamp = timestamp
@@ -199,8 +209,8 @@ class BubbleSLAM:
         marker.action = Marker.ADD
         marker.pose = pose.pose
         marker.pose.position.z = -0.1
-        marker.scale.x = 3 * sqrt(self.P[0, 0])
-        marker.scale.y = 3 * sqrt(self.P[1, 1])
+        marker.scale.x = 3 * sqrt(abs(self.P[0, 0]))
+        marker.scale.y = 3 * sqrt(abs(self.P[1, 1]))
         marker.scale.z = 0.1
         marker.color.a = 1.0
         marker.color.r = 0.0
@@ -214,7 +224,7 @@ class BubbleSLAM:
                 marker.header.stamp = timestamp
                 marker.header.frame_id = self.target_frame
                 marker.ns = "landmark_kf"
-                marker.id = i
+                marker.id = l
                 marker.type = Marker.CYLINDER
                 marker.action = Marker.ADD
                 marker.pose.position.x = self.X[l, 0]
@@ -237,7 +247,7 @@ class BubbleSLAM:
                 marker.header.stamp = timestamp
                 marker.header.frame_id = self.target_frame
                 marker.ns = "landmark_kf"
-                marker.id = 1000 + i
+                marker.id = 1000 + l
                 marker.type = Marker.TEXT_VIEW_FACING
                 marker.action = Marker.ADD
                 marker.pose.position.x = self.X[l + 0, 0]
