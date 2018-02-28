@@ -75,7 +75,7 @@ class BubbleSLAM:
         Jx = np.mat([[1, 0, -sin(theta) * Delta[0, 3] - cos(theta) * Delta[1, 3]],
                   [0, 1, cos(theta) * Delta[0, 3] - sin(theta) * Delta[1, 3]],
                   [0, 0, 1]])
-        Qs = np.mat(np.diag([self.position_uncertainty ** 2, self.position_uncertainty ** 2, self.angular_uncertainty ** 2]))
+        Qs = np.mat(np.diag([self.position_uncertainty ** 2] * 3))
         P = self.P[0:3, 0:3]
         self.P[0:3, 0:3] = Jx * P * Jx.T + Qs
         return self.X, self.P
