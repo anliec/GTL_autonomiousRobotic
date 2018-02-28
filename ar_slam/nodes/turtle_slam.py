@@ -79,6 +79,7 @@ class BubbleSLAM:
         P = self.P[0:3, 0:3]
         self.P[0:3, 0:3] = Jx * P * Jx.T + Qs
         assert type(self.X) == np.matrixlib.defmatrix.matrix and type(self.P) == np.matrixlib.defmatrix.matrix
+        self.P = np.mat(np.abs(self.P))
         return self.X, self.P
 
     @staticmethod
@@ -145,6 +146,7 @@ class BubbleSLAM:
             Pnew = np.mat(np.diag([uncertainty] * (n + 2)))
             Pnew[0:n, 0:n] = self.P
             self.P = Pnew
+        self.P = np.mat(np.abs(self.P))
         assert type(self.X) == np.matrixlib.defmatrix.matrix and type(self.P) == np.matrixlib.defmatrix.matrix
         assert type(Rmtheta) == np.matrixlib.defmatrix.matrix and type(Rtheta) == np.matrixlib.defmatrix.matrix
         return self.X, self.P

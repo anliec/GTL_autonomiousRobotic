@@ -79,6 +79,7 @@ class BubbleSLAM:
         Qs = np.mat(np.diag([self.position_uncertainty ** 2] * 3))
         P = self.P[0:3, 0:3]
         self.P[0:3, 0:3] = Jx * P * Jx.T + Qs
+        self.P = np.mat(np.abs(self.P))
         return self.X, self.P
 
     @staticmethod
@@ -147,6 +148,7 @@ class BubbleSLAM:
             Pnew = np.mat(np.diag([uncertainty] * (n + 3)))
             Pnew[0:n, 0:n] = self.P
             self.P = Pnew
+        self.P = np.mat(np.abs(self.P))
         return self.X, self.P
 
     def ar_cb(self, markers):
