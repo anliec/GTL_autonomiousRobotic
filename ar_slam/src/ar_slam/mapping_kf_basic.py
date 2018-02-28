@@ -147,6 +147,7 @@ class MappingKFBase(RoverKinematics):
         S = H * self.P * H.T + R  # 1x1
         K = self.P * H.T * np.mat(np.linalg.inv(S))  # 1x3
 
+        y_polar[0, 0] = ((y_polar[0, 0] + pi) % (2 * pi)) - pi  # ensure movement angle in [-pi;pi]
         self.X += K * y_polar  # 1x3
         self.P = (np.identity(3) - K * H) * self.P  # 3x3
         self.lock.release()
