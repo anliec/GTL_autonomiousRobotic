@@ -108,8 +108,9 @@ class BubbleSLAM:
         if id in self.idx.keys():
             min_dist = None
             l = None
+            p_landmark = self.X[:2, 0] + (Rtheta * np.mat(Z[:2, 0]).T)
             for i in self.idx[id]:
-                dist = np.sum(np.power(self.X[i:i + 2, 0] - self.X[0:2, 0], 2))
+                dist = np.sum(np.power(self.X[i:i + 2, 0] - p_landmark, 2))
                 if min_dist is None or dist < min_dist:
                     min_dist = dist
                     l = i
@@ -129,7 +130,7 @@ class BubbleSLAM:
                 H[0:2, l:l + 2] = Rmtheta
                 Zpred = Rmtheta * (self.X[l:l + 2, 0] - self.X[0:2, 0])
                 S = H * self.P * H.T + R
-                K = self.P * H.T * np.linalg.inv(S)
+                K = self.P * H.T * np.mat(np.linalg.inv(S))
                 self.X = self.X + K * (Z - Zpred)
                 self.P = (np.mat(np.eye(n)) - K * H) * self.P
         else:
