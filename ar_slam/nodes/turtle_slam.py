@@ -117,7 +117,7 @@ class BubbleSLAM:
                 H[0:2, 0:2] = -Rmtheta
                 H[0:2, 2] = np.mat(np.vstack(
                     [-(self.X[l + 0, 0] - self.X[0, 0]) * sin(theta) + (self.X[l + 1, 0] - self.X[1, 0]) * cos(theta),
-                      (self.X[l + 0, 0] - self.X[0, 0]) * cos(theta) - (self.X[l + 1, 0] - self.X[1, 0]) * sin(theta)]))
+                     -(self.X[l + 0, 0] - self.X[0, 0]) * cos(theta) - (self.X[l + 1, 0] - self.X[1, 0]) * sin(theta)]))
                 H[0:2, l:l + 2] = Rmtheta
                 Zpred = Rmtheta * (self.X[l:l + 2, 0] - self.X[0:2, 0])
                 S = H * self.P * H.T + R
