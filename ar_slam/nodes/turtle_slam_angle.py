@@ -146,6 +146,7 @@ class BubbleSLAM:
             a_landmark = np.mat(Z[2, 0] - theta)
             self.X = np.concatenate([self.X, p_landmark, a_landmark])
             Pnew = np.mat(np.diag([uncertainty] * (n + 3)))
+            Pnew[n + 2, n + 2] = pi / 2
             Pnew[0:n, 0:n] = self.P
             self.P = Pnew
         self.P = np.mat(np.abs(self.P))
