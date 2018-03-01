@@ -61,25 +61,39 @@ class BubbleSLAM:
         self.old_odom = np.mat(self.listener.fromTranslationRotation(trans, rot))
 
     def predict(self, Delta):
-
         # Implement Kalman prediction here
+        oldP = self.P.copy()
         theta = self.X[2, 0]
-        pose_mat = np.mat([[cos(theta), -sin(theta), 0, self.X[0, 0]],
-                        [sin(theta), cos(theta), 0, self.X[1, 0]],
-                        [0, 0, 1, 0],
-                        [0, 0, 0, 1],
-                        ])
+        pose_mat = np.mat(
+            [
+                [cos(theta), -sin(theta), 0, self.X[0, 0]],
+                [sin(theta), cos(theta), 0, self.X[1, 0]],
+                [0, 0, 1, 0],
+                [0, 0, 0, 1],
+            ])
         pose_mat = Delta * pose_mat
         self.X[0:2, 0] = pose_mat[0:2, 3:4]
         euler = euler_from_matrix(pose_mat[0:3, 0:3], 'rxyz')
         self.X[2, 0] = euler[2]  # Ignore the others
-        Jx = np.mat([[1, 0, -sin(theta) * Delta[0, 3] - cos(theta) * Delta[1, 3]],
-                  [0, 1, cos(theta) * Delta[0, 3] - sin(theta) * Delta[1, 3]],
-                  [0, 0, 1]])
+        Jx = np.mat(
+            [
+                [1, 0, -sin(theta) * Delta[0, 3] - cos(theta) * Delta[1, 3]],
+                [0, 1, cos(theta) * Delta[0, 3] - sin(theta) * Delta[1, 3]],
+                [0, 0, 1]
+            ]
+        )
         Qs = np.mat(np.diag([self.position_uncertainty ** 2] * 3))
         P = self.P[0:3, 0:3]
         self.P[0:3, 0:3] = Jx * P * Jx.T + Qs
-        self.P = np.mat(np.abs(self.P))
+        if np.min(self.P.diagonal()) < 0.0:
+            print "bad P on predict arg at:", np.argmin(self.P.diagonal())
+            print "Jx matrix:\n", Jx
+            print "old value of P:\n", oldP.diagonal()
+            print "attention les yeux:\n", self.P.diagonal()
+            print "================= Patching P ==============="
+            n, _ = self.P.shape
+            for i in range(n):
+                self.P[i, i] = abs(self.P[i, i])
         return self.X, self.P
 
     @staticmethod
@@ -149,7 +163,13 @@ class BubbleSLAM:
             Pnew[n + 2, n + 2] = pi / 2
             Pnew[0:n, 0:n] = self.P
             self.P = Pnew
-        self.P = np.mat(np.abs(self.P))
+        if np.min(self.P.diagonal()) < 0.0:
+            print "bad P on predict arg at:", np.argmin(self.P.diagonal())
+            print "attention les yeux:\n", self.P.diagonal()
+            print "================= Patching P ==============="
+            n, _ = self.P.shape
+            for i in range(n):
+                self.P[i, i] = abs(self.P[i, i])
         return self.X, self.P
 
     def ar_cb(self, markers):
@@ -227,8 +247,8 @@ class BubbleSLAM:
         marker.action = Marker.ADD
         marker.pose = pose.pose
         marker.pose.position.z = -0.1
-        marker.scale.x = 3 * sqrt(abs(self.P[0, 0]))
-        marker.scale.y = 3 * sqrt(abs(self.P[1, 1]))
+        marker.scale.x = 3 * sqrt(self.P[0, 0])
+        marker.scale.y = 3 * sqrt(self.P[1, 1])
         marker.scale.z = 0.1
         marker.color.a = 1.0
         marker.color.r = 0.0
@@ -266,8 +286,8 @@ class BubbleSLAM:
                 marker.pose.orientation.y = 0
                 marker.pose.orientation.z = 1
                 marker.pose.orientation.w = 0
-                marker.scale.x = 3 * sqrt(abs(self.P[l, l]))
-                marker.scale.y = 3 * sqrt(abs(self.P[l + 1, l + 1]))
+                marker.scale.x = 3 * sqrt(self.P[l, l])
+                marker.scale.y = 3 * sqrt(self.P[l + 1, l + 1])
                 marker.scale.z = 0.1
                 marker.color.a = 1.0
                 marker.color.r = 1.0
