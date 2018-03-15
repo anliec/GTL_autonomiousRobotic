@@ -223,9 +223,13 @@ void TaskScheduler::addTask(boost::shared_ptr<TaskDefinitionBase> td)
 
 void TaskScheduler::loadTask(const std::string & filename, boost::shared_ptr<TaskEnvironment> env)
 {
+    try {
     boost::shared_ptr<TaskDefinitionBase> td(new DynamicTask(filename, env));
 
     addTask(td);
+    } catch (DynamicTask::DLLoadError & e) {
+        ROS_ERROR("Ignoring file '%s': '%s'",filename.c_str(),e.what());
+    }
 }
 
 void TaskScheduler::configureTasks()
@@ -503,7 +507,7 @@ void TaskScheduler::runTask(boost::shared_ptr<ThreadParameters> tp)
                 }
                 tp->updateStatus(ros::Time::now());
                 if (!first && tp->status != task_manager_msgs::TaskStatus::TASK_RUNNING) {
-                    ROS_INFO("Task '%s' not running anymore",tp->task->getName().c_str());
+                    ROS_INFO("Task '%s' not running anymore or not reporting itself running in time",tp->task->getName().c_str());
                     break;
                 }
 
