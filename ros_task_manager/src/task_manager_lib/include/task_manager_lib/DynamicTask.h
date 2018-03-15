@@ -13,7 +13,14 @@ namespace task_manager_lib {
     //    TaskXXX(boost::shared_ptr<TaskEnvironment> env)
     class DynamicTask : public TaskDefinitionBase
     {
-        public: 
+        protected:
+            // DLL file
+            std::string filename;
+            // Pointer to the dll object
+            void * handle;
+            // Shared pointer on the loaded task
+            boost::shared_ptr<TaskDefinitionBase> task;
+
             struct DLLoadError : public std::exception {
                 std::string text;
                 DLLoadError(const std::string & s) {
@@ -24,14 +31,6 @@ namespace task_manager_lib {
                     return text.c_str();
                 }
             };
-
-        protected:
-            // DLL file
-            std::string filename;
-            // Pointer to the dll object
-            void * handle;
-            // Shared pointer on the loaded task
-            boost::shared_ptr<TaskDefinitionBase> task;
 
         public:
             // Load a class from a library file fname, and pass env to its

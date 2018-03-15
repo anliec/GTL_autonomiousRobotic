@@ -4,7 +4,7 @@ project(task_manager_turtlesim)
 ## Find catkin macros and libraries
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
 ## is used, also find other catkin packages
-find_package(catkin REQUIRED COMPONENTS roscpp std_msgs task_manager_lib task_manager_action task_manager_msgs turtlesim )
+find_package(catkin REQUIRED COMPONENTS roscpp std_msgs task_manager_lib task_manager_msgs turtlesim )
 
 ## System dependencies are found with CMake's conventions
 find_package(Boost REQUIRED COMPONENTS system)
@@ -40,6 +40,7 @@ generate_dynamic_reconfigure_options(
     cfg/TaskSetPen.cfg
     cfg/TaskWaitForButton.cfg
     cfg/TaskWaitForROI.cfg
+#    cfg/TaskWaitForFace.cfg
 )
 
 
@@ -93,46 +94,34 @@ include_directories(
 #   ${catkin_LIBRARIES}
 # )
 
-ADD_EXECUTABLE( turtlesim_task_server src/task_server.cpp src/TurtleSimEnv.cpp) 
-TARGET_LINK_LIBRARIES(turtlesim_task_server ${catkin_LIBRARIES} dl )
+ADD_EXECUTABLE( task_server src/task_server.cpp src/TurtleSimEnv.cpp) 
+TARGET_LINK_LIBRARIES(task_server ${catkin_LIBRARIES} dl )
 
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CATKIN_DEVEL_PREFIX}/${CATKIN_PACKAGE_SHARE_DESTINATION}/tasks)
 
-ADD_LIBRARY( turtlesim_TaskGoTo SHARED tasks/TaskGoTo.cpp)
-TARGET_LINK_LIBRARIES(turtlesim_TaskGoTo ${catkin_LIBRARIES} dl)
-ADD_DEPENDENCIES(turtlesim_TaskGoTo ${${PROJECT_NAME}_EXPORTED_TARGETS})
+ADD_LIBRARY( TaskGoTo SHARED tasks/TaskGoTo.cpp)
+TARGET_LINK_LIBRARIES(TaskGoTo ${catkin_LIBRARIES} dl)
 
-ADD_LIBRARY( turtlesim_TaskReachAngle SHARED tasks/TaskReachAngle.cpp)
-TARGET_LINK_LIBRARIES(turtlesim_TaskReachAngle ${catkin_LIBRARIES} dl)
-ADD_DEPENDENCIES(turtlesim_TaskReachAngle ${${PROJECT_NAME}_EXPORTED_TARGETS})
+ADD_LIBRARY( TaskReachAngle SHARED tasks/TaskReachAngle.cpp)
+TARGET_LINK_LIBRARIES(TaskReachAngle ${catkin_LIBRARIES} dl)
 
-ADD_LIBRARY( turtlesim_TaskSetPen SHARED tasks/TaskSetPen.cpp)
-TARGET_LINK_LIBRARIES(turtlesim_TaskSetPen ${catkin_LIBRARIES} dl)
-ADD_DEPENDENCIES(turtlesim_TaskSetPen ${${PROJECT_NAME}_EXPORTED_TARGETS})
+ADD_LIBRARY( TaskSetPen SHARED tasks/TaskSetPen.cpp)
+TARGET_LINK_LIBRARIES(TaskSetPen ${catkin_LIBRARIES} dl)
 
-ADD_LIBRARY( turtlesim_TaskClear SHARED tasks/TaskClear.cpp)
-TARGET_LINK_LIBRARIES(turtlesim_TaskClear ${catkin_LIBRARIES} dl)
-ADD_DEPENDENCIES(turtlesim_TaskClear ${${PROJECT_NAME}_EXPORTED_TARGETS})
+ADD_LIBRARY( TaskClear SHARED tasks/TaskClear.cpp)
+TARGET_LINK_LIBRARIES(TaskClear ${catkin_LIBRARIES} dl)
 
-ADD_LIBRARY( turtlesim_TaskWaitForROI SHARED tasks/TaskWaitForROI.cpp)
-TARGET_LINK_LIBRARIES(turtlesim_TaskWaitForROI ${catkin_LIBRARIES} dl)
-ADD_DEPENDENCIES(turtlesim_TaskWaitForROI ${${PROJECT_NAME}_EXPORTED_TARGETS})
+ADD_LIBRARY( TaskWaitForROI SHARED tasks/TaskWaitForROI.cpp)
+TARGET_LINK_LIBRARIES(TaskWaitForROI ${catkin_LIBRARIES} dl)
 
-ADD_LIBRARY( turtlesim_TaskWaitForButton SHARED tasks/TaskWaitForButton.cpp)
-TARGET_LINK_LIBRARIES(turtlesim_TaskWaitForButton ${catkin_LIBRARIES} dl)
-ADD_DEPENDENCIES(turtlesim_TaskWaitForButton ${${PROJECT_NAME}_EXPORTED_TARGETS})
+#ADD_LIBRARY( TaskWaitForROI SHARED tasks/TaskWaitForFace.cpp)
+#TARGET_LINK_LIBRARIES(TaskWaitForFace ${catkin_LIBRARIES} dl)
 
-ADD_LIBRARY( turtlesim_TaskFail SHARED tasks/TaskFail.cpp)
-TARGET_LINK_LIBRARIES(turtlesim_TaskFail ${catkin_LIBRARIES} dl)
-ADD_DEPENDENCIES(turtlesim_TaskFail ${${PROJECT_NAME}_EXPORTED_TARGETS})
+ADD_LIBRARY( TaskWaitForButton SHARED tasks/TaskWaitForButton.cpp)
+TARGET_LINK_LIBRARIES(TaskWaitForButton ${catkin_LIBRARIES} dl)
 
-ADD_LIBRARY( turtlesim_TaskMoveBase SHARED tasks/TaskMoveBase.cpp)
-TARGET_LINK_LIBRARIES(turtlesim_TaskMoveBase ${catkin_LIBRARIES} dl)
-ADD_DEPENDENCIES(turtlesim_TaskMoveBase ${${PROJECT_NAME}_EXPORTED_TARGETS})
-
-ADD_LIBRARY( turtlesim_TaskMoveGoal SHARED tasks/TaskMoveGoal.cpp)
-TARGET_LINK_LIBRARIES(turtlesim_TaskMoveGoal ${catkin_LIBRARIES} dl)
-ADD_DEPENDENCIES(turtlesim_TaskMoveGoal ${${PROJECT_NAME}_EXPORTED_TARGETS})
+ADD_LIBRARY( TaskFail SHARED tasks/TaskFail.cpp)
+TARGET_LINK_LIBRARIES(TaskFail ${catkin_LIBRARIES} dl)
 
 #############
 ## Install ##

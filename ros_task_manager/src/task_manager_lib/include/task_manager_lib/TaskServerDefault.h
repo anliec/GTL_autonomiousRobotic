@@ -78,12 +78,6 @@ namespace task_manager_lib {
                 ts.startScheduler();
             }
 
-
-			void addTask(boost::shared_ptr<TaskDefinitionBase> task) {
-                ts.addTask(task);
-            }
-
-
     };
 
 };

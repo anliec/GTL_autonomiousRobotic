@@ -21,6 +21,7 @@ namespace task_manager_turtlesim {
     {
         protected:
             unsigned int turtleId;
+            ros::NodeHandle nh;
             ros::Subscriber buttonsSub;
             ros::Subscriber poseSub;
             ros::Publisher velPub;
