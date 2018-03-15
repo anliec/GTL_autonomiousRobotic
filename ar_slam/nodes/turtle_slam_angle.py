@@ -93,7 +93,8 @@ class BubbleSLAM:
             print "================= Patching P ==============="
             n, _ = self.P.shape
             for i in range(n):
-                self.P[i, i] = abs(self.P[i, i])
+                if self.P[i, i] <= 0.0:
+                    self.P[i, i] = 0.001
         return self.X, self.P
 
     @staticmethod
@@ -169,7 +170,8 @@ class BubbleSLAM:
             print "================= Patching P ==============="
             n, _ = self.P.shape
             for i in range(n):
-                self.P[i, i] = abs(self.P[i, i])
+                if self.P[i, i] <= 0.0:
+                    self.P[i, i] = 0.001
         return self.X, self.P
 
     def ar_cb(self, markers):
