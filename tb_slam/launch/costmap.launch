@@ -17,9 +17,8 @@
         <param name="costmap/origin_y" value="-40"/>
         <param name="costmap/unknown_cost_value" value="-1"/>
         <param name="costmap/track_unknown_space" value="true"/>
-	<param name="costmap/robot_radius" value="0.05"/>
-        <!--
-             <param name="costmap/robot_radius" value="0.3"/>
+
+        <param name="costmap/robot_radius" value="0.20"/>
         <param name="costmap/footprint" value="[[0.3,0.3],[0.3,-0.3],[-0.3,-0.3],[-0.3,0.3]]"/>
         <param name="costmap/width" value="30"/>
         <param name="costmap/height" value="30"/>
@@ -35,7 +34,7 @@
         <param name="costmap/obstacle_layer/klaser/marking" value="true"/>
         <param name="costmap/obstacle_layer/klaser/obstacle_range" value="5.0"/>
         <param name="costmap/obstacle_layer/klaser/raytrace_range" value="5.0"/>
-        -->
+
     </node>
 
 </launch>
