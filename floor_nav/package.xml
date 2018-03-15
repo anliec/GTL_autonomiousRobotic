@@ -59,6 +59,7 @@
   <run_depend>task_manager_lib</run_depend>
   <run_depend>task_manager_msgs</run_depend>
   <run_depend>dynamic_reconfigure</run_depend>
+  <run_depend>kobuki_msgs</run_depend>
   <run_depend>tf</run_depend>
 
 
