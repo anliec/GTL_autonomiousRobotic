@@ -25,7 +25,7 @@ TaskGoToBase::~TaskGoToBase() {
 
 TaskIndicator TaskGoToBase::initialise() 
 {
-    client = new Client("dock_drive_task_action");
+    client = new Client("dock_drive_action", true);
     client->waitForServer();
     kobuki_msgs::AutoDockingGoal goal;
     client->sendGoal(goal);
@@ -35,8 +35,10 @@ TaskIndicator TaskGoToBase::initialise()
 
 TaskIndicator TaskGoToBase::iterate()
 {
-    if (client->getState() == actionlib::SimpleClientGoalState::SUCCEEDED){
-        printf("Yay! The dishes are now clean");
+    dock_state = client->getState();
+    ROS_INFO("Docking status: %s",dock_state.toString().c_str());
+    if (dock_state == actionlib::SimpleClientGoalState::SUCCEEDED){
+        printf("Docked !");
         return TaskStatus::TASK_COMPLETED;
     }
 	return TaskStatus::TASK_RUNNING;

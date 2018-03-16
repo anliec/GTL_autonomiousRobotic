@@ -13,9 +13,6 @@ default_period = rospy.get_param("~period", 0.05)
 tc = TaskClient(server_node, default_period)
 rospy.loginfo("Mission connected to server: " + server_node)
 
-smart = True
-vel = 0.5
-ang_vel = 3
 
 tc.WaitForAuto()
 try:
