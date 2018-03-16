@@ -57,7 +57,7 @@ class BubbleSLAM:
         rospy.sleep(1.0)
         now = rospy.Time.now()
         lasttf = rospy.Time(0)
-        self.listener.waitForTransform(self.odom_frame, self.body_frame, now, rospy.Duration(5.0))
+        self.listener.waitForTransform(self.odom_frame, self.body_frame, now, rospy.Duration(5))
         (trans, rot) = self.listener.lookupTransform(self.odom_frame, self.body_frame, lasttf)
         print 'AR_SLAM up and running.\n'
 
@@ -90,7 +90,6 @@ class BubbleSLAM:
         theta = self.X[2, 0]
         Rtheta = self.getRotation(theta)
         Rmtheta = self.getRotation(-theta)
-        H = mat(zeros((0, n)))
         found = 0
         if id in self.idx.keys():
             list = self.idx[id]
@@ -99,9 +98,9 @@ class BubbleSLAM:
                 H = mat(zeros((2, n)))
                 H[0:2, 0:2] = -Rmtheta
                 H[0:2, 2] = mat(vstack(
-                    [-(self.X[l + 0, 0] - self.X[0, 0]) * sin(theta) + (self.X[l + 1, 0] - self.X[1, 0]) * cos(theta), \
+                    [-(self.X[l + 0, 0] - self.X[0, 0]) * sin(theta) + (self.X[l + 1, 0] - self.X[1, 0]) * cos(theta),
                      (-self.X[l + 0, 0] - self.X[0, 0]) * cos(theta) - (self.X[l + 1, 0] - self.X[1, 0]) * sin(theta)]))
-                H[0:2, l:l + 2] = Rmtheta;
+                H[0:2, l:l + 2] = Rmtheta
                 Zpred = Rmtheta * (self.X[l:l + 2, 0] - self.X[0:2, 0])
                 zdiff = Z - Zpred
                 zdiff = abs(zdiff[0]) + abs(zdiff[1])
@@ -130,7 +129,7 @@ class BubbleSLAM:
             if m.id > 32:
                 continue
             lasttf = rospy.Time(0)  # m.header.stamp
-            self.listener.waitForTransform(self.body_frame, m.header.frame_id, lasttf, rospy.Duration(1.0))
+            self.listener.waitForTransform(self.body_frame, m.header.frame_id, lasttf, rospy.Duration(1))
             m_pose = PointStamped()
             m_pose.header = m.header
             m_pose.point = m.pose.pose.position
@@ -148,7 +147,7 @@ class BubbleSLAM:
         while not rospy.is_shutdown():
             now = rospy.Time.now()
             lasttf = now  # rospy.Time(0)
-            self.listener.waitForTransform(self.odom_frame, self.body_frame, now, rospy.Duration(1.0))
+            self.listener.waitForTransform(self.odom_frame, self.body_frame, now, rospy.Duration(1))
             (trans, rot) = self.listener.lookupTransform(self.odom_frame, self.body_frame, lasttf)
             new_odom = mat(self.listener.fromTranslationRotation(trans, rot))
             euler = tf.transformations.euler_from_quaternion(rot)
