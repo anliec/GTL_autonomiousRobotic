@@ -30,6 +30,7 @@ TaskIndicator TaskGoToBase::initialise()
     client->waitForServer();
     kobuki_msgs::AutoDockingGoal goal;
     client->sendGoal(goal);
+//    ros::Time startTime = ros::Time::now();
     ROS_INFO("Initialisation of Docking Task completed !");
     return TaskStatus::TASK_INITIALISED;
 }
@@ -43,6 +44,9 @@ TaskIndicator TaskGoToBase::iterate()
         printf("Docked !");
         return TaskStatus::TASK_COMPLETED;
     }
+//    else if(cfg.timeout > 0 && cfg.timeout < ros::Time::now().toSec() - startTime.toSec()) {
+//        return TaskStatus::TASK_FAILED;
+//    }
 	return TaskStatus::TASK_RUNNING;
 }
 

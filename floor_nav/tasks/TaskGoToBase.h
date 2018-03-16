@@ -27,6 +27,7 @@ namespace floor_nav {
     private:
         Client *client;
         actionlib::SimpleClientGoalState dock_state = actionlib::SimpleClientGoalState::LOST;
+//        ros::Time startTime;
     };
     class TaskFactoryGoToBase : public TaskDefinition<TaskGoToBaseConfig, SimTasksEnv, TaskGoToBase>
     {
