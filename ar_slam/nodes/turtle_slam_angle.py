@@ -90,11 +90,11 @@ class BubbleSLAM:
             print "Jx matrix:\n", Jx
             print "old value of P:\n", oldP.diagonal()
             print "attention les yeux:\n", self.P.diagonal()
-            print "================= Patching P ==============="
-            n, _ = self.P.shape
-            for i in range(n):
-                if self.P[i, i] <= 0.0:
-                    self.P[i, i] = 0.001
+            # print "================= Patching P ==============="
+            # n, _ = self.P.shape
+            # for i in range(n):
+            #     if self.P[i, i] <= 0.0:
+            #         self.P[i, i] = 0.001
         return self.X, self.P
 
     @staticmethod
@@ -167,11 +167,11 @@ class BubbleSLAM:
         if np.min(self.P.diagonal()) < 0.0:
             print "bad P on predict arg at:", np.argmin(self.P.diagonal())
             print "attention les yeux:\n", self.P.diagonal()
-            print "================= Patching P ==============="
-            n, _ = self.P.shape
-            for i in range(n):
-                if self.P[i, i] <= 0.0:
-                    self.P[i, i] = 0.001
+            # print "================= Patching P ==============="
+            # n, _ = self.P.shape
+            # for i in range(n):
+            #     if self.P[i, i] <= 0.0:
+            #         self.P[i, i] = 0.001
         return self.X, self.P
 
     def ar_cb(self, markers):
@@ -249,8 +249,8 @@ class BubbleSLAM:
         marker.action = Marker.ADD
         marker.pose = pose.pose
         marker.pose.position.z = -0.1
-        marker.scale.x = 3 * sqrt(self.P[0, 0])
-        marker.scale.y = 3 * sqrt(self.P[1, 1])
+        marker.scale.x = 3 * sqrt(abs(self.P[0, 0]))
+        marker.scale.y = 3 * sqrt(abs(self.P[1, 1]))
         marker.scale.z = 0.1
         marker.color.a = 1.0
         marker.color.r = 0.0
@@ -288,8 +288,8 @@ class BubbleSLAM:
                 marker.pose.orientation.y = 0
                 marker.pose.orientation.z = 1
                 marker.pose.orientation.w = 0
-                marker.scale.x = 3 * sqrt(self.P[l, l])
-                marker.scale.y = 3 * sqrt(self.P[l + 1, l + 1])
+                marker.scale.x = 3 * sqrt(abs(self.P[l, l]))
+                marker.scale.y = 3 * sqrt(abs(self.P[l + 1, l + 1]))
                 marker.scale.z = 0.1
                 marker.color.a = 1.0
                 marker.color.r = 1.0
