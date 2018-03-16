@@ -25,10 +25,12 @@ TaskGoToBase::~TaskGoToBase() {
 
 TaskIndicator TaskGoToBase::initialise() 
 {
+    ROS_INFO("Initialising Docking Task");
     client = new Client("dock_drive_action", true);
     client->waitForServer();
     kobuki_msgs::AutoDockingGoal goal;
     client->sendGoal(goal);
+    ROS_INFO("Initialisation of Docking Task completed !");
     return TaskStatus::TASK_INITIALISED;
 }
 
