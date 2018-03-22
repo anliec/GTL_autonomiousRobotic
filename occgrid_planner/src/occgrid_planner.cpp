@@ -78,6 +78,9 @@ protected:
                 }
             }
         }
+        //dilate obstacles
+//        cv::dilate(og_, og_, cv::Size(4,4));
+
         if (!ready) {
             ready = true;
             ROS_INFO("Received occupancy grid, ready to plan");
