@@ -15,6 +15,8 @@
 #include <nav_msgs/Path.h>
 #include <geometry_msgs/PoseStamped.h>
 
+#include "opencv2/imgproc/imgproc.hpp"
+
 #define FREE 0xFF
 #define UNKNOWN 0x80
 #define OCCUPIED 0x00
@@ -35,6 +37,7 @@ protected:
     nav_msgs::MapMetaData info_;
     std::string frame_id_;
     std::string base_link_;
+    double robot_radius;
     unsigned int neighbourhood_;
     bool ready;
     bool debug;
@@ -78,6 +81,13 @@ protected:
                 }
             }
         }
+        double erosion_size = robot_radius / info_.resolution;
+        cv::Mat element = getStructuringElement( cv::MORPH_ELLIPSE,
+                                                 cv::Size( 2*erosion_size + 1, 2*erosion_size+1 ),
+                                                 cv::Point( erosion_size, erosion_size ) );
+
+        /// Apply the erosion operation
+        erode( og_, og_, element );
         if (!ready) {
             ready = true;
             ROS_INFO("Received occupancy grid, ready to plan");
@@ -282,6 +292,7 @@ public:
     OccupancyGridPlanner() : nh_("~") {
         int nbour = 4;
         ready = false;
+        nh_.param("robot_radius", robot_radius, 0.3);
         nh_.param("base_frame", base_link_, std::string("/body"));
         nh_.param("debug", debug, false);
         nh_.param("neighbourhood", nbour, nbour);
