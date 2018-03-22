@@ -230,7 +230,7 @@ protected:
                 }
                 float cv = cell_value(dest);
                 float new_cost = this_cost + cost[i];
-                if (isnan(cv) || (new_cost < cv)) {
+                if (std::isnan(cv) || (new_cost < cv)) {
                     // found shortest path (or new path), updating the
                     // predecessor and the value of the cell
                     predecessor.at<cv::Vec2s>(dest) = cv::Vec2s(this_cell.x, this_cell.y);
@@ -240,7 +240,7 @@ protected:
                 }
             }
         }
-        if (isnan(cell_value(target))) {
+        if (std::isnan(cell_value(target))) {
             // No path found
             ROS_ERROR("No path found from (%d, %d) to (%d, %d)", start.x, start.y, target.x, target.y);
             return;
