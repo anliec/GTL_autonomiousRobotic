@@ -128,6 +128,10 @@ protected:
         return true;
     }
 
+    double heuristic(const cv::Point &current_point, const cv::Point &goal_point){
+        return cv::norm(current_point-goal_point);
+    }
+
     // This is called when a new goal is posted by RViz. We don't use a
     // mutex here, because it can only be called in spinOnce.
     void target_callback(const geometry_msgs::PoseStampedConstPtr &msg) {
