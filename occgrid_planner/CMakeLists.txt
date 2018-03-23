@@ -110,7 +110,7 @@ include_directories(
 # )
 
 ## Declare a cpp executable
-add_executable(occgrid_planner_b src/occgrid_planner.cpp)
+add_executable(occgrid_planner_b src/occgrid_planner.cpp src/AngleMovement.cpp src/AngleMovement.h src/MovementGenerator.cpp src/MovementGenerator.h)
 ## Add cmake target dependencies of the executable/library
 ## as an example, message headers may need to be generated before nodes
 add_dependencies(occgrid_planner_b occgrid_planner_generate_messages_cpp)

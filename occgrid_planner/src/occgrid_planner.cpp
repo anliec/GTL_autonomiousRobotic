@@ -18,6 +18,7 @@
 #include <geometry_msgs/PoseStamped.h>
 
 #include "opencv2/imgproc/imgproc.hpp"
+#include "MovementGenerator.h"
 
 #define FREE 0xFF
 #define UNKNOWN 0x80
@@ -194,7 +195,7 @@ protected:
                       transform.getOrigin().x(), transform.getOrigin().y(), start.x, start.y);
             return;
         }
-        // If the starting point is not FREE there is a bug somewhere, but
+        // If the starting point is not FREE thep1.pt.xre is a bug somewhere, but
         // better to check
         if (og_(start) != FREE) {
             ROS_ERROR("Invalid start point: occupancy = %d", og_(start));
@@ -321,7 +322,7 @@ private:
         std::list<cv::Point> path;
 
         //if no path was found, return an empty path
-        if(dist_array[target.x][target.y] == -1){
+        if(dist_array[target.x][target.y] == -1.0f){
             return path;
         }
 
@@ -367,6 +368,126 @@ private:
                           const float &current_dist){
         float dist = current_dist + distHeuristic(p, target);
         heap.push(std::pair<float, cv::Point>(dist, p));
+    }
+
+    //------------------------------------------------------------------//
+    // 3D resolution algorithm                                          //
+    //------------------------------------------------------------------//
+
+    struct Pos3D{
+        cv::Point pt;
+        unsigned angle;
+        bool operator==(const Pos3D &o) const {
+            return o.pt == pt && o.angle == angle;
+        }
+        bool operator!=(const Pos3D &o) const {
+            return o.pt != pt || o.angle != angle;
+        }
+        Pos3D operator+(const AngleMovement &a) const{
+            Pos3D ret;
+            ret.pt = pt;
+            ret.pt.x += a.get_dx();
+            ret.pt.y += a.get_dy();
+            ret.angle = angle + a.get_da();
+            return ret;
+        }
+    };
+    struct PointState{
+        PointState(const float &d=-1.0f, const Pos3D &p=Pos3D()){
+            dist = d;
+            pred = p;
+        }
+        float dist;
+        Pos3D pred;
+    };
+    typedef std::pair<float, Pos3D> HeapElement3D;
+    struct HeapElement3DCompare{
+        bool operator()(HeapElement3D const &left, HeapElement3D const &right){
+            return left.first > right.first;
+        }
+    };
+    typedef std::priority_queue<HeapElement3D, std::vector<HeapElement3D>, HeapElement3DCompare> AStarHeap3D;
+
+    /**
+     * Compute a A* path from start to target using og_ as ocupency grid
+     * @param start point where the path will start
+     * @param target point where the path will end
+     * @return list of neighbors points giving the shortest path from start to target (or an empty list if no path is
+     * found).
+     */
+    std::list<Pos3D> AStar3D(const Pos3D &start, const Pos3D &target){
+        MovementGenerator movement_generator;
+        //set accumulator arrays
+        PointState explored[og_.size[0]][og_.size[1]][NUMBER_OF_ANGLES_LEVELS];
+        for(int x=0 ; x < og_.size[0] ; x++){
+            for(int y=0 ; y < og_.size[1] ; y++){
+                for(unsigned a=0 ; a < NUMBER_OF_ANGLES_LEVELS ; a++){
+                    explored[x][y][a].dist = -1.0f;
+                }
+            }
+        }
+
+        //init loop variables
+        AStarHeap3D gray;
+        addToHeap3D(gray, start, target, 0.0f);
+        explored[start.pt.x][start.pt.y][start.angle] = PointState(0.0f, start);
+
+        while (!gray.empty()){
+            Pos3D p = gray.top().second;
+            gray.pop();
+
+            //check if target found
+            if(p == target){
+                break;
+            }
+
+            float cur_dist = explored[p.pt.x][p.pt.y][p.angle].dist;
+            std::vector<AngleMovement> possibleMove = movement_generator.getPossibleMove(p.angle);
+            for(AngleMovement m : possibleMove){
+                Pos3D np = p + m;
+                if (og_(np.pt) == FREE && explored[np.pt.x][np.pt.y][np.angle].dist == -1.0f) {
+                    float dist = cur_dist + m.get_cost();
+                    explored[np.pt.x][np.pt.y][np.angle] = PointState(dist, p);
+                    addToHeap3D(gray, np, target, dist);
+                }
+            }
+        }
+
+        //Now convert the path found into a list of points
+        std::list<Pos3D> path;
+
+        //if no path was found, return an empty path
+        if(explored[target.pt.x][target.pt.y][target.angle].dist == -1.0f){
+            return path;
+        }
+
+        const Pos3D * pred = &target;
+        while(*pred != start){
+            path.push_front(*pred);
+            pred = &explored[pred->pt.x][pred->pt.y][pred->angle].pred;
+        }
+
+        return path;
+    }
+
+    /**
+     * add the given point to the heap, taking care of computing the heuristic best possible distance to target.
+     * @param heap the heap were the point will be added
+     * @param p the point to add
+     * @param target the path target point
+     * @param current_dist the current distance to go from start to p
+     */
+    static void addToHeap3D(AStarHeap3D &heap, const Pos3D &p, const Pos3D &target,
+                          const float &current_dist){
+        float dist = current_dist + distheuristic3D(p, target);
+        heap.push(HeapElement3D(dist, p));
+    }
+
+    static float distheuristic3D(const Pos3D &p1, const Pos3D &p2){
+        float dist;
+        cv::Point delta = p2.pt - p1.pt;
+        dist = delta.x * delta.x + delta.y * delta.y;
+        return sqrtf(dist);
     }
 };
 
