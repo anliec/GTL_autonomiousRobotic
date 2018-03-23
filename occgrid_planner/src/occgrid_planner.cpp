@@ -3,6 +3,8 @@
 #include <string>
 #include <map>
 #include <list>
+#include <queue>
+#include  <utility>
 
 
 #include <ros/ros.h>
@@ -199,85 +201,24 @@ protected:
             return;
         }
         ROS_INFO("Starting planning from (%d, %d) to (%d, %d)", start.x, start.y, target.x, target.y);
-        // Here the Dijskstra algorithm starts
-        // The best distance to the goal computed so far. This is
-        // initialised with Not-A-Number.
-        cv::Mat_<float> cell_value(og_.size(), NAN);
-        // For each cell we need to store a pointer to the coordinates of
-        // its best predecessor.
-        cv::Mat_<cv::Vec2s> predecessor(og_.size());
 
-        // The neighbour of a given cell in relative coordinates. The order
-        // is important. If we use 4-connexity, then we can use only the
-        // first 4 values of the array. If we use 8-connexity we use the
-        // full array.
-        cv::Point neighbours[8] = {cv::Point(1, 0), cv::Point(0, 1), cv::Point(-1, 0), cv::Point(0, -1),
-                                   cv::Point(1, 1), cv::Point(-1, 1), cv::Point(-1, -1), cv::Point(1, -1)};
-        // Cost of displacement corresponding the neighbours. Diagonal
-        // moves are 44% longer.
-        float cost[8] = {1, 1, 1, 1, sqrt(2), sqrt(2), sqrt(2), sqrt(2)};
+        // Here the A* algorithm is run
+        std::list<cv::Point> listPath = AStar(start, target);
 
-        // The core of Dijkstra's Algorithm, a sorted heap, where the first
-        // element is always the closer to the start.
-        Heap heap;
-        heap.insert(Heap::value_type(0, start));
-        while (!heap.empty()) {
-            // Select the cell at the top of the heap
-            Heap::iterator hit = heap.begin();
-            // the cell it contains is this_cell
-            cv::Point this_cell = hit->second;
-            // and its score is this_cost
-            float this_cost = hit->first;
-            // We can remove it from the heap now.
-            heap.erase(hit);
-            // Now see where we can go from this_cell
-            for (unsigned int i = 0; i < neighbourhood_; i++) {
-                cv::Point dest = this_cell + neighbours[i];
-                if (!isInGrid(dest)) {
-                    // outside the grid
-                    continue;
-                }
-                uint8_t og = og_(dest);
-                if (og != FREE) {
-                    // occupied or unknown
-                    continue;
-                }
-                float cv = cell_value(dest);
-                float new_cost = this_cost + cost[i];
-                if (std::isnan(cv) || (new_cost < cv)) {
-                    // found shortest path (or new path), updating the
-                    // predecessor and the value of the cell
-                    predecessor.at<cv::Vec2s>(dest) = cv::Vec2s(this_cell.x, this_cell.y);
-                    cell_value(dest) = new_cost;
-                    // And insert the selected cells in the map.
-                    heap.insert(Heap::value_type(new_cost, dest));
-                }
-            }
-        }
-        if (std::isnan(cell_value(target))) {
+        if (listPath.size() == 0) {
             // No path found
             ROS_ERROR("No path found from (%d, %d) to (%d, %d)", start.x, start.y, target.x, target.y);
             return;
         }
         ROS_INFO("Planning completed");
-        // Now extract the path by starting from goal and going through the
-        // predecessors until the starting point
-        std::list<cv::Point> lpath;
-        while (target != start) {
-            lpath.push_front(target);
-            cv::Vec2s p = predecessor(target);
-            target.x = p[0];
-            target.y = p[1];
-        }
-        lpath.push_front(start);
         // Finally create a ROS path message
         nav_msgs::Path path;
         path.header.stamp = ros::Time::now();
         path.header.frame_id = frame_id_;
-        path.poses.resize(lpath.size());
-        std::list<cv::Point>::const_iterator it = lpath.begin();
+        path.poses.resize(listPath.size());
+        std::list<cv::Point>::const_iterator it = listPath.begin();
         unsigned int ipose = 0;
-        while (it != lpath.end()) {
+        while (it != listPath.end()) {
             // time stamp is not updated because we're not creating a
             // trajectory at this stage
             path.poses[ipose].header = path.header;
@@ -314,6 +255,118 @@ public:
         og_sub_ = nh_.subscribe("occ_grid", 1, &OccupancyGridPlanner::og_callback, this);
         target_sub_ = nh_.subscribe("goal", 1, &OccupancyGridPlanner::target_callback, this);
         path_pub_ = nh_.advertise<nav_msgs::Path>("path", 1, true);
+    }
+
+private:
+    typedef std::pair<float, cv::Point> HeapElement;
+
+    struct HeapElementCompare{
+        bool operator()(HeapElement const &left, HeapElement const &right){
+            return left.first > right.first;
+        }
+    };
+
+    typedef std::priority_queue<HeapElement, std::vector<HeapElement>, HeapElementCompare> AStarHeap;
+
+    /**
+     * Compute a A* path from start to target using og_ as ocupency grid
+     * @param start point where the path will start
+     * @param target point where the path will end
+     * @return list of neighbors points giving the shortest path from start to target (or an empty list if no path is
+     * found).
+     */
+    std::list<cv::Point> AStar(const cv::Point &start, const cv::Point &target){
+        //set list of explorable neighbors
+        cv::Point neighbours[8] = {cv::Point(1, 0), cv::Point(0, 1), cv::Point(-1, 0), cv::Point(0, -1),
+                                   cv::Point(1, 1), cv::Point(-1, 1), cv::Point(-1, -1), cv::Point(1, -1)};
+        float cost[8] = {1, 1, 1, 1, sqrtf(2), sqrtf(2), sqrtf(2), sqrtf(2)};
+        //set accumulator arrays
+        float dist_array[og_.size[0]][og_.size[1]];
+        cv::Point pred_array[og_.size[0]][og_.size[1]];
+        for(int x=0 ; x < og_.size[0] ; x++){
+            for(int y=0 ; y < og_.size[1] ; y++){
+                dist_array[x][y] = -1.0f;
+            }
+        }
+
+        //init loop variables
+        AStarHeap gray;
+        addToHeap(gray, start, target, 0.0f);
+        dist_array[start.x][start.y] = 0;
+        pred_array[start.x][start.y] = start;
+
+        while (!gray.empty()){
+            cv::Point p = gray.top().second;
+            gray.pop();
+
+            //check if target found
+            if(p == target){
+                break;
+            }
+
+            float cur_dist = dist_array[p.x][p.y];
+            for(unsigned n=0 ; n < 8 ; n++) {
+                cv::Point np = p + neighbours[n];
+                // if neighbors is free and was not already seen
+                if (og_(np) == FREE && dist_array[np.x][np.y] == -1.0f) {
+                    float dist = cur_dist + cost[n];
+                    pred_array[np.x][np.y] = p;
+                    dist_array[np.x][np.y] = dist;
+                    addToHeap(gray, np, target, dist);
+                }
+            }
+        }
+
+        //Now convert the path found into a list of points
+        std::list<cv::Point> path;
+
+        //if no path was found, return an empty path
+        if(dist_array[target.x][target.y] == -1){
+            return path;
+        }
+
+        const cv::Point * pred = &target;
+        while(*pred != start){
+            path.push_front(*pred);
+            pred = &pred_array[pred->x][pred->y];
+        }
+
+        return path;
+    }
+
+    /**
+     * An heuristic distance from point p1 to point p2 (this heristic to build around the fact that you can only move
+     * to a neighbors point)
+     * @param p1
+     * @param p2
+     * @return shortest possible distance between p1 and p2 if no obstacle
+     */
+    static float distHeuristic(const cv::Point &p1, const cv::Point &p2){
+        float dist;
+        cv::Point delta = p2 - p1;
+        if(delta.x > delta.y){
+            dist = float(delta.y) * sqrtf(2);
+            dist += float(delta.x - delta.y);
+            return dist;
+        }
+        else{
+            dist = float(delta.x) * sqrtf(2);
+            dist += float(delta.y - delta.x);
+            return dist;
+        }
+    }
+
+    /**
+     * add the given point to the heap, taking care of computing the heuristic best possible distance to target.
+     * @param heap the heap were the point will be added
+     * @param p the point to add
+     * @param target the path target point
+     * @param current_dist the current distance to go from start to p
+     */
+    static void addToHeap(AStarHeap &heap, const cv::Point &p, const cv::Point &target,
+                          const float &current_dist){
+        float dist = current_dist + distHeuristic(p, target);
+        heap.push(std::pair<float, cv::Point>(dist, p));
     }
 };
 

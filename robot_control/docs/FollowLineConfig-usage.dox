@@ -1,6 +1,6 @@
 \subsubsection usage Usage
 \verbatim
-<node name="robot_control_base" pkg="robot_control_base" type="robot_control_base">
+<node name="robot_control" pkg="robot_control" type="robot_control">
   <param name="velocity" type="double" value="0.5" />
   <param name="k_y" type="double" value="1.0" />
   <param name="k_theta" type="double" value="1.0" />
