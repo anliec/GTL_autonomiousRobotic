@@ -47,7 +47,7 @@ generate_dynamic_reconfigure_options(
         cfg/TaskStareAtFace.cfg
         cfg/TaskGoToPose.cfg
         cfg/TaskGoToDock.cfg
-        cfg/TaskGoToBase.cfg
+#        cfg/TaskGoToBase.cfg
 )
 
 ## Generate added messages and services with any dependencies listed here
@@ -151,9 +151,9 @@ ADD_LIBRARY( TaskGoToDock SHARED tasks/TaskGoToDock.cpp)
 TARGET_LINK_LIBRARIES(TaskGoToDock ${catkin_LIBRARIES} dl)
 add_dependencies(TaskGoToDock ${${PROJECT_NAME}_EXPORTED_TARGETS})
 
-ADD_LIBRARY( TaskGoToBase SHARED tasks/TaskGoToBase.cpp)
-TARGET_LINK_LIBRARIES(TaskGoToBase ${catkin_LIBRARIES} dl)
-add_dependencies(TaskGoToBase ${${PROJECT_NAME}_EXPORTED_TARGETS})
+#ADD_LIBRARY( TaskGoToBase SHARED tasks/TaskGoToBase.cpp)
+#TARGET_LINK_LIBRARIES(TaskGoToBase ${catkin_LIBRARIES} dl)
+#add_dependencies(TaskGoToBase ${${PROJECT_NAME}_EXPORTED_TARGETS})
 
 #############
 ## Install ##
