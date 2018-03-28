@@ -20,10 +20,23 @@
 #include "opencv2/imgproc/imgproc.hpp"
 #include "MovementGenerator.h"
 
+
+#define LATIS_MOVEMENT
+#define REPLANNING
+
 #define FREE 0xFF
+
+#ifdef REPLANNING
+#define UNKNOWN 0xFF
+#else
 #define UNKNOWN 0x80
+#endif
+
 #define OCCUPIED 0x00
 #define WIN_SIZE 800
+
+
+
 
 class OccupancyGridPlanner {
 protected:
@@ -131,10 +144,6 @@ protected:
         return true;
     }
 
-    double heuristic(const cv::Point &current_point, const cv::Point &goal_point){
-        return cv::norm(current_point-goal_point);
-    }
-
     // This is called when a new goal is posted by RViz. We don't use a
     // mutex here, because it can only be called in spinOnce.
     void target_callback(const geometry_msgs::PoseStampedConstPtr &msg) {
@@ -203,6 +212,7 @@ protected:
         }
         ROS_INFO("Starting planning from (%d, %d) to (%d, %d)", start.x, start.y, target.x, target.y);
 
+#ifndef LATIS_MOVEMENT
         // Here the A* algorithm is run
         std::list<cv::Point> listPath = AStar(start, target);
 
@@ -226,9 +236,60 @@ protected:
             cv::Point P = *it - og_center_;
             path.poses[ipose].pose.position.x = (P.x) * info_.resolution;
             path.poses[ipose].pose.position.y = (P.y) * info_.resolution;
+            tf::Quaternion qAngle;
+            qAngle.setRPY(0.0, 0.0, 0.0);
+            path.poses[ipose].pose.orientation.x = qAngle.x();
+            path.poses[ipose].pose.orientation.y = qAngle.y();
+            path.poses[ipose].pose.orientation.z = qAngle.z();
+            path.poses[ipose].pose.orientation.w = qAngle.w();
             ipose++;
             it++;
         }
+#else
+        std::cout << "A* start and target init" << std::endl;
+        Pos3D start3D, target3D;
+        start3D.pt = start;
+        target3D.pt = target;
+        std::cout << "A* Quaternion" << std::endl;
+        tf::Quaternion qStart(transform.getOrigin().x(), transform.getOrigin().y(), transform.getOrigin().z(), transform.getOrigin().w());
+        tf::Quaternion qTarget(pose.pose.orientation.x, pose.pose.orientation.y, pose.pose.orientation.z, pose.pose.orientation.w);
+        std::cout << "A* angle" << std::endl;
+        start3D.angle =  unsigned(round(qStart.getAngle()  * double(NUMBER_OF_ANGLES_LEVELS) / (2.0 * M_PI)));
+        target3D.angle = unsigned(round(qTarget.getAngle() * double(NUMBER_OF_ANGLES_LEVELS) / (2.0 * M_PI)));
+        std::cout << "A* starting" << std::endl;
+        // Here the A* algorithm is run
+        std::list<Pos3D> listPath = AStar3D(start3D, target3D);
+
+        if (listPath.size() == 0) {
+            // No path found
+            ROS_ERROR("No path found from (%d, %d) to (%d, %d)", start.x, start.y, target.x, target.y);
+            return;
+        }
+        ROS_INFO("Planning completed");
+        // Finally create a ROS path message
+        nav_msgs::Path path;
+        path.header.stamp = ros::Time::now();
+        path.header.frame_id = frame_id_;
+        path.poses.resize(listPath.size());
+        std::list<Pos3D>::const_iterator it = listPath.begin();
+        unsigned int ipose = 0;
+        while (it != listPath.end()) {
+            // time stamp is not updated because we're not creating a
+            // trajectory at this stage
+            path.poses[ipose].header = path.header;
+            cv::Point P = it->pt - og_center_;
+            path.poses[ipose].pose.position.x = (P.x) * info_.resolution;
+            path.poses[ipose].pose.position.y = (P.y) * info_.resolution;
+            tf::Quaternion qAngle;
+            qAngle.setRPY(0.0, 0.0, it->angle * 2.0 * M_PI / double(NUMBER_OF_ANGLES_LEVELS));
+            path.poses[ipose].pose.orientation.x = qAngle.x();
+            path.poses[ipose].pose.orientation.y = qAngle.y();
+            path.poses[ipose].pose.orientation.z = qAngle.z();
+            path.poses[ipose].pose.orientation.w = qAngle.w();
+            ipose++;
+            it++;
+        }
+#endif
         path_pub_.publish(path);
         ROS_INFO("Request completed");
     }
@@ -257,6 +318,7 @@ public:
         target_sub_ = nh_.subscribe("goal", 1, &OccupancyGridPlanner::target_callback, this);
         path_pub_ = nh_.advertise<nav_msgs::Path>("path", 1, true);
     }
+
 
 private:
     typedef std::pair<float, cv::Point> HeapElement;
@@ -388,7 +450,7 @@ private:
             ret.pt = pt;
             ret.pt.x += a.get_dx();
             ret.pt.y += a.get_dy();
-            ret.angle = angle + a.get_da();
+            ret.angle = (angle + a.get_da()) % NUMBER_OF_ANGLES_LEVELS; //prevent array out of bound
             return ret;
         }
     };
@@ -418,9 +480,13 @@ private:
     std::list<Pos3D> AStar3D(const Pos3D &start, const Pos3D &target){
         MovementGenerator movement_generator;
         //set accumulator arrays
-        PointState explored[og_.size[0]][og_.size[1]][NUMBER_OF_ANGLES_LEVELS];
+        std::cout << "size of PointState " << sizeof(PointState) << std::endl;
+        PointState*** explored;
+        explored = new PointState**[og_.size[0]];
         for(int x=0 ; x < og_.size[0] ; x++){
+            explored[x] = new PointState*[og_.size[1]];
             for(int y=0 ; y < og_.size[1] ; y++){
+                explored[x][y] = new PointState[NUMBER_OF_ANGLES_LEVELS];
                 for(unsigned a=0 ; a < NUMBER_OF_ANGLES_LEVELS ; a++){
                     explored[x][y][a].dist = -1.0f;
                 }
@@ -431,19 +497,26 @@ private:
         AStarHeap3D gray;
         addToHeap3D(gray, start, target, 0.0f);
         explored[start.pt.x][start.pt.y][start.angle] = PointState(0.0f, start);
+        float shortest_path = std::numeric_limits<float>::max();
 
         while (!gray.empty()){
+            if(gray.top().first > shortest_path){
+                gray.pop();
+                continue;
+            }
             Pos3D p = gray.top().second;
             gray.pop();
+            float cur_dist = explored[p.pt.x][p.pt.y][p.angle].dist;
 
             //check if target found
             if(p == target){
-                break;
+                shortest_path = cur_dist;
+                continue;
             }
 
-            float cur_dist = explored[p.pt.x][p.pt.y][p.angle].dist;
+
             std::vector<AngleMovement> possibleMove = movement_generator.getPossibleMove(p.angle);
-            for(AngleMovement m : possibleMove){
+            for(const AngleMovement &m : possibleMove){
                 Pos3D np = p + m;
                 if (og_(np.pt) == FREE && explored[np.pt.x][np.pt.y][np.angle].dist == -1.0f) {
                     float dist = cur_dist + m.get_cost();
@@ -467,6 +540,15 @@ private:
             pred = &explored[pred->pt.x][pred->pt.y][pred->angle].pred;
         }
 
+        //cleaning memory
+        for(int x=0 ; x < og_.size[0] ; x++){
+            for(int y=0 ; y < og_.size[1] ; y++){
+                delete [] explored[x][y];
+            }
+            delete [] explored[x];
+        }
+        delete [] explored;
+
         return path;
     }
 
@@ -479,11 +561,11 @@ private:
      */
     static void addToHeap3D(AStarHeap3D &heap, const Pos3D &p, const Pos3D &target,
                           const float &current_dist){
-        float dist = current_dist + distheuristic3D(p, target);
+            float dist = current_dist + distHeuristic3D(p, target);
         heap.push(HeapElement3D(dist, p));
     }
 
-    static float distheuristic3D(const Pos3D &p1, const Pos3D &p2){
+    static float distHeuristic3D(const Pos3D &p1, const Pos3D &p2){
         float dist;
         cv::Point delta = p2.pt - p1.pt;
         dist = delta.x * delta.x + delta.y * delta.y;

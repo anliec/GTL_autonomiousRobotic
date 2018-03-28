@@ -33,7 +33,7 @@ public:
     float get_cost() const;
 
 private:
-    void rotate(const unsigned &angle_level);
+    int rotate(const unsigned &angle_level);
 
     int dx, dy, da;
     int base_angle;
