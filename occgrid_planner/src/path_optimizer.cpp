@@ -22,17 +22,31 @@ protected:
     double max_acceleration_;
     double max_braking_;
 
+    double constrain_velocity(double target_vel, double past_vel) {
+        double contrained_vel;
+        if ((target_vel - past_vel)>max_acceleration_){
+            contrained_vel = max_acceleration_;
+        } else if ((target_vel - past_vel)<-max_braking_){
+            contrained_vel = -max_braking_;
+        }
+        return contrained_vel;
+    }
+
     void path_cb(const nav_msgs::PathConstPtr &msg) {
         // First pre-compute heading, velocity, rotation speed and curvilinear
         // abscissa.
         std::vector<float> omega(msg->poses.size(), 0.0);
         std::vector<float> s(msg->poses.size(), 0.0);
         std::vector<float> heading(msg->poses.size(), 0.0);
+        std::vector<float> velocity(msg->poses.size(), 0.0);
+        velocity[0] = velocity_; // TODO: this may not behave properly on replanning
         for (unsigned i = 1; i < msg->poses.size(); i++) {
             const geometry_msgs::Point &P0 = msg->poses[i - 1].pose.position;
             const geometry_msgs::Point &P1 = msg->poses[i].pose.position;
             double ds = hypot(P1.y - P0.y, P1.x - P0.x);
-            double dt = ds / velocity_;
+            // compute the contrained velocity
+            double constrained_vel = PathOptimizer::constrain_velocity(velocity_, velocity[i-1]);
+            double dt = ds / constrained_vel;
             heading[i] = atan2(P1.y - P0.y, P1.x - P0.x);
             s[i] = s[i - 1] + ds;
             omega[i] = remainder(heading[i] - heading[i - 1], 2 * M_PI) / dt;
