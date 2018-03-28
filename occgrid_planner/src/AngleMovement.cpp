@@ -5,10 +5,10 @@
 #include "AngleMovement.h"
 #include <limits>
 
-AngleMovement::AngleMovement(const int &base_angle, const int &deltaX, const int &deltaY, const int &deltaAngle, const float cost):
-    base_angle(base_angle), dx(deltaX), dy(deltaY), da(deltaAngle), cost(cost)
+AngleMovement::AngleMovement(const int &base_angle, const int &deltaX, const int &deltaY, const int &deltaAngle, const float &costMalus):
+    base_angle(base_angle), dx(deltaX), dy(deltaY), da(deltaAngle)
 {
-
+    cost = sqrtf(deltaX * deltaX + deltaY * deltaY) + costMalus;
 }
 
 AngleMovement::AngleMovement(): base_angle(-1), dx(-1), dy(-1), da(-1), cost(std::numeric_limits<float>::max())
@@ -16,6 +16,14 @@ AngleMovement::AngleMovement(): base_angle(-1), dx(-1), dy(-1), da(-1), cost(std
 
 }
 
+AngleMovement::AngleMovement(const AngleMovement &o)
+{
+    this->base_angle = o.base_angle;
+    this->da = o.da;
+    this->cost = o.cost;
+    this->dx = o.dx;
+    this->dy = o.dy;
+}
 
 //AngleMovement AngleMovement::get_sim() const
 //{
@@ -29,30 +37,9 @@ AngleMovement::AngleMovement(): base_angle(-1), dx(-1), dy(-1), da(-1), cost(std
  */
 AngleMovement AngleMovement::get_rotate(const unsigned &angle_level) const
 {
-    int delta_angle = angle_level - base_angle;
-    if(delta_angle % NUMBER_OF_ANGLE_STEPS != 0){
-        std::cerr << "[AngleMovement::get_rotate] Provided angle do not allow to compute a rotation" << std::endl;
-        std::cerr << "\tbase angle: " << base_angle << std::endl;
-        std::cerr << "\tangle level: " << angle_level << std::endl;
-        return AngleMovement();
-    }
-    else{
-        delta_angle /= NUMBER_OF_ANGLE_STEPS;
-        delta_angle += 4;
-        delta_angle %= 4;
-        switch (delta_angle){
-            case 0:
-                return AngleMovement(base_angle, dx, dy, da, cost);
-            case 1:
-                return  AngleMovement(angle_level, -dy, dx, da, cost);
-            case 2:
-                return  AngleMovement(angle_level, -dx, -dy, da, cost);
-            case 3:
-                return  AngleMovement(angle_level, dy, -dx, da, cost);
-            default:
-                return AngleMovement(); //set to prevent warning, but cannot append tanks to %
-        }
-    }
+    AngleMovement ret = AngleMovement(*this);
+    ret.rotate(angle_level);
+    return ret;
 }
 
 Move3D AngleMovement::get_movement() const
@@ -77,5 +64,42 @@ int AngleMovement::get_da() const{
 
 float AngleMovement::get_cost() const{
     return cost;
+}
+
+void AngleMovement::rotate(const unsigned &angle_level)
+{
+    int delta_angle = angle_level - base_angle;
+    if(delta_angle % NUMBER_OF_ANGLE_STEPS != 0){
+        std::cerr << "[AngleMovement::get_rotate] Provided angle do not allow to compute a rotation" << std::endl;
+        std::cerr << "\tbase angle: " << base_angle << std::endl;
+        std::cerr << "\tangle level: " << angle_level << std::endl;
+        return;
+    }
+    else{
+        delta_angle /= NUMBER_OF_ANGLE_STEPS;
+        delta_angle += 4;
+        delta_angle %= 4;
+        int tmp;
+        switch (delta_angle){
+            case 0:
+                return;
+            case 1:
+                tmp = dx;
+                dx = -dy;
+                dy = tmp;
+                return;
+            case 2:
+                dx = -dx;
+                dy = -dy;
+                return;
+            case 3:
+                tmp = dx;
+                dx = dy;
+                dy = -tmp;
+                return;
+            default:
+                return; //set to prevent warning, but cannot append tanks to %
+        }
+    }
 }
 

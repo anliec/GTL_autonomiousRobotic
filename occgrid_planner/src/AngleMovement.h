@@ -18,8 +18,9 @@ struct Move3D{
 class AngleMovement {
 
 public:
-    AngleMovement(const int &base_angle, const int &deltaX, const int &deltaY, const int &deltaAngle, const float cost);
+    AngleMovement(const int &base_angle, const int &deltaX, const int &deltaY, const int &deltaAngle, const float &costMalus=0.0f);
     AngleMovement();
+    AngleMovement(const AngleMovement &o);
 
 //    AngleMovement get_sim() const;
     AngleMovement get_rotate(const unsigned &angle_level) const;
@@ -32,6 +33,8 @@ public:
     float get_cost() const;
 
 private:
+    void rotate(const unsigned &angle_level);
+
     int dx, dy, da;
     int base_angle;
     float cost;

@@ -19,7 +19,7 @@ public:
     std::vector<Move3D> getPossibleMove3D(const unsigned &baseAngle) const;
 
 private:
-    std::vector<AngleMovement> possibleMove[NUMBER_OF_ANGLE_STEPS];
+    std::vector<AngleMovement> possibleMove[NUMBER_OF_ANGLES_LEVELS];
 };
 
 

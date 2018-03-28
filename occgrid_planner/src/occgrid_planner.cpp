@@ -336,7 +336,7 @@ private:
     }
 
     /**
-     * An heuristic distance from point p1 to point p2 (this heristic to build around the fact that you can only move
+     * An heuristic distance from point p1 to point p2 (this heuristic to build around the fact that you can only move
      * to a neighbors point)
      * @param p1
      * @param p2

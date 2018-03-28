@@ -6,42 +6,47 @@
 
 MovementGenerator::MovementGenerator()
 {
-    //TODO: set real cost (to ensure A* accuracy)
     //set possible movement for angle = 0 / 90 / 180 / 270
-    possibleMove[0].push_back(AngleMovement(0, 0,  0,  1, 1.0f)); // rotate on the spot
-    possibleMove[0].push_back(AngleMovement(0, 1, -1,  2, 1.5f)); // diagonal + 90 degree
-    possibleMove[0].push_back(AngleMovement(0, 2, -1,  1, 1.5f)); // diagonal + 1x + 45 degree
+    possibleMove[0].emplace_back(0, 0,  0,  1, 1.0f); // rotate on the spot
+    possibleMove[0].emplace_back(0, 1, -1,  2, 0.0f); // diagonal + 90 degree
+    possibleMove[0].emplace_back(0, 2, -1,  1, 0.0f); // diagonal + 1x + 45 degree
     //symmetrical
-    possibleMove[0].push_back(AngleMovement(0, 0,  0, -1, 1.0f)); // rotate on the spot
-    possibleMove[0].push_back(AngleMovement(0, 1,  1, -2, 1.5f)); // diagonal + 90 degree
-    possibleMove[0].push_back(AngleMovement(0, 2,  1, -1, 1.5f)); // diagonal + 1x + 45 degree
+    possibleMove[0].emplace_back(0, 0,  0, -1, 1.0f); // rotate on the spot
+    possibleMove[0].emplace_back(0, 1,  1, -2, 0.0f); // diagonal + 90 degree
+    possibleMove[0].emplace_back(0, 2,  1, -1, 0.0f); // diagonal + 1x + 45 degree
     //add forward movement
-    possibleMove[0].push_back(AngleMovement(0, 1,  0,  0, 1.0f));
+    possibleMove[0].emplace_back(0, 1,  0,  0, 0.0f);
 
     //set possible movement for angle = 45 / 135 / 225 / 315
-    possibleMove[1].push_back(AngleMovement(0, 0,  0,  1, 1.0f)); // rotate on the spot
-    possibleMove[1].push_back(AngleMovement(0, 1,  0, -2, 1.5f)); // diagonal + 90 degree
-    possibleMove[1].push_back(AngleMovement(0, 2, -1, -1, 1.5f)); // diagonal + 1x + 45 degree
+    possibleMove[1].emplace_back(0, 0,  0,  1, 1.0f); // rotate on the spot
+    possibleMove[1].emplace_back(0, 1,  0, -2, 0.0f); // diagonal + 90 degree
+    possibleMove[1].emplace_back(0, 2, -1, -1, 0.0f); // diagonal + 1x + 45 degree
     //symmetrical
-    possibleMove[1].push_back(AngleMovement(0, 0,  0, -1, 1.0f)); // rotate on the spot
-    possibleMove[1].push_back(AngleMovement(0, 0, -1,  2, 1.5f)); // diagonal + 90 degree
-    possibleMove[1].push_back(AngleMovement(0, 1, -2,  1, 1.5f)); // diagonal + 1y + 45 degree
+    possibleMove[1].emplace_back(0, 0,  0, -1, 1.0f); // rotate on the spot
+    possibleMove[1].emplace_back(0, 0, -1,  2, 0.0f); // diagonal + 90 degree
+    possibleMove[1].emplace_back(0, 1, -2,  1, 0.0f); // diagonal + 1y + 45 degree
     //add forward movement
-    possibleMove[1].push_back(AngleMovement(0, 1, -1,  0, sqrtf(2)));
-}
+    possibleMove[1].emplace_back(0, 1, -1,  0, 0.0f);
 
+    //generate movement for angles  90 / 180 / 270
+    for(unsigned a=2 ; a<NUMBER_OF_ANGLES_LEVELS ; a+=2){
+        for(AngleMovement m : possibleMove[0]){
+            possibleMove[a].push_back(m.get_rotate(a));
+        }
+    }
+    //generate movement for angles  135 / 225 / 315
+    for(unsigned a=3 ; a<NUMBER_OF_ANGLES_LEVELS ; a+=2){
+        for(AngleMovement m : possibleMove[1]){
+            possibleMove[a].push_back(m.get_rotate(a));
+        }
+    }
+
+}
 
 std::vector<AngleMovement> MovementGenerator::getPossibleMove(const unsigned &baseAngle) const
 {
-    unsigned angle_index = baseAngle % NUMBER_OF_ANGLE_STEPS;
-    std::vector<AngleMovement> ret;
-    ret.reserve(possibleMove[angle_index].size());
-
-    for(AngleMovement m : possibleMove[angle_index]){
-        ret.push_back(m.get_rotate(baseAngle));
-    }
-
-    return ret;
+    assert(baseAngle < NUMBER_OF_ANGLES_LEVELS);
+    return possibleMove[baseAngle];
 }
 
 std::vector<Move3D> MovementGenerator::getPossibleMove3D(const unsigned &baseAngle) const
