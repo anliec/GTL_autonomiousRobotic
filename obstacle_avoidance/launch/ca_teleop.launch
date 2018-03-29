@@ -18,7 +18,7 @@
   </node>
 
   <!-- Kinect -->
-  <node pkg="nodelet" type="nodelet" name="nodelet_manager" output="screen" respawn="true" args="manager"/>
+  <node pkg="nodelet" type="nodelet" name="nodelet_manager" output="screen" respawn="false" args="manager"/>
 
   <!-- Fake Laser 
   <node pkg="nodelet" type="nodelet" name="pc_laser" args="load pointcloud_to_laserscan/CloudToScan nodelet_manager" respawn="true">
@@ -35,7 +35,7 @@
     <param name="max_height" value="1.00"/>
     <remap from="cloud" to="/vrep/hokuyoSensor"/>
   </node>
--->
+
 
   <!-- 
   <node pkg="gmapping" type="slam_gmapping" name="slam_gmapping" output="screen">

@@ -18,6 +18,7 @@
 #include <occgrid_planner/Trajectory.h>
 #include <occgrid_planner/TrajectoryElement.h>
 
+static const double WAIT_DIST = 2.0;
 
 class PathFollower {
 protected:
@@ -102,6 +103,9 @@ public:
 
                 geometry_msgs::Pose2D error = computeError(now, it->second);
                 pose2d_pub_.publish(error);
+                if(error.x * error.x + error.y * error.y > WAIT_DIST * WAIT_DIST){
+                    look_ahead_ -= 1.0 / 20.0;
+                }
                 geometry_msgs::Twist twist;
                 if (final && (error.x < 0.1)) {
                     // Finished

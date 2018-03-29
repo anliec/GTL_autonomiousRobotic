@@ -1,7 +1,7 @@
 <launch>
 
  <!-- joy node -->
-  <node respawn="true" pkg="joy" type="joy_node" name="joy" >
+  <node respawn="false" pkg="joy" type="joy_node" name="joy" >
     <!-- <param name="dev" type="string" value="/dev/input/js0" /> -->
     <!-- <param name="deadzone" value="0.12" /> -->
     <param name="autorepeat_rate" value="10.0" />
@@ -21,13 +21,20 @@
   <node pkg="nodelet" type="nodelet" name="nodelet_manager" output="screen" respawn="true" args="manager"/>
 
   <!-- Fake Laser -->
-  <node pkg="nodelet" type="nodelet" name="pc_laser" args="load pointcloud_to_laserscan/CloudToScan nodelet_manager" respawn="true">
-    <param name="output_frame_id" value="/Hokuyo"/>
-    <!-- heights are in the (optical?) frame of the kinect -->
-    <param name="min_height" value="-1.00"/>
-    <param name="max_height" value="1.00"/>
-    <remap from="cloud" to="/vrep/hokuyoSensor"/>
-  </node>
+  <!--<node pkg="nodelet" type="nodelet" name="pc_laser" args="load pointcloud_to_laserscan/CloudToScan nodelet_manager" respawn="false">-->
+    <!--<param name="output_frame_id" value="/Hokuyo"/>-->
+    <!--&lt;!&ndash; heights are in the (optical?) frame of the kinect &ndash;&gt;-->
+    <!--<param name="min_height" value="-1.00"/>-->
+    <!--<param name="max_height" value="1.00"/>-->
+    <!--<remap from="cloud" to="/vrep/hokuyoSensor"/>-->
+  <!--</node>-->
+
+    <node pkg="pointcloud_to_laserscan" type="pointcloud_to_laserscan_node" name="pc_laser" >
+        <param name="output_frame_id" value="/Hokuyo"/>
+        <param name="min_height" value="-1.00"/>
+        <param name="max_height" value="1.00"/>
+        <remap from="cloud" to="/vrep/hokuyoSensor"/>
+    </node>
 
   <node pkg="gmapping" type="slam_gmapping" name="slam_gmapping" output="screen">
     <param name="base_frame" value="/body"/>

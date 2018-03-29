@@ -169,7 +169,7 @@ protected:
     }
 
     uint8_t occupancy_dalpha(double d, double alpha) {
-        int i_d = round((d + max_range_) / map_resolution_);
+        int i_d = (int) round((d + max_range_) / map_resolution_);
         if (i_d < 0) i_d = 0;
         if (i_d >= (signed) n_d_) i_d = n_d_ - 1;
         if (alpha < 0) alpha += 2 * M_PI;
@@ -183,14 +183,14 @@ protected:
         // First the static limit: Vs
         // TODO: First update min_v/max_v and min_w/max_w to compute the intersection of Vs and Vd.
         //compute possible move window
-        double min_v = std::max(-max_linear_velocity_, desired.linear.x - max_linear_accel_);
-        double max_v = std::min( max_linear_velocity_, desired.linear.x + max_linear_accel_);
-        double min_w = std::max(-max_angular_velocity_, desired.angular.z - max_angular_accel_);
-        double max_w = std::max( max_angular_velocity_, desired.angular.z + max_angular_accel_);
+        double min_v = std::max(-max_linear_velocity_, current_velocity_.linear.x - max_linear_accel_);
+        double max_v = std::min( max_linear_velocity_, current_velocity_.linear.x + max_linear_accel_);
+        double min_w = std::max(-max_angular_velocity_, current_velocity_.angular.z - max_angular_accel_);
+        double max_w = std::max( max_angular_velocity_, current_velocity_.angular.z + max_angular_accel_);
         // From that, we know which velocities we need to consider and we
-        // creat a small matrix to help visualising Va (Vr)
-        unsigned int n_v = unsigned(ceil((max_v - min_v) / linear_velocity_resolution_ + 1));
-        unsigned int n_w = unsigned(ceil((max_w - min_w) / angular_velocity_resolution_ + 1));
+        // create a small matrix to help visualising Va (Vr)
+        auto n_v = unsigned(ceil((max_v - min_v) / linear_velocity_resolution_ + 1));
+        auto n_w = unsigned(ceil((max_w - min_w) / angular_velocity_resolution_ + 1));
         cv::Mat_<uint8_t> Va(n_v, n_w, FREE); // Vs inter Vd
         cv::Mat_<uint8_t> scores(n_v, n_w, (uint8_t) OCCUPIED); // Vs inter Vd
 
@@ -203,15 +203,17 @@ protected:
             double v = min_v + j * linear_velocity_resolution_;
             for (unsigned int i = 0; i < n_w; i++) {
                 double w = min_w + i * angular_velocity_resolution_;
-                Va(j, i) = occupancy_dalpha(v,w);
+                //TODO find the right formula to go from v, w to d, alpha (problem on alpha)
+                double d = v * time_horizon_;
+                double gamma = M_PI - fabs(w) * time_horizon_;
+                double r = d / gamma;
+                double alpha = atan(r);
+                Va(j, i) = occupancy_dalpha(d, alpha);
                 double score = k_v_ * std::abs(v-desired.linear.x) + k_w_ * std::abs(w-desired.angular.z);
-                if (score <= best_score && Va(j,i)!=OCCUPIED){
+                if (score <= best_score && Va(j,i) != OCCUPIED){
                     best_score = score;
                     best_v = v;
                     best_w = w;
-                }
-                if (score>255){
-                    ROS_INFO("255 dépassé");
                 }
                 scores(j, i) = static_cast<uint8_t>(score*10);
             }
