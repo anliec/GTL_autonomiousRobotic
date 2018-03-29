@@ -197,7 +197,7 @@ protected:
         // Now build Va (inside Vs inter Vd) by iterating over the local
         // map, and find the most appropriate speed (best_v, best_w).
         // TODO: Fill Vas with the acceptable velocities (given the time horizon)
-        double best_score = 0;
+        double best_score = std::numeric_limits<double>::max();
         double best_v = 0, best_w = 0;
         for (unsigned int j = 0; j < n_v; j++) {
             double v = min_v + j * linear_velocity_resolution_;
@@ -210,7 +210,10 @@ protected:
                     best_v = v;
                     best_w = w;
                 }
-                scores(j, i) = static_cast<uint8_t>(score);
+                if (score>255){
+                    ROS_INFO("255 dépassé");
+                }
+                scores(j, i) = static_cast<uint8_t>(score*10);
             }
         }
         cv::resize(scores, scores, cv::Size(200, 200));
