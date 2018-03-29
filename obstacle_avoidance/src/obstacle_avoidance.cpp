@@ -46,67 +46,84 @@ protected:
     cv::Mat_<uint8_t> og_, d_alpha_;
     cv::Mat_<float> dalpha_remap_x, dalpha_remap_y;
 
-public:
-    static void xy_to_dalpha(double x, double y, double &d, double &alpha) {
-        if (fabs(y) < 1e-3) {
-            // straight line
-            d = x;
-            alpha = (y < 0) ? (-M_PI / 2) : (M_PI / 2);
-        } else {
-            double h = hypot(x, y);
-            double r = h * h / 2 * y;
-            alpha = atan(r);
-            if (y >= 0) {
-                double gamma = atan2(x, r - y);
-                d = gamma * r;
+    public:
+        /**
+         * compute d and alpha of an obstacle located with cartesian coordinates
+         * @param x
+         * @param
+         * @param d
+         * @param alpha
+         */
+         static void xy_to_dalpha(double x, double y, double & d, double & alpha) {
+            if (fabs(y) < 1e-3) {
+                // straight line
+                d = x;
+                alpha = (y<0)?(-M_PI/2):(M_PI/2);
             } else {
-                double gamma = atan2(x, y - r);
-                d = -gamma * r;
+                double h = hypot(x,y);
+                double r = h*h/2*y;
+                alpha = atan(r);
+                if (y>=0) {
+                    double gamma = atan2(x, r-y);
+                    d = gamma * r;
+                } else {
+                    double gamma = atan2(x,y-r);
+                    d = -gamma * r;
+                }
             }
         }
-    }
 
-    static void dalpha_to_xy(double d, double alpha, double &x, double &y) {
-        if (fabs(fabs(alpha) - M_PI / 2) < 1e-3) {
-            // straight line
-            x = d;
-            y = 0;
-        } else if (fabs(alpha) < 1e-3) {
-            x = y = 0;
-        } else {
-            double r = tan(alpha);
-            double gamma = d / r;
-            x = r * sin(gamma);
-            y = r * (1 - cos(gamma));
+        /**
+         * compute obstacle coordinates from d and alpha
+         * @param d
+         * @param alpha
+         * @param x
+         * @param y
+         */
+         static void dalpha_to_xy(double d, double alpha, double & x, double & y) {
+            if (fabs(fabs(alpha)-M_PI/2) < 1e-3) {
+                // straight line
+                x = d;
+                y = 0;
+            } else if (fabs(alpha) < 1e-3) {
+                x = y = 0;
+            } else {
+                double r = tan(alpha);
+                double gamma = d / r;
+                x = r * sin(gamma);
+                y = r * (1 - cos(gamma));
+            }
         }
-    }
-
-protected: // ROS Callbacks
-    void command_velocity_cb(const geometry_msgs::TwistConstPtr msg) {
-        geometry_msgs::Twist filtered = findClosestAcceptableVelocity(*msg);
-        // ROS_INFO("Speed limiter: desired %.2f controlled %.2f",msg->linear.x,filtered.linear.x);
-        safe_vel_pub_.publish(filtered);
-    }
+    protected: // ROS Callbacks
+        void command_velocity_cb(const geometry_msgs::TwistConstPtr msg) {
+            geometry_msgs::Twist filtered = findClosestAcceptableVelocity(*msg);
+            // ROS_INFO("Speed limiter: desired %.2f controlled %.2f",msg->linear.x,filtered.linear.x);
+            safe_vel_pub_.publish(filtered);
+        }
 
     void current_velocity_cb(const geometry_msgs::TwistStampedConstPtr msg) {
         current_velocity_ = msg->twist;
     }
 
-    void pc_callback(const sensor_msgs::PointCloud2ConstPtr msg) {
-        pcl::PointCloud<pcl::PointXYZ> temp;
-        pcl::fromROSMsg(*msg, temp);
-        // Make sure the point cloud is in the base-frame
-        listener_.waitForTransform(base_frame_, msg->header.frame_id, msg->header.stamp, ros::Duration(1.0));
-        pcl_ros::transformPointCloud(base_frame_, msg->header.stamp, temp, msg->header.frame_id, lastpc_, listener_);
-        // unsigned int n = lastpc.size();
-        // ROS_INFO("New point cloud: %d points",n);
-        // for (unsigned int i=0;i<n;i++) {
-        //     float x = lastpc[i].x;
-        //     float y = lastpc[i].y;
-        //     float z = lastpc[i].z;
-        //     ROS_INFO("%d %.3f %.3f %.3f",i,x,y,z);
-        // }
-        // printf("\n\n\n");
+        /**
+         * compute the d_alpha map from point cloud
+         * @param msg
+         */
+         void pc_callback(const sensor_msgs::PointCloud2ConstPtr msg) {
+            pcl::PointCloud<pcl::PointXYZ> temp;
+            pcl::fromROSMsg(*msg, temp);
+            // Make sure the point cloud is in the base-frame
+            listener_.waitForTransform(base_frame_,msg->header.frame_id,msg->header.stamp,ros::Duration(1.0));
+            pcl_ros::transformPointCloud(base_frame_,msg->header.stamp, temp, msg->header.frame_id, lastpc_, listener_);
+            // unsigned int n = lastpc.size();
+            // ROS_INFO("New point cloud: %d points",n);
+            // for (unsigned int i=0;i<n;i++) {
+            //     float x = lastpc[i].x;
+            //     float y = lastpc[i].y;
+            //     float z = lastpc[i].z;
+            //     ROS_INFO("%d %.3f %.3f %.3f",i,x,y,z);
+            // }
+            // printf("\n\n\n");
 
         og_ = FREE; // reset the map
         unsigned int n = lastpc_.size();
@@ -186,8 +203,14 @@ protected: // ROS Callbacks
             double v = min_v + j * linear_velocity_resolution_;
             for (unsigned int i = 0; i < n_w; i++) {
                 double w = min_w + i * angular_velocity_resolution_;
-                Va(j, i) = UNKNOWN;
-                scores(j, i) = UNKNOWN;
+                Va(j, i) = occupancy_dalpha(v,w);
+                double score = k_v_ * std::abs(v-desired.linear.x) + k_w_ * std::abs(w-desired.angular.z);
+                if (score <= best_score && Va(j,i)!=OCCUPIED){
+                    best_score = score;
+                    best_v = v;
+                    best_w = w;
+                }
+                scores(j, i) = static_cast<uint8_t>(score);
             }
         }
         cv::resize(scores, scores, cv::Size(200, 200));
