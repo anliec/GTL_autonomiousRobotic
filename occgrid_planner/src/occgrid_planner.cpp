@@ -338,7 +338,7 @@ private:
      * @return list of neighbors points giving the shortest path from start to target (or an empty list if no path is
      * found).
      */
-    std::list<cv::Point> AStar(const cv::Point &start, const cv::Point &target){
+    std::list<cv::Point> AStar(const cv::Point &start, const cv::Point &target) const{
         //set list of explorable neighbors
         cv::Point neighbours[8] = {cv::Point(1, 0), cv::Point(0, 1), cv::Point(-1, 0), cv::Point(0, -1),
                                    cv::Point(1, 1), cv::Point(-1, 1), cv::Point(-1, -1), cv::Point(1, -1)};
@@ -470,6 +470,10 @@ private:
     };
     typedef std::priority_queue<HeapElement3D, std::vector<HeapElement3D>, HeapElement3DCompare> AStarHeap3D;
 
+    unsigned toLinearCord(const unsigned &x, const unsigned &y, const unsigned &z) const {
+        return (x * og_.size[1] + y) * NUMBER_OF_ANGLES_LEVELS + z;
+    }
+
     /**
      * Compute a A* path from start to target using og_ as ocupency grid
      * @param start point where the path will start
@@ -477,26 +481,15 @@ private:
      * @return list of neighbors points giving the shortest path from start to target (or an empty list if no path is
      * found).
      */
-    std::list<Pos3D> AStar3D(const Pos3D &start, const Pos3D &target){
+    std::list<Pos3D> AStar3D(const Pos3D &start, const Pos3D &target) const{
         MovementGenerator movement_generator;
         //set accumulator arrays
-        std::cout << "size of PointState " << sizeof(PointState) << std::endl;
-        PointState*** explored;
-        explored = new PointState**[og_.size[0]];
-        for(int x=0 ; x < og_.size[0] ; x++){
-            explored[x] = new PointState*[og_.size[1]];
-            for(int y=0 ; y < og_.size[1] ; y++){
-                explored[x][y] = new PointState[NUMBER_OF_ANGLES_LEVELS];
-                for(unsigned a=0 ; a < NUMBER_OF_ANGLES_LEVELS ; a++){
-                    explored[x][y][a].dist = -1.0f;
-                }
-            }
-        }
+        PointState* explored = new PointState[og_.size[0] * og_.size[1] * NUMBER_OF_ANGLES_LEVELS];
 
         //init loop variables
         AStarHeap3D gray;
         addToHeap3D(gray, start, target, 0.0f);
-        explored[start.pt.x][start.pt.y][start.angle] = PointState(0.0f, start);
+        explored[toLinearCord(start.pt.x, start.pt.y, start.angle)] = PointState(0.0f, start);
         float shortest_path = std::numeric_limits<float>::max();
 
         while (!gray.empty()){
@@ -506,7 +499,8 @@ private:
             }
             Pos3D p = gray.top().second;
             gray.pop();
-            float cur_dist = explored[p.pt.x][p.pt.y][p.angle].dist;
+//            float cur_dist = explored[p.pt.x][p.pt.y][p.angle].dist;
+            float cur_dist = explored[toLinearCord(p.pt.x,p.pt.y,p.angle)].dist;
 
             //check if target found
             if(p == target){
@@ -518,9 +512,9 @@ private:
             std::vector<AngleMovement> possibleMove = movement_generator.getPossibleMove(p.angle);
             for(const AngleMovement &m : possibleMove){
                 Pos3D np = p + m;
-                if (og_(np.pt) == FREE && explored[np.pt.x][np.pt.y][np.angle].dist == -1.0f) {
+                if (og_(np.pt) == FREE && explored[toLinearCord(np.pt.x,np.pt.y,np.angle)].dist == -1.0f) {
                     float dist = cur_dist + m.get_cost();
-                    explored[np.pt.x][np.pt.y][np.angle] = PointState(dist, p);
+                    explored[toLinearCord(np.pt.x,np.pt.y,np.angle)] = PointState(dist, p);
                     addToHeap3D(gray, np, target, dist);
                 }
             }
@@ -530,23 +524,17 @@ private:
         std::list<Pos3D> path;
 
         //if no path was found, return an empty path
-        if(explored[target.pt.x][target.pt.y][target.angle].dist == -1.0f){
+        if(explored[toLinearCord(target.pt.x,target.pt.y,target.angle)].dist == -1.0f){
             return path;
         }
 
         const Pos3D * pred = &target;
         while(*pred != start){
             path.push_front(*pred);
-            pred = &explored[pred->pt.x][pred->pt.y][pred->angle].pred;
+            pred = &explored[toLinearCord(pred->pt.x,pred->pt.y,pred->angle)].pred;
         }
 
-        //cleaning memory
-        for(int x=0 ; x < og_.size[0] ; x++){
-            for(int y=0 ; y < og_.size[1] ; y++){
-                delete [] explored[x][y];
-            }
-            delete [] explored[x];
-        }
+        //clean memory
         delete [] explored;
 
         return path;
