@@ -164,23 +164,22 @@ protected: // ROS Callbacks
     geometry_msgs::Twist findClosestAcceptableVelocity(const geometry_msgs::Twist &desired) {
         geometry_msgs::Twist res = desired;
         // First the static limit: Vs
-        double min_v = -max_linear_velocity_;
-        double max_v = max_linear_velocity_;
-        double min_w = -max_angular_velocity_;
-        double max_w = max_angular_velocity_;
         // TODO: First update min_v/max_v and min_w/max_w to compute the intersection of Vs and Vd.
-
+        //compute possible move window
+        double min_v = std::max(-max_linear_velocity_, desired.linear.x - max_linear_accel_);
+        double max_v = std::min( max_linear_velocity_, desired.linear.x + max_linear_accel_);
+        double min_w = std::max(-max_angular_velocity_, desired.angular.z - max_angular_accel_);
+        double max_w = std::max( max_angular_velocity_, desired.angular.z + max_angular_accel_);
         // From that, we know which velocities we need to consider and we
         // creat a small matrix to help visualising Va (Vr)
-        unsigned int n_v = ceil((max_v - min_v) / linear_velocity_resolution_ + 1);
-        unsigned int n_w = ceil((max_w - min_w) / angular_velocity_resolution_ + 1);
+        unsigned int n_v = unsigned(ceil((max_v - min_v) / linear_velocity_resolution_ + 1));
+        unsigned int n_w = unsigned(ceil((max_w - min_w) / angular_velocity_resolution_ + 1));
         cv::Mat_<uint8_t> Va(n_v, n_w, FREE); // Vs inter Vd
         cv::Mat_<uint8_t> scores(n_v, n_w, (uint8_t) OCCUPIED); // Vs inter Vd
 
         // Now build Va (inside Vs inter Vd) by iterating over the local
         // map, and find the most appropriate speed (best_v, best_w).
-        // TODO: Fill Vas with the acceptable velocities (given the time
-        // horizon)
+        // TODO: Fill Vas with the acceptable velocities (given the time horizon)
         double best_score = 0;
         double best_v = 0, best_w = 0;
         for (unsigned int j = 0; j < n_v; j++) {
