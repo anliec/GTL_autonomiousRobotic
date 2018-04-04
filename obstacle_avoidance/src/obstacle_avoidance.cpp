@@ -169,7 +169,7 @@ protected:
     }
 
     uint8_t occupancy_dalpha(double d, double alpha) {
-        int i_d = (int) round((d + max_range_) / map_resolution_);
+        auto i_d = (int) round((d + max_range_) / map_resolution_);
         if (i_d < 0) i_d = 0;
         if (i_d >= (signed) n_d_) i_d = n_d_ - 1;
         if (alpha < 0) alpha += 2 * M_PI;
@@ -205,7 +205,7 @@ protected:
                 double w = min_w + i * angular_velocity_resolution_;
                 //TODO find the right formula to go from v, w to d, alpha (problem on alpha)
                 double d = v * time_horizon_;
-                double gamma = M_PI - fabs(w) * time_horizon_;
+                double gamma = w * time_horizon_;
                 double r = d / gamma;
                 double alpha = atan(r);
                 Va(j, i) = occupancy_dalpha(d, alpha);
