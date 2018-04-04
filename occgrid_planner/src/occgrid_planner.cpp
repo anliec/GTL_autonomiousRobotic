@@ -150,7 +150,7 @@ protected:
     // This is called when a new goal is posted by RViz. We don't use a
     // mutex here, because it can only be called in spinOnce.
     void target_callback(const geometry_msgs::PoseStampedConstPtr &msg) {
-        last_goal = msg;
+        last_goal = geometry_msgs::PoseStampedConstPtr(msg);
         tf::StampedTransform transform;
         geometry_msgs::PoseStamped pose;
         if (!ready) {
@@ -302,6 +302,9 @@ public:
 
 
     void republish_goal(){
+        if(last_goal == nullptr){
+            return;
+        }
         tf::StampedTransform transform;
         geometry_msgs::PoseStamped pose;
         // This converts target in the grid frame.
