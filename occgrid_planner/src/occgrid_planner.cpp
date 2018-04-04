@@ -44,7 +44,9 @@ protected:
     ros::Subscriber og_sub_;
     ros::Subscriber target_sub_;
     ros::Publisher path_pub_;
+    ros::Publisher goal_pub_;
     tf::TransformListener listener_;
+    geometry_msgs::PoseStampedConstPtr last_goal;
 
     cv::Rect roi_;
     cv::Mat_<uint8_t> og_, cropped_og_;
@@ -57,6 +59,7 @@ protected:
     unsigned int neighbourhood_;
     bool ready;
     bool debug;
+    float goal_threshold;
 
     typedef std::multimap<float, cv::Point> Heap;
 
@@ -147,6 +150,7 @@ protected:
     // This is called when a new goal is posted by RViz. We don't use a
     // mutex here, because it can only be called in spinOnce.
     void target_callback(const geometry_msgs::PoseStampedConstPtr &msg) {
+        last_goal = msg;
         tf::StampedTransform transform;
         geometry_msgs::PoseStamped pose;
         if (!ready) {
@@ -294,8 +298,32 @@ protected:
         ROS_INFO("Request completed");
     }
 
-
 public:
+
+
+    void republish_goal(){
+        tf::StampedTransform transform;
+        geometry_msgs::PoseStamped pose;
+        // This converts target in the grid frame.
+        listener_.waitForTransform(frame_id_, last_goal->header.frame_id, last_goal->header.stamp, ros::Duration(1.0));
+        listener_.transformPose(frame_id_, *last_goal, pose);
+        // this gets the current pose in transform
+        listener_.lookupTransform(frame_id_, base_link_, ros::Time(0), transform);
+        cv::Point target = cv::Point(pose.pose.position.x / info_.resolution, pose.pose.position.y / info_.resolution)
+                           + og_center_;
+        cv::Point start;
+        start = cv::Point(transform.getOrigin().x() / info_.resolution,
+                          transform.getOrigin().y() / info_.resolution)
+                + og_center_;
+        if ((abs(start.x - target.x) <=  goal_threshold) &&
+                (abs(start.y - target.y) <=  goal_threshold)) {
+            ROS_INFO("republishing goal to recompute path");
+            goal_pub_.publish(last_goal);
+        } else {
+            ROS_INFO("goal already achived, skipping republish");
+        }
+    }
+
     OccupancyGridPlanner() : nh_("~") {
         int nbour = 4;
         ready = false;
@@ -303,6 +331,7 @@ public:
         nh_.param("base_frame", base_link_, std::string("/body"));
         nh_.param("debug", debug, false);
         nh_.param("neighbourhood", nbour, nbour);
+        nh_.param("goal_threshold", goal_threshold, 0.1f);
         switch (nbour) {
             case 4:
                 neighbourhood_ = nbour;
@@ -317,6 +346,7 @@ public:
         og_sub_ = nh_.subscribe("occ_grid", 1, &OccupancyGridPlanner::og_callback, this);
         target_sub_ = nh_.subscribe("goal", 1, &OccupancyGridPlanner::target_callback, this);
         path_pub_ = nh_.advertise<nav_msgs::Path>("path", 1, true);
+        goal_pub_ = nh_.advertise<nav_msgs::Path>("goal", 1, true);
     }
 
 
@@ -565,11 +595,14 @@ int main(int argc, char *argv[]) {
     ros::init(argc, argv, "occgrid_planner");
     OccupancyGridPlanner ogp;
     cv::namedWindow("OccGrid", CV_WINDOW_AUTOSIZE);
+    ros::Rate loop_rate(0.2);
     while (ros::ok()) {
         ros::spinOnce();
-        if (cv::waitKey(50) == 'q') {
-            ros::shutdown();
-        }
+//        if (cv::waitKey(50) == 'q') {
+//            ros::shutdown();
+//        }
+        ogp.republish_goal();
+        loop_rate.sleep();
     }
 }
 
