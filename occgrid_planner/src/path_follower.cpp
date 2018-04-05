@@ -41,6 +41,7 @@ protected:
 
     void traj_cb(const occgrid_planner::TrajectoryConstPtr &msg) {
         frame_id_ = msg->header.frame_id;
+        traj_.clear();
         for (unsigned int i = 0; i < msg->Ts.size(); i++) {
             traj_.insert(Trajectory::value_type(msg->Ts[i].header.stamp.toSec(), msg->Ts[i]));
         }
@@ -59,7 +60,7 @@ protected:
         result.x = error.pose.position.x;
         result.y = error.pose.position.y;
         result.theta = tf::getYaw(error.pose.orientation);
-        printf("Current error: %+6.2f %+6.2f %+6.2f\n", result.x, result.y, result.theta * 180. / M_PI);
+//        printf("Current error: %+6.2f %+6.2f %+6.2f\n", result.x, result.y, result.theta * 180. / M_PI);
         return result;
     }
 
@@ -86,12 +87,14 @@ public:
 
     void run() {
         ros::Rate rate(20);
+        double wait_time = 0.0;
+
         while (ros::ok()) {
             ros::spinOnce();
             if (traj_.size() > 0) {
                 bool final = false;
                 ros::Time now = ros::Time::now();
-                Trajectory::const_iterator it = traj_.lower_bound(now.toSec() + look_ahead_);
+                Trajectory::const_iterator it = traj_.lower_bound(now.toSec() + look_ahead_ - wait_time);
                 if (it == traj_.end()) {
                     // let's keep the final position
                     it--;
@@ -104,7 +107,7 @@ public:
                 geometry_msgs::Pose2D error = computeError(now, it->second);
                 pose2d_pub_.publish(error);
                 if(error.x * error.x + error.y * error.y > WAIT_DIST * WAIT_DIST){
-                    look_ahead_ -= 1.0 / 20.0;
+                    wait_time += 1.0 / 20.0;
                 }
                 geometry_msgs::Twist twist;
                 if (final && (error.x < 0.1)) {
@@ -113,13 +116,13 @@ public:
                     twist.angular.z = 0.0;
                 } else {
                     twist.linear.x = it->second.twist.linear.x + Kx_ * error.x;
-                    twist.linear.x = std::min(twist.linear.x, max_velocity_);
-                    error.y = sat(error.y, max_y_error_);
+                    twist.linear.x = std::min(twist.linear.x,max_velocity_);
+                    error.y = sat(error.y,max_y_error_);
                     twist.angular.z = it->second.twist.angular.z + Ktheta_ * error.theta
-                                      + Ky_ * it->second.twist.linear.x * exp(-error.theta * error.theta) * error.y;
-                    twist.angular.z = sat(twist.angular.z, max_rot_speed_);
+                                      + Ky_*it->second.twist.linear.x*exp(-error.theta*error.theta)*error.y;
+                    twist.angular.z = sat(twist.angular.z,max_rot_speed_);
 
-                    printf("Twist: %.2f %.2f\n", twist.linear.x, twist.angular.z);
+//                    printf("Twist: %.2f %.2f\n",twist.linear.x,twist.angular.z);
                 }
                 twist_pub_.publish(twist);
             } else {

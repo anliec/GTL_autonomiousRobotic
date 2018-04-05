@@ -3,6 +3,8 @@
 //
 
 #include <opencv-3.3.1/opencv2/opencv.hpp>
+#include <rosconsole/macros_generated.h>
+#include <ros/ros.h>
 #include "TargetMapBuilder.h"
 
 #define DEBUG
@@ -17,28 +19,30 @@ GoalHeap TargetMapBuilder::computeGoals(const cv::Mat_<uint8_t> &map, const cv::
     mapFrontierPoint_ = cv::Mat_<uint8_t>(mapShape[0], mapShape[1]);
     for (unsigned int j = 1; j < (mapShape[1]-1); j++) {
         for (unsigned int i = 1; i < (mapShape[0]-1); i++) {
+            cv::Point p(i, j);
             // for all point of the map find free points
-            if (map_(j, i) == FREE) {
+            if (map(p) == FREE) {
                 // for each free point count unknown neighbors
                 uint8_t unknown_count = 0;
                 for (int dj = -1; dj <= 1; dj++){
                     for (int di = -1; di <= 1; di++){
-                        if (map_(j, i) == UNKNOWN) {
+                        if (map(cv::Point(i + di, j + dj)) == UNKNOWN) {
                             unknown_count++;
                         }
                     }
                 }
                 // if there is more than 1 unknown neighbor this point is frontier point
                 float score = unknown_count / (powf(i-robotLoc.x, 2) + powf(j-robotLoc.y, 2) + 1.0f);
-                mapFrontierPoint_(j, i) = static_cast<uint8_t>(score*256);
+                mapFrontierPoint_(p) = static_cast<uint8_t>(score*256);
                 if (unknown_count > 0){
                     // compute it's score and add it to the heap
-                    addToHeap(goals, cv::Point(i, j), score);
+                    addToHeap(goals, cv::Point(p), score);
                 }
             }
         }
     }
 #ifdef DEBUG
+    ROS_INFO("Display map frontier");
     cv::imshow("OccGrid", mapFrontierPoint_);
 #endif
     return goals;

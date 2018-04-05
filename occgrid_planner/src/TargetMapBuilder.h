@@ -31,7 +31,7 @@ class TargetMapBuilder {
 protected:
     GoalHeap goals;
 
-    cv::Mat_<uint8_t> map_, mapFrontierPoint_;
+    cv::Mat_<uint8_t> mapFrontierPoint_;
 
 public:
     TargetMapBuilder();

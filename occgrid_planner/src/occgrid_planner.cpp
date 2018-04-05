@@ -19,17 +19,13 @@
 
 #include "opencv2/imgproc/imgproc.hpp"
 #include "MovementGenerator.h"
+#include "TargetMapBuilder.h"
 
 
 #define LATIS_MOVEMENT
 #define EXPLORATOR
 
-#define FREE 0xFF
-#define UNKNOWN 0x80
-
-#define OCCUPIED 0x00
 #define WIN_SIZE 800
-
 
 const static int UNACCESIBLE_RADIUS = 5; // unit ? see _info.resolution ??
 
@@ -55,6 +51,8 @@ protected:
     bool ready;
     bool debug;
     float goal_threshold;
+
+    TargetMapBuilder targetMapBuilder;
 
     typedef std::multimap<float, cv::Point> Heap;
 
@@ -148,7 +146,7 @@ protected:
     void target_callback(const geometry_msgs::PoseStampedConstPtr &msg) {
         last_goal = geometry_msgs::PoseStampedConstPtr(msg);
 #else
-    void target_callback() {
+    void target_callback(const std_msgs::Empty void_msg) {
 #endif
         tf::StampedTransform transform;
         geometry_msgs::PoseStamped pose;
@@ -156,9 +154,29 @@ protected:
             ROS_WARN("Ignoring target while the occupancy grid has not been received");
             return;
         }
-        ROS_INFO("Received planning request");
         og_rgb_marked_ = og_rgb_.clone();
 
+#ifndef EXPLORATOR //get target from message
+        // Convert the destination point in the occupancy grid frame.
+        // The debug case is useful is the map is published without
+        // gmapping running (for instance with map_server).
+        if (debug) {
+            pose = *msg;
+        } else {
+            // This converts target in the grid frame.
+            listener_.waitForTransform(frame_id_, msg->header.frame_id, msg->header.stamp, ros::Duration(1.0));
+            listener_.transformPose(frame_id_, *msg, pose);
+            // this gets the current pose in transform
+            listener_.lookupTransform(frame_id_, base_link_, ros::Time(0), transform);
+        }
+        // Now scale the target to the grid resolution and shift it to the
+        // grid center.
+        cv::Point target = cv::Point(pose.pose.position.x / info_.resolution, pose.pose.position.y / info_.resolution)
+                           + og_center_;
+#else //compute target with exploration map
+        // this gets the current pose in transform
+        listener_.lookupTransform(frame_id_, base_link_, ros::Time(0), transform);
+#endif
         // Now get the current point in grid coordinates.
         cv::Point start;
         if (debug) {
@@ -183,29 +201,12 @@ protected:
             ROS_ERROR("Invalid start point: occupancy = %d", og_(start));
             return;
         }
-
-#ifndef EXPLORATOR //get target from message
-        // Convert the destination point in the occupancy grid frame.
-        // The debug case is useful is the map is published without
-        // gmapping running (for instance with map_server).
-        if (debug) {
-            pose = *msg;
-        } else {
-            // This converts target in the grid frame.
-            listener_.waitForTransform(frame_id_, msg->header.frame_id, msg->header.stamp, ros::Duration(1.0));
-            listener_.transformPose(frame_id_, *msg, pose);
-            // this gets the current pose in transform
-            listener_.lookupTransform(frame_id_, base_link_, ros::Time(0), transform);
-        }
-        // Now scale the target to the grid resolution and shift it to the
-        // grid center.
-        cv::Point target = cv::Point(pose.pose.position.x / info_.resolution, pose.pose.position.y / info_.resolution)
-                           + og_center_;
-#else //compute target with exploration map
+#ifdef EXPLORATOR
         std::vector<cv::Point> inaccessiblePoints;
+        GoalHeap heap = targetMapBuilder.computeGoals(og_, start);
     get_new_element_from_heap:
-
-        cv::Point target;
+        cv::Point target = heap.top().second;
+        heap.pop();
         for(cv::Point &p : inaccessiblePoints){
             if(abs(target.x - p.x) >= UNACCESIBLE_RADIUS && abs(target.y - p.y) >= UNACCESIBLE_RADIUS){
                 goto get_new_element_from_heap;
@@ -264,17 +265,13 @@ protected:
             it++;
         }
 #else
-        std::cout << "A* start and target init" << std::endl;
         Pos3D start3D, target3D;
         start3D.pt = start;
         target3D.pt = target;
-        std::cout << "A* Quaternion" << std::endl;
         tf::Quaternion qStart(transform.getOrigin().x(), transform.getOrigin().y(), transform.getOrigin().z(), transform.getOrigin().w());
         tf::Quaternion qTarget(pose.pose.orientation.x, pose.pose.orientation.y, pose.pose.orientation.z, pose.pose.orientation.w);
-        std::cout << "A* angle" << std::endl;
         start3D.angle =  unsigned(round(qStart.getAngle()  * double(NUMBER_OF_ANGLES_LEVELS) / (2.0 * M_PI)));
         target3D.angle = unsigned(round(qTarget.getAngle() * double(NUMBER_OF_ANGLES_LEVELS) / (2.0 * M_PI)));
-        std::cout << "A* starting" << std::endl;
         // Here the A* algorithm is run
         std::list<Pos3D> listPath = AStar3D(start3D, target3D);
 
@@ -289,7 +286,6 @@ protected:
             return;
 #endif
         }
-        ROS_INFO("Planning completed");
         // Finally create a ROS path message
         nav_msgs::Path path;
         path.header.stamp = ros::Time::now();
@@ -348,7 +344,8 @@ public:
     }
 #else
     void republish_goal(){
-        goal_pub_.publish();
+        goal_pub_.publish(std_msgs::Empty());
+        ROS_INFO("msg published");
     }
 #endif
 
