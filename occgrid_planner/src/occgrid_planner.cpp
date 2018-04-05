@@ -22,21 +22,16 @@
 
 
 #define LATIS_MOVEMENT
-#define REPLANNING
+#define EXPLORATOR
 
 #define FREE 0xFF
-
-#ifdef REPLANNING
-#define UNKNOWN 0xFF
-#else
 #define UNKNOWN 0x80
-#endif
 
 #define OCCUPIED 0x00
 #define WIN_SIZE 800
 
 
-
+const static int UNACCESIBLE_RADIUS = 5; // unit ? see _info.resolution ??
 
 class OccupancyGridPlanner {
 protected:
@@ -147,10 +142,14 @@ protected:
         return true;
     }
 
+#ifndef EXPLORATOR
     // This is called when a new goal is posted by RViz. We don't use a
     // mutex here, because it can only be called in spinOnce.
     void target_callback(const geometry_msgs::PoseStampedConstPtr &msg) {
         last_goal = geometry_msgs::PoseStampedConstPtr(msg);
+#else
+    void target_callback() {
+#endif
         tf::StampedTransform transform;
         geometry_msgs::PoseStamped pose;
         if (!ready) {
@@ -159,36 +158,6 @@ protected:
         }
         ROS_INFO("Received planning request");
         og_rgb_marked_ = og_rgb_.clone();
-        // Convert the destination point in the occupancy grid frame.
-        // The debug case is useful is the map is published without
-        // gmapping running (for instance with map_server).
-        if (debug) {
-            pose = *msg;
-        } else {
-            // This converts target in the grid frame.
-            listener_.waitForTransform(frame_id_, msg->header.frame_id, msg->header.stamp, ros::Duration(1.0));
-            listener_.transformPose(frame_id_, *msg, pose);
-            // this gets the current pose in transform
-            listener_.lookupTransform(frame_id_, base_link_, ros::Time(0), transform);
-        }
-        // Now scale the target to the grid resolution and shift it to the
-        // grid center.
-        cv::Point target = cv::Point(pose.pose.position.x / info_.resolution, pose.pose.position.y / info_.resolution)
-                           + og_center_;
-        ROS_INFO("Planning target: %.2f %.2f -> %d %d",
-                 pose.pose.position.x, pose.pose.position.y, target.x, target.y);
-        cv::circle(og_rgb_marked_, target, 10, cv::Scalar(0, 0, 255));
-        cv::imshow("OccGrid", og_rgb_marked_);
-        if (!isInGrid(target)) {
-            ROS_ERROR("Invalid target point (%.2f %.2f) -> (%d %d)",
-                      pose.pose.position.x, pose.pose.position.y, target.x, target.y);
-            return;
-        }
-        // Only accept target which are FREE in the grid (HW, Step 5).
-        if (og_(target) != FREE) {
-            ROS_ERROR("Invalid target point: occupancy = %d", og_(target));
-            return;
-        }
 
         // Now get the current point in grid coordinates.
         cv::Point start;
@@ -214,6 +183,51 @@ protected:
             ROS_ERROR("Invalid start point: occupancy = %d", og_(start));
             return;
         }
+
+#ifndef EXPLORATOR //get target from message
+        // Convert the destination point in the occupancy grid frame.
+        // The debug case is useful is the map is published without
+        // gmapping running (for instance with map_server).
+        if (debug) {
+            pose = *msg;
+        } else {
+            // This converts target in the grid frame.
+            listener_.waitForTransform(frame_id_, msg->header.frame_id, msg->header.stamp, ros::Duration(1.0));
+            listener_.transformPose(frame_id_, *msg, pose);
+            // this gets the current pose in transform
+            listener_.lookupTransform(frame_id_, base_link_, ros::Time(0), transform);
+        }
+        // Now scale the target to the grid resolution and shift it to the
+        // grid center.
+        cv::Point target = cv::Point(pose.pose.position.x / info_.resolution, pose.pose.position.y / info_.resolution)
+                           + og_center_;
+#else //compute target with exploration map
+        std::vector<cv::Point> inaccessiblePoints;
+    get_new_element_from_heap:
+
+        cv::Point target;
+        for(cv::Point &p : inaccessiblePoints){
+            if(abs(target.x - p.x) >= UNACCESIBLE_RADIUS && abs(target.y - p.y) >= UNACCESIBLE_RADIUS){
+                goto get_new_element_from_heap;
+            }
+        }
+#endif
+        ROS_INFO("Planning target: %.2f %.2f -> %d %d",
+                 pose.pose.position.x, pose.pose.position.y, target.x, target.y);
+        cv::circle(og_rgb_marked_, target, 10, cv::Scalar(0, 0, 255));
+        cv::imshow("OccGrid", og_rgb_marked_);
+        if (!isInGrid(target)) {
+            ROS_ERROR("Invalid target point (%.2f %.2f) -> (%d %d)",
+                      pose.pose.position.x, pose.pose.position.y, target.x, target.y);
+            return;
+        }
+        // Only accept target which are FREE in the grid (HW, Step 5).
+        if (og_(target) != FREE) {
+            ROS_ERROR("Invalid target point: occupancy = %d", og_(target));
+            return;
+        }
+
+
         ROS_INFO("Starting planning from (%d, %d) to (%d, %d)", start.x, start.y, target.x, target.y);
 
 #ifndef LATIS_MOVEMENT
@@ -264,10 +278,16 @@ protected:
         // Here the A* algorithm is run
         std::list<Pos3D> listPath = AStar3D(start3D, target3D);
 
-        if (listPath.size() == 0) {
+        if (listPath.empty()) {
             // No path found
+#ifdef EXPLORATOR
+            ROS_INFO("Path not fund, trying with a new target");
+            inaccessiblePoints.push_back(target);
+            goto get_new_element_from_heap;
+#else
             ROS_ERROR("No path found from (%d, %d) to (%d, %d)", start.x, start.y, target.x, target.y);
             return;
+#endif
         }
         ROS_INFO("Planning completed");
         // Finally create a ROS path message
@@ -300,7 +320,7 @@ protected:
 
 public:
 
-
+#ifndef EXPLORATOR
     void republish_goal(){
         if(last_goal == nullptr){
             return;
@@ -326,6 +346,11 @@ public:
             ROS_INFO("goal already achived, skipping republish");
         }
     }
+#else
+    void republish_goal(){
+        goal_pub_.publish();
+    }
+#endif
 
     OccupancyGridPlanner() : nh_("~") {
         int nbour = 4;
@@ -347,9 +372,17 @@ public:
                 neighbourhood_ = 8;
         }
         og_sub_ = nh_.subscribe("occ_grid", 1, &OccupancyGridPlanner::og_callback, this);
+#ifndef EXPLORATOR
         target_sub_ = nh_.subscribe("goal", 1, &OccupancyGridPlanner::target_callback, this);
+#else
+        target_sub_ = nh_.subscribe("explore", 1, &OccupancyGridPlanner::target_callback, this);
+#endif
         path_pub_ = nh_.advertise<nav_msgs::Path>("path", 1, true);
+#ifndef EXPLORATOR
         goal_pub_ = nh_.advertise<nav_msgs::Path>("goal", 1, true);
+#else
+        goal_pub_ = nh_.advertise<std_msgs::Empty>("explore", 1, true);
+#endif
     }
 
 
@@ -404,7 +437,7 @@ private:
             for(unsigned n=0 ; n < 8 ; n++) {
                 cv::Point np = p + neighbours[n];
                 // if neighbors is free and was not already seen
-                if (og_(np) == FREE && dist_array[np.x][np.y] == -1.0f) {
+                if (og_(np) != OCCUPIED && dist_array[np.x][np.y] == -1.0f) {
                     float dist = cur_dist + cost[n];
                     pred_array[np.x][np.y] = p;
                     dist_array[np.x][np.y] = dist;
@@ -545,7 +578,7 @@ private:
             std::vector<AngleMovement> possibleMove = movement_generator.getPossibleMove(p.angle);
             for(const AngleMovement &m : possibleMove){
                 Pos3D np = p + m;
-                if (og_(np.pt) == FREE && explored[toLinearCord(np.pt.x,np.pt.y,np.angle)].dist == -1.0f) {
+                if (og_(np.pt) != OCCUPIED && explored[toLinearCord(np.pt.x,np.pt.y,np.angle)].dist == -1.0f) {
                     float dist = cur_dist + m.get_cost();
                     explored[toLinearCord(np.pt.x,np.pt.y,np.angle)] = PointState(dist, p);
                     addToHeap3D(gray, np, target, dist);
@@ -582,7 +615,7 @@ private:
      */
     static void addToHeap3D(AStarHeap3D &heap, const Pos3D &p, const Pos3D &target,
                           const float &current_dist){
-            float dist = current_dist + distHeuristic3D(p, target);
+        float dist = current_dist + distHeuristic3D(p, target);
         heap.push(HeapElement3D(dist, p));
     }
 
