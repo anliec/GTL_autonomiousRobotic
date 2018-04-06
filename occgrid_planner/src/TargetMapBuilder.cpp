@@ -23,7 +23,7 @@ GoalHeap TargetMapBuilder::computeGoals(const cv::Mat_<uint8_t> &map, const cv::
             // for all point of the map find free points
             if (map(p) == FREE) {
                 // for each free point count unknown neighbors
-                uint8_t unknown_count = 0;
+                float unknown_count = 0.0f;
                 for (int dj = -1; dj <= 1; dj++){
                     for (int di = -1; di <= 1; di++){
                         if (map(cv::Point(i + di, j + dj)) == UNKNOWN) {
@@ -32,11 +32,11 @@ GoalHeap TargetMapBuilder::computeGoals(const cv::Mat_<uint8_t> &map, const cv::
                     }
                 }
                 // if there is more than 1 unknown neighbor this point is frontier point
-                float score = unknown_count / (powf(i-robotLoc.x, 2) + powf(j-robotLoc.y, 2) + 1.0f);
-                mapFrontierPoint_(p) = static_cast<uint8_t>(score*256);
-                if (unknown_count > 0){
+                if (unknown_count > 0.0f){
                     // compute it's score and add it to the heap
-                    addToHeap(goals, cv::Point(p), score);
+                    float score = unknown_count / (powf(p.x-robotLoc.x, 2) + powf(p.x-robotLoc.x, 2) + 1.0f);
+                    mapFrontierPoint_(p) = static_cast<uint8_t>(score*256);
+                    addToHeap(goals, p, score);
                 }
             }
         }
@@ -49,5 +49,5 @@ GoalHeap TargetMapBuilder::computeGoals(const cv::Mat_<uint8_t> &map, const cv::
 }
 
 TargetMapBuilder::TargetMapBuilder() {
-
+    cv::namedWindow("OccGrid", CV_WINDOW_AUTOSIZE);
 }

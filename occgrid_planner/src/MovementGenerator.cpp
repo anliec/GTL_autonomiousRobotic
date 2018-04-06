@@ -8,23 +8,23 @@ MovementGenerator::MovementGenerator()
 {
     //set possible movement for angle = 0 / 90 / 180 / 270
     possibleMove[0].emplace_back(0, 0,  0,  1, 1.0f); // rotate on the spot
-    possibleMove[0].emplace_back(0, 1, -1,  2, 0.2f); // diagonal + 90 degree
-    possibleMove[0].emplace_back(0, 2, -1,  1, 0.1f); // diagonal + 1x + 45 degree
+    possibleMove[0].emplace_back(0, 1, -1,  2, 0.3f); // diagonal + 90 degree
+    possibleMove[0].emplace_back(0, 2, -1,  1, 0.2f); // diagonal + 1x + 45 degree
     //symmetrical
     possibleMove[0].emplace_back(0, 0,  0, -1, 1.0f); // rotate on the spot
-    possibleMove[0].emplace_back(0, 1,  1, -2, 0.2f); // diagonal + 90 degree
-    possibleMove[0].emplace_back(0, 2,  1, -1, 0.1f); // diagonal + 1x + 45 degree
+    possibleMove[0].emplace_back(0, 1,  1, -2, 0.3f); // diagonal + 90 degree
+    possibleMove[0].emplace_back(0, 2,  1, -1, 0.2f); // diagonal + 1x + 45 degree
     //add forward movement
     possibleMove[0].emplace_back(0, 1,  0,  0, 0.0f);
 
     //set possible movement for angle = 45 / 135 / 225 / 315
     possibleMove[1].emplace_back(1, 0,  0,  1, 1.0f); // rotate on the spot
-    possibleMove[1].emplace_back(1, 1,  0, -2, 0.2f); // diagonal + 90 degree
-    possibleMove[1].emplace_back(1, 2, -1, -1, 0.1f); // diagonal + 1x + 45 degree
+    possibleMove[1].emplace_back(1, 1,  0, -2, 0.3f); // diagonal + 90 degree
+    possibleMove[1].emplace_back(1, 2, -1, -1, 0.2f); // diagonal + 1x + 45 degree
     //symmetrical
     possibleMove[1].emplace_back(1, 0,  0, -1, 1.0f); // rotate on the spot
-    possibleMove[1].emplace_back(1, 0, -1,  2, 0.2f); // diagonal + 90 degree
-    possibleMove[1].emplace_back(1, 1, -2,  1, 0.1f); // diagonal + 1y + 45 degree
+    possibleMove[1].emplace_back(1, 0, -1,  2, 0.3f); // diagonal + 90 degree
+    possibleMove[1].emplace_back(1, 1, -2,  1, 0.2f); // diagonal + 1y + 45 degree
     //add forward movement
     possibleMove[1].emplace_back(1, 1, -1,  0, 0.0f);
 

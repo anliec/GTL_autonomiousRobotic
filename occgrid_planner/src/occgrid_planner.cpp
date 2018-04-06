@@ -197,15 +197,24 @@ protected:
         }
         // If the starting point is not FREE thep1.pt.xre is a bug somewhere, but
         // better to check
-        if (og_(start) != FREE) {
+        if (og_(start) == OCCUPIED) {
             ROS_ERROR("Invalid start point: occupancy = %d", og_(start));
             return;
+        }
+        else if(og_(start) == UNKNOWN){
+            ROS_INFO("set robot position as free (was unknow)");
+            og_(start) = FREE;
         }
 #ifdef EXPLORATOR
         std::vector<cv::Point> inaccessiblePoints;
         GoalHeap heap = targetMapBuilder.computeGoals(og_, start);
     get_new_element_from_heap:
+        if(heap.empty()){
+            ROS_INFO("Nothing to explore...");
+            return;
+        }
         cv::Point target = heap.top().second;
+        ROS_INFO("Planning target score = %.5f", heap.top().first);
         heap.pop();
         for(cv::Point &p : inaccessiblePoints){
             if(abs(target.x - p.x) >= UNACCESIBLE_RADIUS && abs(target.y - p.y) >= UNACCESIBLE_RADIUS){
@@ -269,7 +278,7 @@ protected:
         start3D.pt = start;
         target3D.pt = target;
         tf::Quaternion qStart(transform.getOrigin().x(), transform.getOrigin().y(), transform.getOrigin().z(), transform.getOrigin().w());
-        tf::Quaternion qTarget(pose.pose.orientation.x, pose.pose.orientation.y, pose.pose.orientation.z, pose.pose.orientation.w);
+        tf::Quaternion qTarget(pose.pose.orientation.x, pose.pose.orientation.y, pose.pose.orientation.z, pose.pose.orientation.w); //pose is not set...
         start3D.angle =  unsigned(round(qStart.getAngle()  * double(NUMBER_OF_ANGLES_LEVELS) / (2.0 * M_PI)));
         target3D.angle = unsigned(round(qTarget.getAngle() * double(NUMBER_OF_ANGLES_LEVELS) / (2.0 * M_PI)));
         // Here the A* algorithm is run
@@ -286,6 +295,7 @@ protected:
             return;
 #endif
         }
+        ROS_INFO("sending path");
         // Finally create a ROS path message
         nav_msgs::Path path;
         path.header.stamp = ros::Time::now();
@@ -627,8 +637,8 @@ private:
 int main(int argc, char *argv[]) {
     ros::init(argc, argv, "occgrid_planner");
     OccupancyGridPlanner ogp;
-    cv::namedWindow("OccGrid", CV_WINDOW_AUTOSIZE);
-    ros::Rate loop_rate(0.2);
+//    cv::namedWindow("OccGrid", CV_WINDOW_AUTOSIZE);
+    ros::Rate loop_rate(0.3);
     while (ros::ok()) {
         ros::spinOnce();
 //        if (cv::waitKey(50) == 'q') {
