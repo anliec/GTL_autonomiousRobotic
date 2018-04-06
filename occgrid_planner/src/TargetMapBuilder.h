@@ -23,8 +23,6 @@ struct HeapElementCompare{
 
 typedef std::priority_queue<HeapElement, std::vector<HeapElement>, HeapElementCompare> GoalHeap;
 
-static void addToHeap(GoalHeap &heap, const cv::Point &p, const float &point_score);
-
 
 class TargetMapBuilder {
 

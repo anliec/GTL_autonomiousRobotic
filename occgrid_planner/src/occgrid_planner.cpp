@@ -598,6 +598,8 @@ private:
 
         //if no path was found, return an empty path
         if(explored[toLinearCord(target.pt.x,target.pt.y,target.angle)].dist == -1.0f){
+            //clean memory
+            delete [] explored;
             return path;
         }
 
