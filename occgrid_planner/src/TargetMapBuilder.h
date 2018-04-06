@@ -17,7 +17,7 @@ typedef std::pair<float, cv::Point> HeapElement;
 
 struct HeapElementCompare{
     bool operator()(HeapElement const &left, HeapElement const &right){
-        return left.first > right.first;
+        return left.first < right.first;
     }
 };
 

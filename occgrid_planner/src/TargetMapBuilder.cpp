@@ -30,7 +30,7 @@ GoalHeap TargetMapBuilder::computeGoals(const cv::Mat_<uint8_t> &map, const cv::
                 for (int dj = -1; dj <= 1; dj++){
                     for (int di = -1; di <= 1; di++){
                         if (map(cv::Point(i + di, j + dj)) == UNKNOWN) {
-                            unknown_count = 1000.0f;
+                            unknown_count += 1.0f;
                         }
                     }
                 }
