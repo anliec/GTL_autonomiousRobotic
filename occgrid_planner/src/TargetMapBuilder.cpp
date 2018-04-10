@@ -38,7 +38,7 @@ GoalHeap TargetMapBuilder::computeGoals(const cv::Mat_<uint8_t> &map, const cv::
                 if (unknown_count > 0.0f){
                     // compute it's baseScore and add it to the heap if far enough from the robot
                     float distSquared = powf(p.x-robotLoc.x, 2) + powf(p.x-robotLoc.x, 2);
-                    float baseScore = unknown_count * distSquared * expf(distSquared * -0.01f); // 0.04 = 1 / 10^2
+                    float baseScore = unknown_count * distSquared * expf(distSquared * -0.0025f); // 0.04 = 1 / 20^2
                     frontierPoints.emplace_back(baseScore, p);
                     mapFrontierPoint_(p) = static_cast<uint8_t>(baseScore*0.256f);
                 }
