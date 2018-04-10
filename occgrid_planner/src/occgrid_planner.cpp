@@ -199,7 +199,8 @@ protected:
         // better to check
         if (og_(start) == OCCUPIED) {
             ROS_ERROR("Invalid start point: occupancy = %d", og_(start));
-            return;
+            og_(start) = FREE;
+//            return;
         }
         else if(og_(start) == UNKNOWN){
             ROS_INFO("set robot position as free (was unknow)");
@@ -207,7 +208,8 @@ protected:
         }
 #ifdef EXPLORATOR
         std::vector<cv::Point> inaccessiblePoints;
-        GoalHeap heap = targetMapBuilder.computeGoals(og_, start);
+        tf::Quaternion qRobot(transform.getOrigin().x(), transform.getOrigin().y(), transform.getOrigin().z(), transform.getOrigin().w());
+        GoalHeap heap = targetMapBuilder.computeGoals(og_, start, float(qRobot.getAngle()));
     get_new_element_from_heap:
         if(heap.empty()){
             ROS_INFO("Nothing to explore...");
@@ -444,7 +446,7 @@ private:
             for(unsigned n=0 ; n < 8 ; n++) {
                 cv::Point np = p + neighbours[n];
                 // if neighbors is free and was not already seen
-                if (og_(np) != OCCUPIED && dist_array[np.x][np.y] == -1.0f) {
+                if (og_(np) == FREE && dist_array[np.x][np.y] == -1.0f) {
                     float dist = cur_dist + cost[n];
                     pred_array[np.x][np.y] = p;
                     dist_array[np.x][np.y] = dist;
@@ -585,7 +587,7 @@ private:
             std::vector<AngleMovement> possibleMove = movement_generator.getPossibleMove(p.angle);
             for(const AngleMovement &m : possibleMove){
                 Pos3D np = p + m;
-                if (og_(np.pt) != OCCUPIED && explored[toLinearCord(np.pt.x,np.pt.y,np.angle)].dist == -1.0f) {
+                if (og_(np.pt) == FREE && explored[toLinearCord(np.pt.x,np.pt.y,np.angle)].dist == -1.0f) {
                     float dist = cur_dist + m.get_cost();
                     explored[toLinearCord(np.pt.x,np.pt.y,np.angle)] = PointState(dist, p);
                     addToHeap3D(gray, np, target, dist);
@@ -640,7 +642,7 @@ int main(int argc, char *argv[]) {
     ros::init(argc, argv, "occgrid_planner");
     OccupancyGridPlanner ogp;
 //    cv::namedWindow("OccGrid", CV_WINDOW_AUTOSIZE);
-    ros::Rate loop_rate(0.3);
+    ros::Rate loop_rate(0.5);
     while (ros::ok()) {
         ros::spinOnce();
 //        if (cv::waitKey(50) == 'q') {

@@ -40,7 +40,7 @@ public:
      * @param robotLoc : position of the robot respecting to the map
      * @return : the heap containing the goals to explore
      */
-    GoalHeap computeGoals(const cv::Mat_<uint8_t> &map, const cv::Point &robotLoc);
+    GoalHeap computeGoals(const cv::Mat_<uint8_t> &map, const cv::Point &robotLoc, const float &robotHeading);
 };
 
 

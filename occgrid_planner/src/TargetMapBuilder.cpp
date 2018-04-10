@@ -15,7 +15,7 @@ void addToHeap(GoalHeap &heap, const cv::Point &p, const float &point_score) {
     heap.push(std::pair<float, cv::Point>(point_score, p));
 }
 
-GoalHeap TargetMapBuilder::computeGoals(const cv::Mat_<uint8_t> &map, const cv::Point &robotLoc) {
+GoalHeap TargetMapBuilder::computeGoals(const cv::Mat_<uint8_t> &map, const cv::Point &robotLoc, const float &robotHeading) {
     GoalHeap goals = GoalHeap();
     cv::MatSize mapShape = map.size;
     mapFrontierPoint_ = cv::Mat_<uint8_t>(mapShape[0], mapShape[1]);
@@ -36,10 +36,11 @@ GoalHeap TargetMapBuilder::computeGoals(const cv::Mat_<uint8_t> &map, const cv::
                 }
                 // if there is more than 1 unknown neighbor this point is frontier point
                 if (unknown_count > 0.0f){
-                    // compute it's baseScore and add it to the heap
-                    float baseScore = unknown_count / (powf(p.x-robotLoc.x, 2) + powf(p.x-robotLoc.x, 2) + 1.0f);
+                    // compute it's baseScore and add it to the heap if far enough from the robot
+                    float distSquared = powf(p.x-robotLoc.x, 2) + powf(p.x-robotLoc.x, 2);
+                    float baseScore = unknown_count * distSquared * expf(distSquared * -0.01f); // 0.04 = 1 / 10^2
                     frontierPoints.emplace_back(baseScore, p);
-                    mapFrontierPoint_(p) = static_cast<uint8_t>(baseScore*0.256);
+                    mapFrontierPoint_(p) = static_cast<uint8_t>(baseScore*0.256f);
                 }
             }
         }
@@ -54,6 +55,14 @@ GoalHeap TargetMapBuilder::computeGoals(const cv::Mat_<uint8_t> &map, const cv::
                 score += p2.first;
             }
         }
+        //multiply computed score by the an factor depending on angle with robot
+        //factor is: pi^2 - deltaAngle^2 + 1
+        //with deltaAngle the angle between the robot and the current point in [-pi; pi]
+        cv::Point move_vector = p1.second - robotLoc;
+        float angle = atan2f(move_vector.y, move_vector.x);
+        float deltaAngle = fmodf(angle - robotHeading + 4.0f * float(M_PI), float(2.0 * M_PI));
+        deltaAngle = deltaAngle - float(M_PI);
+        score *= (M_PI * M_PI) - (deltaAngle * deltaAngle) + 1;
         addToHeap(goals, p1.second, score);
     }
 
