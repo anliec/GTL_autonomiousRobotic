@@ -269,21 +269,21 @@ public:
         unsigned int nalpha = ceil(M_PI / alpha_resolution_);
         dalpha_remap_x = cv::Mat_<float>(nd, nalpha);
         dalpha_remap_y = cv::Mat_<float>(nd, nalpha);
-        FILE *fp = fopen("/tmp/maps.txt", "w");
+        //FILE *fp = fopen("/tmp/maps.txt", "w");
         for (unsigned int j = 0; j < nd; j++) {
             double d = (j - nd / 2.) * map_resolution_;
             for (unsigned int i = 0; i < nalpha; i++) {
                 double alpha = i * alpha_resolution_;
                 double x = 0, y = 0;
                 dalpha_to_xy(d, alpha, x, y);
-                fprintf(fp, "%d %d %.3f %.3f -> %.3f %.3f\n", j, i, d, alpha, x, y);
+                //fprintf(fp, "%d %d %.3f %.3f -> %.3f %.3f\n", j, i, d, alpha, x, y);
                 dalpha_remap_x(j, i) = x / map_resolution_ + w / 2.;
                 dalpha_remap_y(j, i) = y / map_resolution_ + w / 2.;
             }
         }
         // cv::imshow("DAlphaX",dalpha_remap_x);
         // cv::imshow("DAlphaY",dalpha_remap_y);
-        fclose(fp);
+        //fclose(fp);
     }
 
 };
