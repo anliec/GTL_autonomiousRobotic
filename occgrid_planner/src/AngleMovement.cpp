@@ -91,8 +91,8 @@ int AngleMovement::rotate(const unsigned &angle_level)
                 return 0;
             case 1:
                 tmp = dx;
-                dx = -dy;
-                dy = tmp;
+                dx = dy;
+                dy = -tmp;
                 return 0;
             case 2:
                 dx = -dx;
@@ -100,8 +100,8 @@ int AngleMovement::rotate(const unsigned &angle_level)
                 return 0;
             case 3:
                 tmp = dx;
-                dx = dy;
-                dy = -tmp;
+                dx = -dy;
+                dy = tmp;
                 return 0;
             default:
                 std::cerr << "[AngleMovement::rotate] Provided angle do not allow to compute a rotation" << std::endl;

@@ -13,6 +13,7 @@ find_package(catkin REQUIRED COMPONENTS
   sensor_msgs
   std_msgs
   tf
+  image_transport
 )
 
 find_package(OpenCV REQUIRED)
@@ -101,7 +102,7 @@ catkin_package(
 ## Your package locations should be listed before other locations
 # include_directories(include)
 include_directories(
-  ${catkin_INCLUDE_DIRS}
+  ${catkin_INCLUDE_DIRS} ${OpenCV_INCLUDE_DIRS}
 )
 
 ## Declare a cpp library
@@ -133,6 +134,14 @@ add_executable(path_optimizer_b src/path_optimizer.cpp)
 add_dependencies(path_optimizer_b occgrid_planner_generate_messages_cpp)
 ## Specify libraries to link a library or executable target against
 target_link_libraries(path_optimizer_b ${catkin_LIBRARIES})
+
+## Declare a cpp executable
+add_executable(signal_grid_builder src/SignalGridBuilder.cpp src/SignalGridBuilder.h)
+## Add cmake target dependencies of the executable/library
+## as an example, message headers may need to be generated before nodes
+add_dependencies(signal_grid_builder occgrid_planner_generate_messages_cpp)
+## Specify libraries to link a library or executable target against
+target_link_libraries(signal_grid_builder ${catkin_LIBRARIES} ${OpenCV_LIBRARIES})
 
 #############
 ## Install ##

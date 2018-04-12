@@ -201,14 +201,17 @@ protected:
 
         // Now build Va (inside Vs inter Vd) by iterating over the local
         // map, and find the most appropriate speed (best_v, best_w).
-        // TODO: Fill Vas with the acceptable velocities (given the time horizon)
         double best_score = std::numeric_limits<double>::max();
         double best_v = 0, best_w = 0;
         for (unsigned int j = 0; j < n_v; j++) {
             double v = min_v + j * linear_velocity_resolution_;
             for (unsigned int i = 0; i < n_w; i++) {
                 double w = min_w + i * angular_velocity_resolution_;
-                //TODO find the right formula to go from v, w to d, alpha (problem on alpha)
+                if(w == 0.0 && v == 0.0){
+                    //do not get stuck somewhere, try to move in any case
+                    scores(j, i) = 255;
+                    continue;
+                }
                 double d = v * time_horizon_;
                 double gamma = w * time_horizon_;
                 double r = d / gamma;
@@ -220,7 +223,7 @@ protected:
                     best_v = v;
                     best_w = w;
                 }
-                scores(j, i) = static_cast<uint8_t>(score*10);
+                scores(j, i) = static_cast<uint8_t>(score);
             }
         }
         cv::resize(scores, scores, cv::Size(200, 200));
@@ -270,7 +273,7 @@ public:
 
 
         // Now prepare the remapping to convert obstacles between circular
-        // coordinates and cartesian coorsinates
+        // coordinates and cartesian coordinates
         unsigned int w = 2 * max_range_ / map_resolution_ + 1;
         unsigned int nd = ceil(2 * max_range_ / map_resolution_);
         unsigned int nalpha = ceil(M_PI / alpha_resolution_);

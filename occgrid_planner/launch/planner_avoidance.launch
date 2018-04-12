@@ -42,7 +42,7 @@
     <param name="angular_velocity_resolution" value="0.05" />
     <param name="robot_radius" value="0.1" />
     <param name="time_horizon" value="2.0" />
-    <param name="k_v" value="10.0" />
+    <param name="k_v" value="1.0" />
     <param name="k_w" value="1.0" />
 
     <remap from="/obstacle_avoidance/scans" to="/vrep/hokuyoSensor"/>
@@ -62,6 +62,20 @@
       <param name="auto_topic" value="/mux/autoCommand"/>
       <remap from="/teleop_mux/joy" to="/joy"/>
   </node>
+
+
+    <!-- add Signal Map -->
+
+    <node pkg="occgrid_planner" type="signal_grid_builder" name="signal_grid_builder" output="screen">
+        <param name="base_frame" value="/body"/>
+        <param name="sg_grid" value="/map"/>
+        <param name="mapSizeX" value="32" type="int"/>
+        <param name="mapSizeY" value="32" type="int"/>
+        <param name="resolution" value="1.0"/>
+        <param name="maxSignalValue" value="1.0"/>
+        <remap from="/SignalGridBuilder/signal" to="/vrep/metalDetector"/>
+        <remap from="/SignalGridBuilder/signalMap" to="/SignalGridBuilder/signalMap"/>
+    </node>
 
 
 
