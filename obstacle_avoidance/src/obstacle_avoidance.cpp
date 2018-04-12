@@ -15,6 +15,7 @@
 #define UNKNOWN 0x80
 #define OCCUPIED 0x00
 #define SQR(X) ((X)*(X))
+//#define DISPLAY
 
 class ObstacleAvoidance {
 protected:
@@ -143,7 +144,9 @@ protected:
         // possible
         cv::Point myself(grid_width_ / 2, grid_width_ / 2);
         cv::circle(og_, myself, ceil(robot_radius_ / map_resolution_ + 1), cv::Scalar(FREE), -1); // filled circle
+#ifdef DISPLAY
         cv::imshow("OccGrid", og_);
+#endif
         //
         // First convert the obstacle into the ego-kinematic space
         // (d,alpha), where d is the distance on the arc of circle, and
@@ -164,7 +167,9 @@ protected:
                 }
             }
         }
+#ifdef DISPLAY
         cv::imshow("DAlpha", d_alpha_);
+#endif
 
     }
 
@@ -219,8 +224,10 @@ protected:
             }
         }
         cv::resize(scores, scores, cv::Size(200, 200));
+#ifdef DISPLAY
         cv::imshow("Va", Va);
         cv::imshow("Scores", scores);
+#endif
 
         res.linear.x = best_v;
         res.angular.z = best_w;
@@ -290,10 +297,12 @@ public:
 
 int main(int argc, char *argv[]) {
     ros::init(argc, argv, "obstacle_avoidance");
+#ifdef DISPLAY
     cv::namedWindow("OccGrid", CV_WINDOW_AUTOSIZE);
     cv::namedWindow("DAlpha", CV_WINDOW_AUTOSIZE);
     cv::namedWindow("Va", CV_WINDOW_AUTOSIZE);
     cv::namedWindow("Scores", CV_WINDOW_AUTOSIZE);
+#endif
 
     ObstacleAvoidance ca;
 

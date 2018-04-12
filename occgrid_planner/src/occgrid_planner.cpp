@@ -24,6 +24,7 @@
 
 #define LATIS_MOVEMENT
 #define EXPLORATOR
+//#define DISPLAY
 
 #define WIN_SIZE 800
 
@@ -124,10 +125,14 @@ protected:
             }
             cv::Mat_<uint8_t> resized_og;
             cv::resize(cropped_og_, resized_og, new_size);
+#ifdef DISPLAY
             cv::imshow("OccGrid", resized_og);
+#endif
         } else {
             // cv::imshow( "OccGrid", cropped_og_ );
+#ifdef DISPLAY
             cv::imshow("OccGrid", og_rgb_);
+#endif
         }
     }
 
@@ -189,7 +194,9 @@ protected:
         ROS_INFO("Planning origin %.2f %.2f -> %d %d",
                  transform.getOrigin().x(), transform.getOrigin().y(), start.x, start.y);
         cv::circle(og_rgb_marked_, start, 10, cv::Scalar(0, 255, 0));
+#ifdef DISPLAY
         cv::imshow("OccGrid", og_rgb_marked_);
+#endif
         if (!isInGrid(start)) {
             ROS_ERROR("Invalid starting point (%.2f %.2f) -> (%d %d)",
                       transform.getOrigin().x(), transform.getOrigin().y(), start.x, start.y);
@@ -234,7 +241,9 @@ protected:
         ROS_INFO("Planning target: %.2f %.2f -> %d %d",
                  pose.pose.position.x, pose.pose.position.y, target.x, target.y);
         cv::circle(og_rgb_marked_, target, 10, cv::Scalar(0, 0, 255));
+#ifdef DISPLAY
         cv::imshow("OccGrid", og_rgb_marked_);
+#endif
         if (!isInGrid(target)) {
             ROS_ERROR("Invalid target point (%.2f %.2f) -> (%d %d)",
                       pose.pose.position.x, pose.pose.position.y, target.x, target.y);
@@ -566,6 +575,7 @@ private:
     std::list<Pos3D> AStar3D(const Pos3D &start, const Pos3D &target) const{
         MovementGenerator movement_generator;
         //set accumulator arrays
+        //ROS_INFO("i need %d bit in ram", sizeof(PointState)*og_.size[0] * og_.size[1] * NUMBER_OF_ANGLES_LEVELS);
         PointState* explored = new PointState[og_.size[0] * og_.size[1] * NUMBER_OF_ANGLES_LEVELS];
 
         //init loop variables
