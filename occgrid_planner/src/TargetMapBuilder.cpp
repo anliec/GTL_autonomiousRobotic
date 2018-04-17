@@ -58,11 +58,11 @@ GoalHeap TargetMapBuilder::computeGoals(const cv::Mat_<uint8_t> &map, const cv::
         //multiply computed score by the an factor depending on angle with robot
         //factor is: pi^2 - deltaAngle^2 + 1
         //with deltaAngle the angle between the robot and the current point in [-pi; pi]
-        cv::Point move_vector = p1.second - robotLoc;
-        float angle = atan2f(move_vector.y, move_vector.x);
-        float deltaAngle = fmodf(angle - robotHeading + 4.0f * float(M_PI), float(2.0 * M_PI));
-        deltaAngle = deltaAngle - float(M_PI);
-        score *= (M_PI * M_PI) - (deltaAngle * deltaAngle) + 1;
+//        cv::Point move_vector = p1.second - robotLoc;
+//        float angle = atan2f(move_vector.y, move_vector.x);
+//        float deltaAngle = fmodf(angle - robotHeading + 4.0f * float(M_PI), float(2.0 * M_PI));
+//        deltaAngle = deltaAngle - float(M_PI);
+//        score *= (M_PI * M_PI) - (deltaAngle * deltaAngle) + 1;
         addToHeap(goals, p1.second, score);
     }
 

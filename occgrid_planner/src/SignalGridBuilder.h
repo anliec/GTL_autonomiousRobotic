@@ -30,6 +30,8 @@ protected:
     float sg_resolution_;
     float maxSignalValue;
 
+    cv::Rect explored;
+
     std::string frame_id_;
     std::string base_link_;
 };
