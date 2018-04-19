@@ -9,6 +9,7 @@ find_package(catkin REQUIRED COMPONENTS
   rospy
   sensor_msgs
   std_msgs
+  ar_track_alvar
   tf
 )
 

@@ -14,7 +14,7 @@
       <param name="neighbourhood" value="8"/>
     <param name="base_frame" value="/base_link"/>
     <param name="debug" value="False"/>
-    <remap from="/planner/occ_grid" to="/map"/>
+    <remap from="/planner/occ_grid" to="/costmap/costmap/costmap"/>
     <remap from="/planner/goal" to="/move_base_simple/goal"/> <!--TODO: verifier ce remap -->
   </node>
 
@@ -44,7 +44,7 @@
     <node pkg="obstacle_avoidance" type="obstacle_avoidance" name="obstacle_avoidance" output="screen">
     launch-prefix="xterm -e gdb --args">
     <param name="base_frame" value="/base_link" />
-    <param name="max_range" value="5.0" />
+    <param name="max_range" value="1.0" />
     <param name="max_linear_velocity" value="0.3" />
     <param name="max_angular_velocity" value="0.42" />
     <param name="max_linear_accel" value="0.5" />

@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 import roslib
 
-roslib.load_manifest('ar_slam_base')
+roslib.load_manifest('ar_slam')
 
 import rospy
 import tf
@@ -17,7 +17,7 @@ from numpy import mat, vstack, diag, zeros, eye
 from numpy.linalg import inv
 from math import atan2, hypot, pi, cos, sin, fmod, sqrt
 
-from ar_track_alvar.msg import AlvarMarkers
+from ar_track_alvar_msgs.msg import AlvarMarkers
 
 
 def norm_angle(x):
