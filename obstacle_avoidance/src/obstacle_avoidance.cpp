@@ -197,21 +197,17 @@ protected:
         auto n_v = unsigned(ceil((max_v - min_v) / linear_velocity_resolution_ + 1));
         auto n_w = unsigned(ceil((max_w - min_w) / angular_velocity_resolution_ + 1));
         cv::Mat_<uint8_t> Va(n_v, n_w, FREE); // Vs inter Vd
+#ifdef DISPLAY
         cv::Mat_<uint8_t> scores(n_v, n_w, (uint8_t) OCCUPIED); // Vs inter Vd
-
+#endif
         // Now build Va (inside Vs inter Vd) by iterating over the local
         // map, and find the most appropriate speed (best_v, best_w).
         double best_score = std::numeric_limits<double>::max();
         double best_v = 0, best_w = 0;
         for (unsigned int j = 0; j < n_v; j++) {
-            double v = min_v + j * linear_velocity_resolution_;
+            double v = min_v + (j * linear_velocity_resolution_);
             for (unsigned int i = 0; i < n_w; i++) {
-                double w = min_w + i * angular_velocity_resolution_;
-                if(w == 0.0 && v == 0.0){
-                    //do not get stuck somewhere, try to move in any case
-                    scores(j, i) = 255;
-                    continue;
-                }
+                double w = min_w + (i * angular_velocity_resolution_);
                 double d = v * time_horizon_;
                 double gamma = w * time_horizon_;
                 double r = d / gamma;
@@ -223,11 +219,14 @@ protected:
                     best_v = v;
                     best_w = w;
                 }
+#ifdef DISPLAY
                 scores(j, i) = static_cast<uint8_t>(score);
+#endif
             }
         }
-        cv::resize(scores, scores, cv::Size(200, 200));
+
 #ifdef DISPLAY
+        cv::resize(scores, scores, cv::Size(200, 200));
         cv::imshow("Va", Va);
         cv::imshow("Scores", scores);
 #endif
