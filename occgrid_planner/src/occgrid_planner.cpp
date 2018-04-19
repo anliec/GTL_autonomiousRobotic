@@ -13,6 +13,9 @@
 #include <opencv2/opencv.hpp>
 #include <opencv2/highgui/highgui.hpp>
 
+#include <image_transport/image_transport.h>
+#include <cv_bridge/cv_bridge.h>
+
 #include <nav_msgs/OccupancyGrid.h>
 #include <nav_msgs/Path.h>
 #include <geometry_msgs/PoseStamped.h>
@@ -37,6 +40,7 @@ protected:
     ros::Subscriber target_sub_;
     ros::Publisher path_pub_;
     ros::Publisher goal_pub_;
+    image_transport::Publisher targetMapPub_;
     tf::TransformListener listener_;
     geometry_msgs::PoseStampedConstPtr last_goal;
 
@@ -338,6 +342,23 @@ protected:
             it++;
         }
 #endif
+#ifdef EXPLORATOR
+        cv::Mat targetMap;
+        cv::cvtColor(og_.clone(), targetMap, cv::COLOR_GRAY2BGR);
+        float bestScore = heap.top().first;
+        while(!heap.empty()){
+            cv::Point p = heap.top().second;
+            uint8_t value = static_cast<uint8_t>(heap.top().first * 255.0f / bestScore);
+            targetMap.at<cv::Vec3b>(p) = {0, value, uint8_t(255 - value)};
+            heap.pop();
+        }
+        for(const Pos3D &pos : listPath){
+            targetMap.at<cv::Vec3b>(pos.pt) = {255, 0, 0};
+        }
+        targetMap.at<cv::Vec3b>(start) = {0, 0, 255};
+        sensor_msgs::ImagePtr imageMessage = cv_bridge::CvImage(std_msgs::Header(), "bgr8", targetMap).toImageMsg();
+        targetMapPub_.publish(imageMessage);
+#endif
         path_pub_.publish(path);
         ROS_INFO("Request completed");
     }
@@ -407,6 +428,8 @@ public:
         goal_pub_ = nh_.advertise<nav_msgs::Path>("goal", 1, true);
 #else
         goal_pub_ = nh_.advertise<std_msgs::Empty>("explore", 1, true);
+        image_transport::ImageTransport it(nh_);
+        targetMapPub_ = it.advertise("target_map", 1, false);
 #endif
     }
 
@@ -659,7 +682,7 @@ int main(int argc, char *argv[]) {
     ros::init(argc, argv, "occgrid_planner");
     OccupancyGridPlanner ogp;
 //    cv::namedWindow("OccGrid", CV_WINDOW_AUTOSIZE);
-    ros::Rate loop_rate(0.5);
+    ros::Rate loop_rate(0.2);
     while (ros::ok()) {
         ros::spinOnce();
 //        if (cv::waitKey(50) == 'q') {
