@@ -1,0 +1,18 @@
+<launch>
+    <node pkg="wifiPublisher" type="wifi_signal_grid_builder" name="wifi_signal_grid_builder" output="screen">
+        launch-prefix="xterm -e gdb --args"
+        <param name="base_frame" value="/body"/>
+        <param name="sg_grid" value="/map"/>
+        <param name="mapSizeX" value="128" type="int"/>
+        <param name="mapSizeY" value="128" type="int"/>
+        <param name="resolution" value="1.0"/>
+        <param name="maxSignalValue" value="1.0"/>
+        <remap from="/SignalGridBuilder/signal" to="/wifiPublisher/wifi_data"/>
+        <!--<remap from="/SignalGridBuilder/signalMap" to="/SignalGridBuilder/signalMap"/>-->
+    </node>
+
+    <node pkg="wifiPublisher" type="wifi_publisher.py" name="wifi_publisher">
+        <remap from="wifi_data" to="/wifiPublisher/wifi_data"/>
+    </node>
+
+</launch>
