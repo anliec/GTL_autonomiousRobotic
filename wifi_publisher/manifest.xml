@@ -1,0 +1,14 @@
+<package>
+  <description brief="wifi_publisher">
+
+    wifi_publisher
+
+  </description>
+  <author>SIX Nicolas</author>
+  <license>BSD</license>
+  <review status="unreviewed" notes=""/>
+  <url>http://ros.org/wiki/wifiPublisher</url>
+
+</package>
+
+
