@@ -21,9 +21,9 @@
 
   <node pkg="occgrid_planner" type="path_optimizer_b" name="path_optimizer" output="screen">
       launch-prefix="xterm -e gdb --args">
-      <param name="max_acceleration" value="0.3"/>
-      <param name="max_braking" value="0.3"/>
-      <param name="velocity" value="0.1"/>
+      <param name="max_acceleration" value="0.1"/>
+      <param name="max_braking" value="0.1"/>
+      <param name="velocity" value="0.4"/>
       <remap from="/path_optimizer/path" to="/planner/path"/>
   </node>
 
@@ -44,17 +44,17 @@
     <node pkg="obstacle_avoidance" type="obstacle_avoidance" name="obstacle_avoidance" output="screen">
     launch-prefix="xterm -e gdb --args">
     <param name="base_frame" value="/base_link" />
-    <param name="max_range" value="1.0" />
+    <param name="max_range" value="2.0" />
     <param name="max_linear_velocity" value="0.3" />
     <param name="max_angular_velocity" value="0.42" />
-    <param name="max_linear_accel" value="0.5" />
-    <param name="max_angular_accel" value="0.42" />
-    <param name="map_resolution" value="0.05" />
+    <param name="max_linear_accel" value="1.0" />
+    <param name="max_angular_accel" value="0.8" />
+    <param name="map_resolution" value="0.1" />
     <param name="linear_velocity_resolution" value="0.05" />
     <param name="angular_velocity_resolution" value="0.05" />
     <param name="robot_radius" value="0.4" />
-    <param name="time_horizon" value="2.0" />
-    <param name="k_v" value="1.0" />
+    <param name="time_horizon" value="4.0" />
+    <param name="k_v" value="5.0" />
     <param name="k_w" value="1.0" />
 
     <remap from="/obstacle_avoidance/scans" to="/scanpc"/>

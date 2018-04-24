@@ -85,8 +85,10 @@ protected:
                         og_(j, i) = OCCUPIED;
                         break;
                     case -1:
-                    default:
                         og_(j, i) = UNKNOWN;
+                        break;
+                    default:
+                        og_(j, i) = FREE;
                         break;
                 }
                 // Update the bounding box of free or occupied cells.
