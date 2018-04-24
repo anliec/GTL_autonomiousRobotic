@@ -11,15 +11,13 @@ WifiSignalGridBuilder::WifiSignalGridBuilder()
 {
     nh_ = ros::NodeHandle("~");
 
-    int sizeX, sizeY;
-
     nh_.param("base_frame", base_link_, std::string("/body"));
     nh_.param("sg_grid", frame_id_, std::string("/map"));
-    nh_.param("mapSizeX", sizeX, 256);
-    nh_.param("mapSizeX", sizeY, 256);
+    nh_.param("mapSizeX", mapSizeX, 256);
+    nh_.param("mapSizeX", mapSizeY, 256);
     nh_.param("resolution", sg_resolution_, 1.0f);
 
-    sg_center_ = cv::Point(sizeY / 2, sizeX / 2);
+    sg_center_ = cv::Point(mapSizeY / 2, mapSizeX / 2);
 
     explored = cv::Rect(sg_center_.x-1, sg_center_.y-1, 3, 3);
     maxSignalValue = 0.1f;
@@ -34,7 +32,7 @@ WifiSignalGridBuilder::~WifiSignalGridBuilder() {
     delete imageTransport;
 }
 
-void WifiSignalGridBuilder::signalHandler(const occgrid_planner::wifi &msg)
+void WifiSignalGridBuilder::signalHandler(const wifi_publisher::wifi &msg)
 {
     unsigned wifiId;
     try {
@@ -106,8 +104,8 @@ unsigned WifiSignalGridBuilder::addEmptyMap(std::string name) {
     cv::Mat_<uint8_t> sg(mapSizeY, mapSizeX);
     cv::Mat_<uint8_t> sg_count(mapSizeY, mapSizeX);
 
-    for (unsigned x = 0; x < mapSizeX; ++x) {
-        for (unsigned y = 0; y < mapSizeY; ++y) {
+    for (int x = 0; x < mapSizeX; ++x) {
+        for (int y = 0; y < mapSizeY; ++y) {
             sg(y,x) = UNKNOWN_SIGNAL;
             sg_count(y,x) = 0;
         }
@@ -125,7 +123,7 @@ unsigned WifiSignalGridBuilder::addEmptyMap(std::string name) {
 
 
 int main(int argc, char *argv[]) {
-    ros::init(argc, argv, "signal_grid_builder");
+    ros::init(argc, argv, "wifi_signal_grid_builder");
     WifiSignalGridBuilder sgb;
 
     while (ros::ok()) {

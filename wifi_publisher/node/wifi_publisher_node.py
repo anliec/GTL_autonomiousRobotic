@@ -1,20 +1,20 @@
 #!/usr/bin/env python
 import roslib
 
-roslib.load_manifest('wifiPublisher')
+roslib.load_manifest('wifi_publisher')
 import rospy
 import os
 import re
-from wifiPublisher.msg import wifi
+from wifi_publisher.msg import wifi
 
 
-class DataNode():
+class DataNode:
     def __init__(self):
-        pub = rospy.Publisher('wifi_data', wifi)
+        pub = rospy.Publisher('wifi_data', wifi, queue_size=10)
 
         r = rospy.Rate(rospy.get_param('~rate', 1))
         while not rospy.is_shutdown():
-            os.system("iwlist wlan0 scanning >> datatemp.txt")
+            os.system("iwlist wlan5 scanning >> datatemp.txt")
 
             wifi_raw = open("datatemp.txt").read()
             os.remove("datatemp.txt")

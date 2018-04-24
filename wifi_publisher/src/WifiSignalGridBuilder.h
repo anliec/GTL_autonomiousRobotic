@@ -12,7 +12,7 @@
 #include <std_msgs/Float32.h>
 #include <opencv2/opencv.hpp>
 
-#include <occgrid_planner/wifi.h>
+#include <wifi_publisher/wifi.h>
 
 
 
@@ -21,7 +21,7 @@ public:
     WifiSignalGridBuilder();
     ~WifiSignalGridBuilder();
 
-    void signalHandler(const occgrid_planner::wifi &msg);
+    void signalHandler(const wifi_publisher::wifi &msg);
 
 protected:
     unsigned addEmptyMap(std::string name);
@@ -36,7 +36,7 @@ protected:
     float sg_resolution_;
     float maxSignalValue;
 
-    unsigned mapSizeX, mapSizeY;
+    int mapSizeX, mapSizeY;
 
     cv::Rect explored;
 
