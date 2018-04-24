@@ -586,7 +586,7 @@ private:
     };
     typedef std::priority_queue<HeapElement3D, std::vector<HeapElement3D>, HeapElement3DCompare> AStarHeap3D;
 
-    unsigned toLinearCord(const unsigned &x, const unsigned &y, const unsigned &z) const {
+    inline unsigned toLinearCord(const int &x, const int &y, const unsigned &z) const {
         return (x * og_.size[1] + y) * NUMBER_OF_ANGLES_LEVELS + z;
     }
 
@@ -607,24 +607,23 @@ private:
         AStarHeap3D gray;
         addToHeap3D(gray, start, target, 0.0f);
         explored[toLinearCord(start.pt.x, start.pt.y, start.angle)] = PointState(0.0f, start);
-        float shortest_path = std::numeric_limits<float>::max();
+//        float shortest_path = std::numeric_limits<float>::max();
 
         while (!gray.empty()){
-            if(gray.top().first > shortest_path){
-                gray.pop();
-                continue;
-            }
+//            if(gray.top().first > shortest_path){
+//                gray.pop();
+//                continue;
+//            }
             Pos3D p = gray.top().second;
             gray.pop();
-//            float cur_dist = explored[p.pt.x][p.pt.y][p.angle].dist;
             float cur_dist = explored[toLinearCord(p.pt.x,p.pt.y,p.angle)].dist;
 
             //check if target found
             if(p == target){
-                shortest_path = cur_dist;
-                continue;
+//                shortest_path = cur_dist;
+//                continue;
+                break;
             }
-
 
             std::vector<AngleMovement> possibleMove = movement_generator.getPossibleMove(p.angle);
             for(const AngleMovement &m : possibleMove){

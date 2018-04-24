@@ -62,7 +62,7 @@ class BubbleSLAM:
 
     def predict(self, Delta):
         # Implement Kalman prediction here
-        oldP = self.P.copy()
+        # oldP = self.P.copy()
         theta = self.X[2, 0]
         pose_mat = np.mat(
             [
@@ -85,16 +85,16 @@ class BubbleSLAM:
         Qs = np.mat(np.diag([self.position_uncertainty ** 2] * 3))
         P = self.P[0:3, 0:3]
         self.P[0:3, 0:3] = Jx * P * Jx.T + Qs
-        if np.min(self.P.diagonal()) < 0.0:
-            print "bad P on predict arg at:", np.argmin(self.P.diagonal())
-            print "Jx matrix:\n", Jx
-            print "old value of P:\n", oldP.diagonal()
-            print "attention les yeux:\n", self.P.diagonal()
-            # print "================= Patching P ==============="
-            # n, _ = self.P.shape
-            # for i in range(n):
-            #     if self.P[i, i] <= 0.0:
-            #         self.P[i, i] = 0.001
+        # if np.min(self.P.diagonal()) < 0.0:
+        #     print "bad P on predict arg at:", np.argmin(self.P.diagonal())
+        #     print "Jx matrix:\n", Jx
+        #     print "old value of P:\n", oldP.diagonal()
+        #     print "attention les yeux:\n", self.P.diagonal()
+        #     print "================= Patching P ==============="
+        #     n, _ = self.P.shape
+        #     for i in range(n):
+        #         if self.P[i, i] <= 0.0:
+        #             self.P[i, i] = 0.001
         return self.X, self.P
 
     @staticmethod
@@ -164,14 +164,14 @@ class BubbleSLAM:
             Pnew[n + 2, n + 2] = pi / 2
             Pnew[0:n, 0:n] = self.P
             self.P = Pnew
-        if np.min(self.P.diagonal()) < 0.0:
-            print "bad P on predict arg at:", np.argmin(self.P.diagonal())
-            print "attention les yeux:\n", self.P.diagonal()
-            # print "================= Patching P ==============="
-            # n, _ = self.P.shape
-            # for i in range(n):
-            #     if self.P[i, i] <= 0.0:
-            #         self.P[i, i] = 0.001
+        # if np.min(self.P.diagonal()) < 0.0:
+        #     print "bad P on predict arg at:", np.argmin(self.P.diagonal())
+        #     print "attention les yeux:\n", self.P.diagonal()
+        #     print "================= Patching P ==============="
+        #     n, _ = self.P.shape
+        #     for i in range(n):
+        #         if self.P[i, i] <= 0.0:
+        #             self.P[i, i] = 0.001
         return self.X, self.P
 
     def ar_cb(self, markers):
