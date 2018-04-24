@@ -29,6 +29,7 @@ protected:
     double robot_radius_;
     double time_horizon_;
     double max_linear_velocity_;
+    double min_linear_velocity_;
     double max_angular_velocity_;
     double max_linear_accel_;
     double max_angular_accel_;
@@ -188,7 +189,7 @@ protected:
         // First the static limit: Vs
         // TODO: First update min_v/max_v and min_w/max_w to compute the intersection of Vs and Vd.
         //compute possible move window
-        double min_v = std::max(-max_linear_velocity_, current_velocity_.linear.x - max_linear_accel_);
+        double min_v = std::max( min_linear_velocity_, current_velocity_.linear.x - max_linear_accel_);
         double max_v = std::min( max_linear_velocity_, current_velocity_.linear.x + max_linear_accel_);
         double min_w = std::max(-max_angular_velocity_, current_velocity_.angular.z - max_angular_accel_);
         double max_w = std::max( max_angular_velocity_, current_velocity_.angular.z + max_angular_accel_);
@@ -244,6 +245,7 @@ public:
         nh_.param("base_frame", base_frame_, std::string("/body"));
         nh_.param("max_range", max_range_, 5.0);
         nh_.param("max_linear_velocity", max_linear_velocity_, 0.5);
+        nh_.param("min_linear_velocity", min_linear_velocity_, 0.0);
         nh_.param("max_angular_velocity", max_angular_velocity_, 1.0);
         nh_.param("max_linear_accel", max_linear_accel_, 0.5);
         nh_.param("max_angular_accel", max_angular_accel_, 0.5);
