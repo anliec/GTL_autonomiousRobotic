@@ -249,6 +249,13 @@ protected:
                 goto get_new_element_from_heap;
             }
         }
+#else
+        if ((abs(start.x - target.x) <=  goal_threshold) &&
+            (abs(start.y - target.y) <=  goal_threshold)) {
+            std_msgs::Bool finished_msg;
+            finished_msg.data = 1; // 1 == true
+            finished_pub_.publish(finished_msg);
+        }
 #endif
         ROS_INFO("Planning target: %.2f %.2f -> %d %d",
                  pose.pose.position.x, pose.pose.position.y, target.x, target.y);
@@ -432,11 +439,11 @@ public:
         target_sub_ = nh_.subscribe("explore", 1, &OccupancyGridPlanner::target_callback, this);
 #endif
         path_pub_ = nh_.advertise<nav_msgs::Path>("path", 1, true);
+        finished_pub_ = nh_.advertise<std_msgs::Bool>("finished", 1, true);
 #ifndef EXPLORATOR
         goal_pub_ = nh_.advertise<nav_msgs::Path>("goal", 1, true);
 #else
         goal_pub_ = nh_.advertise<std_msgs::Empty>("explore", 1, true);
-        finished_pub_ = nh_.advertise<std_msgs::Bool>("finished", 1, true);
         image_transport::ImageTransport it(nh_);
         targetMapPub_ = it.advertise("target_map", 1, false);
 #endif
@@ -597,6 +604,14 @@ private:
         return (x * og_.size[1] + y) * NUMBER_OF_ANGLES_LEVELS + z;
     }
 
+    inline bool isOnMap(const int &x, const int &y) const{
+        return x >= 0 && x < og_.size[0] && y >= 0 && y < og_.size[1];
+    }
+
+    inline bool isOnMap(const cv::Point & p) const{
+        return isOnMap(p.x, p.y);
+    }
+
     /**
      * Compute a A* path from start to target using og_ as ocupency grid
      * @param start point where the path will start
@@ -617,25 +632,19 @@ private:
 //        float shortest_path = std::numeric_limits<float>::max();
 
         while (!gray.empty()){
-//            if(gray.top().first > shortest_path){
-//                gray.pop();
-//                continue;
-//            }
             Pos3D p = gray.top().second;
             gray.pop();
             float cur_dist = explored[toLinearCord(p.pt.x,p.pt.y,p.angle)].dist;
 
             //check if target found
             if(p == target){
-//                shortest_path = cur_dist;
-//                continue;
                 break;
             }
 
             std::vector<AngleMovement> possibleMove = movement_generator.getPossibleMove(p.angle);
             for(const AngleMovement &m : possibleMove){
                 Pos3D np = p + m;
-                if (og_(np.pt) != OCCUPIED && explored[toLinearCord(np.pt.x,np.pt.y,np.angle)].dist == -1.0f) {
+                if (isOnMap(np.pt) && og_(np.pt) != OCCUPIED && explored[toLinearCord(np.pt.x,np.pt.y,np.angle)].dist == -1.0f) {
                     float dist = cur_dist + m.get_cost();
                     explored[toLinearCord(np.pt.x,np.pt.y,np.angle)] = PointState(dist, p);
                     addToHeap3D(gray, np, target, dist);
@@ -696,7 +705,7 @@ int main(int argc, char *argv[]) {
 //        if (cv::waitKey(50) == 'q') {
 //            ros::shutdown();
 //        }
-        ogp.republish_goal();
+//        ogp.republish_goal();
         loop_rate.sleep();
     }
 }
