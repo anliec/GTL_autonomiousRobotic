@@ -120,6 +120,15 @@ target_link_libraries(occgrid_planner_b ${catkin_LIBRARIES}
     ${OpenCV_LIBRARIES})
 
 ## Declare a cpp executable
+add_executable(occgrid_goto_b src/occgrid_goto.cpp src/AngleMovement.cpp src/AngleMovement.h src/MovementGenerator.cpp src/MovementGenerator.h src/TargetMapBuilder.cpp src/TargetMapBuilder.h)
+## Add cmake target dependencies of the executable/library
+## as an example, message headers may need to be generated before nodes
+add_dependencies(occgrid_goto_b occgrid_goto_generate_messages_cpp)
+## Specify libraries to link a library or executable target against
+target_link_libraries(occgrid_goto_b ${catkin_LIBRARIES}
+        ${OpenCV_LIBRARIES})
+
+## Declare a cpp executable
 add_executable(path_follower_b src/path_follower.cpp)
 ## Add cmake target dependencies of the executable/library
 ## as an example, message headers may need to be generated before nodes

@@ -27,7 +27,7 @@
 
 
 #define LATIS_MOVEMENT
-#define EXPLORATOR
+//#define EXPLORATOR
 //#define DISPLAY
 
 #define WIN_SIZE 800
