@@ -600,7 +600,16 @@ private:
     typedef std::priority_queue<HeapElement3D, std::vector<HeapElement3D>, HeapElement3DCompare> AStarHeap3D;
 
     inline unsigned toLinearCord(const int &x, const int &y, const unsigned &z) const {
-        return (x * og_.size[1] + y) * NUMBER_OF_ANGLES_LEVELS + z;
+        unsigned index = (x * og_.size[1] + y) * NUMBER_OF_ANGLES_LEVELS + z;
+        return index;
+    }
+
+    inline bool isOnMap(const int &x, const int &y) const{
+        return x >= 0 && x < og_.size[0] && y >= 0 && y < og_.size[1];
+    }
+
+    inline bool isOnMap(const cv::Point & p) const{
+        return isOnMap(p.x, p.y);
     }
 
     /**
@@ -623,25 +632,19 @@ private:
 //        float shortest_path = std::numeric_limits<float>::max();
 
         while (!gray.empty()){
-//            if(gray.top().first > shortest_path){
-//                gray.pop();
-//                continue;
-//            }
             Pos3D p = gray.top().second;
             gray.pop();
             float cur_dist = explored[toLinearCord(p.pt.x,p.pt.y,p.angle)].dist;
 
             //check if target found
             if(p == target){
-//                shortest_path = cur_dist;
-//                continue;
                 break;
             }
 
             std::vector<AngleMovement> possibleMove = movement_generator.getPossibleMove(p.angle);
             for(const AngleMovement &m : possibleMove){
                 Pos3D np = p + m;
-                if (og_(np.pt) != OCCUPIED && explored[toLinearCord(np.pt.x,np.pt.y,np.angle)].dist == -1.0f) {
+                if (isOnMap(np.pt) && og_(np.pt) != OCCUPIED && explored[toLinearCord(np.pt.x,np.pt.y,np.angle)].dist == -1.0f) {
                     float dist = cur_dist + m.get_cost();
                     explored[toLinearCord(np.pt.x,np.pt.y,np.angle)] = PointState(dist, p);
                     addToHeap3D(gray, np, target, dist);
