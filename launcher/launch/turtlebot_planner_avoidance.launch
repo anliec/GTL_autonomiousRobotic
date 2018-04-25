@@ -14,6 +14,7 @@
       <param name="neighbourhood" value="8"/>
     <param name="base_frame" value="/base_link"/>
     <param name="debug" value="False"/>
+        <param name="robot_radius" value="0.6" />
     <remap from="/planner/occ_grid" to="/costmap/costmap/costmap"/>
     <remap from="/planner/goal" to="/move_base_simple/goal"/> <!--TODO: verifier ce remap -->
   </node>
@@ -23,7 +24,7 @@
       launch-prefix="xterm -e gdb --args">
       <param name="max_acceleration" value="0.1"/>
       <param name="max_braking" value="0.1"/>
-      <param name="velocity" value="0.4"/>
+      <param name="velocity" value="0.45"/>
       <remap from="/path_optimizer/path" to="/planner/path"/>
   </node>
 
@@ -33,7 +34,7 @@
       <param name="Ky" value="0.5"/>
       <param name="Ktheta" value="1.0"/>
       <param name="max_rot_speed" value="0.42"/>
-      <param name="max_velocity" value="0.3"/>
+      <param name="max_velocity" value="0.4"/>
       <param name="max_y_error" value="1.0"/>
       <param name="look_ahead" value="1.0"/>
       <param name="base_link" value="/base_link"/>
@@ -45,14 +46,14 @@
     launch-prefix="xterm -e gdb --args">
     <param name="base_frame" value="/base_link" />
     <param name="max_range" value="2.0" />
-    <param name="max_linear_velocity" value="0.3" />
+    <param name="max_linear_velocity" value="0.4" />
     <param name="max_angular_velocity" value="0.42" />
-    <param name="max_linear_accel" value="1.0" />
+    <param name="max_linear_accel" value="0.5" />
     <param name="max_angular_accel" value="0.8" />
     <param name="map_resolution" value="0.1" />
     <param name="linear_velocity_resolution" value="0.05" />
     <param name="angular_velocity_resolution" value="0.05" />
-    <param name="robot_radius" value="0.4" />
+    <param name="robot_radius" value="0.5" />
     <param name="time_horizon" value="4.0" />
     <param name="k_v" value="5.0" />
     <param name="k_w" value="1.0" />
