@@ -19,6 +19,7 @@
 #include <nav_msgs/OccupancyGrid.h>
 #include <nav_msgs/Path.h>
 #include <geometry_msgs/PoseStamped.h>
+#include <std_msgs/Bool.h>
 
 #include "opencv2/imgproc/imgproc.hpp"
 #include "MovementGenerator.h"
@@ -40,6 +41,7 @@ protected:
     ros::Subscriber target_sub_;
     ros::Publisher path_pub_;
     ros::Publisher goal_pub_;
+    ros::Publisher finished_pub_;
     image_transport::Publisher targetMapPub_;
     tf::TransformListener listener_;
     geometry_msgs::PoseStampedConstPtr last_goal;
@@ -233,6 +235,9 @@ protected:
     get_new_element_from_heap:
         if(heap.empty()){
             ROS_INFO("Nothing to explore...");
+            std_msgs::Bool finished_msg;
+            finished_msg.data = 1; // 1 == true
+            finished_pub_.publish(finished_msg);
             return;
         }
         cv::Point target = heap.top().second;
@@ -320,7 +325,7 @@ protected:
 #endif
         }
         ROS_INFO("sending path");
-        // Finally create a ROS path message
+        // Finally crfinished_pub_eate a ROS path message
         nav_msgs::Path path;
         path.header.stamp = ros::Time::now();
         path.header.frame_id = frame_id_;
@@ -430,6 +435,7 @@ public:
         goal_pub_ = nh_.advertise<nav_msgs::Path>("goal", 1, true);
 #else
         goal_pub_ = nh_.advertise<std_msgs::Empty>("explore", 1, true);
+        finished_pub_ = nh_.advertise<std_msgs::Bool>("finished", 1, true);
         image_transport::ImageTransport it(nh_);
         targetMapPub_ = it.advertise("target_map", 1, false);
 #endif
