@@ -122,6 +122,7 @@ protected:
         // Compute a sub-image that covers only the useful part of the
         // grid.
         cropped_og_ = cv::Mat_<uint8_t>(og_, roi_);
+#ifdef DISPLAY
         if ((w > WIN_SIZE) || (h > WIN_SIZE)) {
             // The occupancy grid is too large to display. We need to scale
             // it first.
@@ -134,15 +135,14 @@ protected:
             }
             cv::Mat_<uint8_t> resized_og;
             cv::resize(cropped_og_, resized_og, new_size);
-#ifdef DISPLAY
+
             cv::imshow("OccGrid", resized_og);
-#endif
         } else {
             // cv::imshow( "OccGrid", cropped_og_ );
-#ifdef DISPLAY
             cv::imshow("OccGrid", og_rgb_);
-#endif
+
         }
+#endif
     }
 
     // Generic test if a point is within the occupancy grid
@@ -162,6 +162,7 @@ protected:
 #else
     void target_callback(const std_msgs::Empty void_msg) {
 #endif
+        ROS_INFO("====== Starting planning =======");
         ros::Time start_time = ros::Time::now();
         tf::StampedTransform transform;
         geometry_msgs::PoseStamped pose;
@@ -231,10 +232,12 @@ protected:
             }
         }
 #ifdef EXPLORATOR
+        ROS_INFO("--- computing target heap ---");
         std::vector<cv::Point> inaccessiblePoints;
         tf::Quaternion qRobot(transform.getOrigin().x(), transform.getOrigin().y(), transform.getOrigin().z(), transform.getOrigin().w());
         GoalHeap heap = targetMapBuilder.computeGoals(og_, start, float(qRobot.getAngle()));
     get_new_element_from_heap:
+        ROS_INFO("--- get element from heap ---");
         if(heap.empty()){
             ROS_INFO("Nothing to explore...");
             std_msgs::Bool finished_msg;
@@ -313,7 +316,9 @@ protected:
         start3D.angle =  unsigned(round(qStart.getAngle()  * double(NUMBER_OF_ANGLES_LEVELS) / (2.0 * M_PI)));
         target3D.angle = unsigned(round(qTarget.getAngle() * double(NUMBER_OF_ANGLES_LEVELS) / (2.0 * M_PI)));
         // Here the A* algorithm is run
+        ROS_INFO("--- computing A* ---");
         std::list<Pos3D> listPath = AStar3D(start3D, target3D);
+        ROS_INFO("--- A* computed ---");
 
         if (listPath.empty()) {
             // No path found
