@@ -13,33 +13,39 @@ WifiSignalGridBuilder::WifiSignalGridBuilder()
 
     nh_.param("base_frame", base_link_, std::string("/body"));
     nh_.param("sg_grid", frame_id_, std::string("/map"));
-    nh_.param("mapSizeX", mapSizeX, 256);
-    nh_.param("mapSizeX", mapSizeY, 256);
+    nh_.param("mapSizeX_", mapSizeX_, 256);
+    nh_.param("mapSizeX_", mapSizeY_, 256);
     nh_.param("resolution", sg_resolution_, 1.0f);
 
-    sg_center_ = cv::Point(mapSizeY / 2, mapSizeX / 2);
+    sg_center_ = cv::Point(mapSizeY_ / 2, mapSizeX_ / 2);
 
-    explored = cv::Rect(sg_center_.x-1, sg_center_.y-1, 3, 3);
-    maxSignalValue = 0.1f;
+    explored_ = cv::Rect(sg_center_.x-1, sg_center_.y-1, 3, 3);
+    maxSignalValue_ = 0.1f;
 
     //subscribe to the signal
     signalSub_ = nh_.subscribe("/WifiSignalGridBuilder/signal", 1, &WifiSignalGridBuilder::signalHandler, this);
     //advertise map
-    imageTransport = new image_transport::ImageTransport(nh_);
+    imageTransport_ = new image_transport::ImageTransport(nh_);
 }
 
 WifiSignalGridBuilder::~WifiSignalGridBuilder() {
-    delete imageTransport;
+    delete imageTransport_;
+    for(const auto &pair : wifiNameToId_)
+    {
+        const unsigned &i = pair.second;
+        std::string path = "~/map_" + idToSSID_[i] + "_" + pair.first + ".png";
+        cv::imwrite(path, sg_[i]);
+    }
 }
 
 void WifiSignalGridBuilder::signalHandler(const wifi_publisher::wifi &msg)
 {
     unsigned wifiId;
     try {
-        wifiId = wifiNameToId.at(msg.MAC);
+        wifiId = wifiNameToId_.at(msg.MAC);
     }
     catch (std::out_of_range &e){
-        wifiId = addEmptyMap(msg.MAC);
+        wifiId = addEmptyMap(msg.MAC, msg.ssid);
     }
 
 
@@ -51,9 +57,9 @@ void WifiSignalGridBuilder::signalHandler(const wifi_publisher::wifi &msg)
     curPoint += sg_center_;
 
     //update max values if needed
-    if(maxSignalValue < fabsf(msg.dB)){
-        float factor = 254.0f * fabsf(msg.dB) / maxSignalValue;
-        maxSignalValue = fabsf(msg.dB);
+    if(maxSignalValue_ < fabsf(msg.dB)){
+        float factor = 254.0f * fabsf(msg.dB) / maxSignalValue_;
+        maxSignalValue_ = fabsf(msg.dB);
         for (int x = 0; x < sg_[wifiId].size[1]; ++x) {
             for (int y = 0; y < sg_[wifiId].size[0]; ++y) {
                 if(sg_[wifiId](y,x) != UNKNOWN_SIGNAL){
@@ -65,47 +71,47 @@ void WifiSignalGridBuilder::signalHandler(const wifi_publisher::wifi &msg)
 
     //set current position to the given value
     if(sg_count_[wifiId](curPoint) == 0){
-        sg_[wifiId](curPoint) = static_cast<uint8_t >(254.0 * fabsf(msg.dB) / maxSignalValue);
+        sg_[wifiId](curPoint) = static_cast<uint8_t >(254.0 * fabsf(msg.dB) / maxSignalValue_);
     }
     else{
-        float local_value = 254.0f * fabsf(msg.dB) / maxSignalValue;
+        float local_value = 254.0f * fabsf(msg.dB) / maxSignalValue_;
         float new_value = (sg_[wifiId](curPoint) * sg_count_[wifiId](curPoint) + local_value) / (sg_count_[wifiId](curPoint) + 1);
         sg_[wifiId](curPoint) = static_cast<uint8_t >(new_value);
     }
     sg_count_[wifiId](curPoint) += 1;
 
-    //update explored rect
-    if(explored.x > curPoint.x){
-        explored.width += explored.x - curPoint.x;
-        explored.x = curPoint.x;
+    //update explored_ rect
+    if(explored_.x > curPoint.x){
+        explored_.width += explored_.x - curPoint.x;
+        explored_.x = curPoint.x;
     }
-    else if(explored.width + explored.x < curPoint.x){
-        explored.width = curPoint.x - explored.x;
+    else if(explored_.width + explored_.x < curPoint.x){
+        explored_.width = curPoint.x - explored_.x;
     }
-    if(explored.y > curPoint.y){
-        explored.height += explored.y - curPoint.y;
-        explored.y = curPoint.y;
+    if(explored_.y > curPoint.y){
+        explored_.height += explored_.y - curPoint.y;
+        explored_.y = curPoint.y;
     }
-    else if(explored.height + explored.y < curPoint.y){
-        explored.height = curPoint.y - explored.y;
+    else if(explored_.height + explored_.y < curPoint.y){
+        explored_.height = curPoint.y - explored_.y;
     }
 
     if(mapPub_[wifiId].getNumSubscribers() != 0){
-        cv::Mat_<uint8_t> zoom = sg_[wifiId](explored);
+        cv::Mat_<uint8_t> zoom = sg_[wifiId](explored_);
         sensor_msgs::ImagePtr imageMessage = cv_bridge::CvImage(std_msgs::Header(), "mono8", zoom).toImageMsg();
         mapPub_[wifiId].publish(imageMessage);
     }
 }
 
-unsigned WifiSignalGridBuilder::addEmptyMap(std::string name) {
-    auto newId = static_cast<unsigned>(wifiNameToId.size());
-    wifiNameToId.insert(std::pair<std::string, unsigned>(name, newId));
+unsigned WifiSignalGridBuilder::addEmptyMap(std::string mac, std::string ssid) {
+    auto newId = static_cast<unsigned>(wifiNameToId_.size());
+    wifiNameToId_.insert(std::pair<std::string, unsigned>(mac, newId));
 
-    cv::Mat_<uint8_t> sg(mapSizeY, mapSizeX);
-    cv::Mat_<uint8_t> sg_count(mapSizeY, mapSizeX);
+    cv::Mat_<uint8_t> sg(mapSizeY_, mapSizeX_);
+    cv::Mat_<uint8_t> sg_count(mapSizeY_, mapSizeX_);
 
-    for (int x = 0; x < mapSizeX; ++x) {
-        for (int y = 0; y < mapSizeY; ++y) {
+    for (int x = 0; x < mapSizeX_; ++x) {
+        for (int y = 0; y < mapSizeY_; ++y) {
             sg(y,x) = UNKNOWN_SIGNAL;
             sg_count(y,x) = 0;
         }
@@ -114,7 +120,9 @@ unsigned WifiSignalGridBuilder::addEmptyMap(std::string name) {
     sg_.push_back(sg);
     sg_count_.push_back(sg_count);
 
-    mapPub_.push_back(imageTransport->advertise("/WifiSignalGridBuilder/signalMap" + std::to_string(newId), 1, false));
+    idToSSID_.push_back(ssid);
+
+    mapPub_.push_back(imageTransport_->advertise("/WifiSignalGridBuilder/signalMap" + std::to_string(newId), 1, false));
 
     return newId;
 }

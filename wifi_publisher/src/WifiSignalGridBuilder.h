@@ -24,26 +24,27 @@ public:
     void signalHandler(const wifi_publisher::wifi &msg);
 
 protected:
-    unsigned addEmptyMap(std::string name);
+    unsigned addEmptyMap(std::string mac, std::string ssid);
 
     ros::NodeHandle nh_;
     ros::Subscriber signalSub_;
     std::vector<image_transport::Publisher> mapPub_;
     tf::TransformListener listener_;
     std::vector<cv::Mat_<uint8_t>> sg_, sg_count_;
-    std::map<std::string, unsigned> wifiNameToId;
+    std::map<std::string, unsigned> wifiNameToId_;
+    std::vector<std::string> idToSSID_;
     cv::Point sg_center_;
     float sg_resolution_;
-    float maxSignalValue;
+    float maxSignalValue_;
 
-    int mapSizeX, mapSizeY;
+    int mapSizeX_, mapSizeY_;
 
-    cv::Rect explored;
+    cv::Rect explored_;
 
     std::string frame_id_;
     std::string base_link_;
 
-    image_transport::ImageTransport *imageTransport;
+    image_transport::ImageTransport *imageTransport_;
 };
 
 

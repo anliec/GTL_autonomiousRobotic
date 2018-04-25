@@ -19,17 +19,19 @@ class DataNode:
             wifi_raw = open("datatemp.txt").read()
             os.remove("datatemp.txt")
 
+            essids = re.findall("ESSID:\"(.*)\"", wifi_raw)
             addresses = re.findall("Address: ([0-9A-F:]{17})", wifi_raw)
             signals = re.findall("Signal level=.*?([0-9]+)", wifi_raw)
 
-            if len(addresses) != len(signals):
-                print("addresses length different to the one of signals")
+            if len(addresses) != len(signals) and len(addresses) != len(essids):
+                print("addresses length different to the one of signals or eSSID")
                 continue
 
-            for a, s in zip(addresses, signals):
+            for a, s, e in zip(addresses, signals, essids):
                 w = wifi()
                 w.MAC = a
                 w.dB = int(s)
+                w.ssid = e
                 pub.publish(w)
 
             r.sleep()
