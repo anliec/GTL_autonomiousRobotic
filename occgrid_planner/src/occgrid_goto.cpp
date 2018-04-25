@@ -4,8 +4,8 @@
 #include <map>
 #include <list>
 #include <queue>
-#include  <utility>
-
+#include <utility>
+#include <time.h>
 
 #include <ros/ros.h>
 #include <tf/tf.h>
@@ -161,6 +161,7 @@ protected:
 #else
     void target_callback(const std_msgs::Empty void_msg) {
 #endif
+        ros::Time start_time = ros::Time::now();
         tf::StampedTransform transform;
         geometry_msgs::PoseStamped pose;
         if (!ready) {
@@ -367,7 +368,7 @@ protected:
         targetMapPub_.publish(imageMessage);
 #endif
         path_pub_.publish(path);
-        ROS_INFO("Request completed");
+        ROS_INFO("Request completed in %f seconds", (ros::Time::now() - start_time).toSec());
     }
 
 public:
