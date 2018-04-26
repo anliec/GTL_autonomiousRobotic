@@ -27,7 +27,6 @@
 
 
 #define LATIS_MOVEMENT
-//#define EXPLORATOR
 //#define DISPLAY
 
 #define WIN_SIZE 800
@@ -58,6 +57,8 @@ protected:
     bool ready;
     bool debug;
     float goal_threshold;
+
+    int case_from_dock_;
 
     TargetMapBuilder targetMapBuilder;
 
@@ -153,14 +154,9 @@ protected:
         return true;
     }
 
-#ifndef EXPLORATOR
     // This is called when a new goal is posted by RViz. We don't use a
     // mutex here, because it can only be called in spinOnce.
-    void target_callback(const geometry_msgs::PoseStampedConstPtr &msg) {
-        last_goal = geometry_msgs::PoseStampedConstPtr(msg);
-#else
     void target_callback(const std_msgs::Empty void_msg) {
-#endif
         ros::Time start_time = ros::Time::now();
         tf::StampedTransform transform;
         geometry_msgs::PoseStamped pose;
@@ -170,27 +166,9 @@ protected:
         }
         og_rgb_marked_ = og_rgb_.clone();
 
-#ifndef EXPLORATOR //get target from message
-        // Convert the destination point in the occupancy grid frame.
-        // The debug case is useful is the map is published without
-        // gmapping running (for instance with map_server).
-        if (debug) {
-            pose = *msg;
-        } else {
-            // This converts target in the grid frame.
-            listener_.waitForTransform(frame_id_, msg->header.frame_id, msg->header.stamp, ros::Duration(1.0));
-            listener_.transformPose(frame_id_, *msg, pose);
-            // this gets the current pose in transform
-            listener_.lookupTransform(frame_id_, base_link_, ros::Time(0), transform);
-        }
-        // Now scale the target to the grid resolution and shift it to the
-        // grid center.
-        cv::Point target = cv::Point(pose.pose.position.x / info_.resolution, pose.pose.position.y / info_.resolution)
+        //get target from message
+        cv::Point target = cv::Point(-case_from_dock_, 0)
                            + og_center_;
-#else //compute target with exploration map
-        // this gets the current pose in transform
-        listener_.lookupTransform(frame_id_, base_link_, ros::Time(0), transform);
-#endif
         // Now get the current point in grid coordinates.
         cv::Point start;
         if (debug) {
@@ -229,34 +207,12 @@ protected:
                 }
             }
         }
-#ifdef EXPLORATOR
-        std::vector<cv::Point> inaccessiblePoints;
-        tf::Quaternion qRobot(transform.getOrigin().x(), transform.getOrigin().y(), transform.getOrigin().z(), transform.getOrigin().w());
-        GoalHeap heap = targetMapBuilder.computeGoals(og_, start, float(qRobot.getAngle()));
-    get_new_element_from_heap:
-        if(heap.empty()){
-            ROS_INFO("Nothing to explore...");
-            std_msgs::Bool finished_msg;
-            finished_msg.data = 1; // 1 == true
-            finished_pub_.publish(finished_msg);
-            return;
-        }
-        cv::Point target = heap.top().second;
-        ROS_INFO("Planning target score = %.5f", heap.top().first);
-        heap.pop();
-        for(cv::Point &p : inaccessiblePoints){
-            if(abs(target.x - p.x) >= UNACCESIBLE_RADIUS && abs(target.y - p.y) >= UNACCESIBLE_RADIUS){
-                goto get_new_element_from_heap;
-            }
-        }
-#else
         if ((abs(start.x - target.x) <=  goal_threshold) &&
             (abs(start.y - target.y) <=  goal_threshold)) {
             std_msgs::Bool finished_msg;
             finished_msg.data = 1; // 1 == true
             finished_pub_.publish(finished_msg);
         }
-#endif
         ROS_INFO("Planning target: %.2f %.2f -> %d %d",
                  pose.pose.position.x, pose.pose.position.y, target.x, target.y);
         cv::circle(og_rgb_marked_, target, 10, cv::Scalar(0, 0, 255));
@@ -323,14 +279,8 @@ protected:
 
         if (listPath.empty()) {
             // No path found
-#ifdef EXPLORATOR
-            ROS_INFO("Path not fund, trying with a new target");
-            inaccessiblePoints.push_back(target);
-            goto get_new_element_from_heap;
-#else
             ROS_ERROR("No path found from (%d, %d) to (%d, %d)", start.x, start.y, target.x, target.y);
             return;
-#endif
         }
         ROS_INFO("sending path");
         // Finally finished_pub_create a ROS path message
@@ -357,61 +307,16 @@ protected:
             it++;
         }
 #endif
-#ifdef EXPLORATOR
-        cv::Mat targetMap;
-        cv::cvtColor(og_.clone(), targetMap, cv::COLOR_GRAY2BGR);
-        float bestScore = heap.top().first;
-        while(!heap.empty()){
-            cv::Point p = heap.top().second;
-            uint8_t value = static_cast<uint8_t>(heap.top().first * 255.0f / bestScore);
-            targetMap.at<cv::Vec3b>(p) = {0, value, uint8_t(255 - value)};
-            heap.pop();
-        }
-        for(const Pos3D &pos : listPath){
-            targetMap.at<cv::Vec3b>(pos.pt) = {255, 0, 0};
-        }
-        targetMap.at<cv::Vec3b>(start) = {0, 0, 255};
-        sensor_msgs::ImagePtr imageMessage = cv_bridge::CvImage(std_msgs::Header(), "bgr8", targetMap).toImageMsg();
-        targetMapPub_.publish(imageMessage);
-#endif
         path_pub_.publish(path);
         ROS_INFO("Request completed in %f seconds", (ros::Time::now() - start_time).toSec());
     }
 
 public:
 
-#ifndef EXPLORATOR
-    void republish_goal(){
-        if(last_goal == nullptr){
-            return;
-        }
-        tf::StampedTransform transform;
-        geometry_msgs::PoseStamped pose;
-        // This converts target in the grid frame.
-        listener_.waitForTransform(frame_id_, last_goal->header.frame_id, last_goal->header.stamp, ros::Duration(1.0));
-        listener_.transformPose(frame_id_, *last_goal, pose);
-        // this gets the current pose in transform
-        listener_.lookupTransform(frame_id_, base_link_, ros::Time(0), transform);
-        cv::Point target = cv::Point(pose.pose.position.x / info_.resolution, pose.pose.position.y / info_.resolution)
-                           + og_center_;
-        cv::Point start;
-        start = cv::Point(transform.getOrigin().x() / info_.resolution,
-                          transform.getOrigin().y() / info_.resolution)
-                + og_center_;
-        if ((abs(start.x - target.x) <=  goal_threshold) &&
-                (abs(start.y - target.y) <=  goal_threshold)) {
-            ROS_INFO("republishing goal to recompute path");
-            goal_pub_.publish(last_goal);
-        } else {
-            ROS_INFO("goal already achived, skipping republish");
-        }
-    }
-#else
     void republish_goal(){
         goal_pub_.publish(std_msgs::Empty());
         ROS_INFO("msg published");
     }
-#endif
 
     OccupancyGridPlanner() : nh_("~") {
         int nbour = 4;
@@ -421,6 +326,7 @@ public:
         nh_.param("debug", debug, false);
         nh_.param("neighbourhood", nbour, nbour);
         nh_.param("goal_threshold", goal_threshold, 0.1f);
+        nh_.param("case_from_dock", case_from_dock_, 2);
         switch (nbour) {
             case 4:
                 neighbourhood_ = nbour;
@@ -433,20 +339,11 @@ public:
                 neighbourhood_ = 8;
         }
         og_sub_ = nh_.subscribe("occ_grid", 1, &OccupancyGridPlanner::og_callback, this);
-#ifndef EXPLORATOR
+
         target_sub_ = nh_.subscribe("goal", 1, &OccupancyGridPlanner::target_callback, this);
-#else
-        target_sub_ = nh_.subscribe("explore", 1, &OccupancyGridPlanner::target_callback, this);
-#endif
         path_pub_ = nh_.advertise<nav_msgs::Path>("path", 1, true);
         finished_pub_ = nh_.advertise<std_msgs::Bool>("finished", 1, true);
-#ifndef EXPLORATOR
         goal_pub_ = nh_.advertise<nav_msgs::Path>("goal", 1, true);
-#else
-        goal_pub_ = nh_.advertise<std_msgs::Empty>("explore", 1, true);
-        image_transport::ImageTransport it(nh_);
-        targetMapPub_ = it.advertise("target_map", 1, false);
-#endif
     }
 
 
@@ -699,7 +596,7 @@ int main(int argc, char *argv[]) {
     ros::init(argc, argv, "occgrid_planner");
     OccupancyGridPlanner ogp;
 //    cv::namedWindow("OccGrid", CV_WINDOW_AUTOSIZE);
-    ros::Rate loop_rate(0.2);
+    ros::Rate loop_rate(0.1);
     while (ros::ok()) {
         ros::spinOnce();
 //        if (cv::waitKey(50) == 'q') {
