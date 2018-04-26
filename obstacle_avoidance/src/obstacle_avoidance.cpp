@@ -1,5 +1,6 @@
 
 #include <ros/ros.h>
+#include <std_msgs/Bool.h>
 #include <geometry_msgs/Twist.h>
 #include <geometry_msgs/TwistStamped.h>
 #include <sensor_msgs/PointCloud2.h>
@@ -21,6 +22,7 @@ class ObstacleAvoidance {
 protected:
     ros::Subscriber scan_sub_;
     ros::Subscriber current_vel_sub_;
+    ros::Subscriber mute_sub_;
     ros::Subscriber command_vel_sub_;
     ros::Publisher safe_vel_pub_;
     tf::TransformListener listener_;
@@ -41,6 +43,7 @@ protected:
     double k_v_;
     double k_w_;
     std::string base_frame_;
+    unsigned char enabled;
 
     geometry_msgs::Twist current_velocity_;
     pcl::PointCloud<pcl::PointXYZ> lastpc_;
@@ -100,8 +103,14 @@ protected:
         void command_velocity_cb(const geometry_msgs::TwistConstPtr msg) {
             geometry_msgs::Twist filtered = findClosestAcceptableVelocity(*msg);
             // ROS_INFO("Speed limiter: desired %.2f controlled %.2f",msg->linear.x,filtered.linear.x);
-            safe_vel_pub_.publish(filtered);
+            if (enabled) {
+                safe_vel_pub_.publish(filtered);
+            }
         }
+
+    void mute_cb(const std_msgs::Bool mute){
+        enabled = mute.data;
+    }
 
     void current_velocity_cb(const geometry_msgs::TwistStampedConstPtr msg) {
         current_velocity_ = msg->twist;
@@ -260,10 +269,13 @@ public:
         // Make sure TF is ready
         ros::Duration(0.5).sleep();
 
+        enabled = 0;
+
         scan_sub_ = nh_.subscribe("scans", 1, &ObstacleAvoidance::pc_callback, this);
         // scan_sub_ = nh_.subscribe("/vrep/hokuyoSensor",1,&ObstacleAvoidance::pc_callback,this);
         current_vel_sub_ = nh_.subscribe("current_velocity", 1, &ObstacleAvoidance::current_velocity_cb, this);
         command_vel_sub_ = nh_.subscribe("command_velocity", 1, &ObstacleAvoidance::command_velocity_cb, this);
+        mute_sub_ = nh_.subscribe("enable", 1, &ObstacleAvoidance::mute_cb, this);
         safe_vel_pub_ = nh_.advertise<geometry_msgs::Twist>("output_velocity", 1);
 
         grid_width_ = 2 * max_range_ / map_resolution_ + 1;

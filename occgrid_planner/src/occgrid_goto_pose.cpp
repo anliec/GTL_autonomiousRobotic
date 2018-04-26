@@ -1,11 +1,9 @@
-
 #include <vector>
 #include <string>
 #include <map>
 #include <list>
 #include <queue>
 #include <utility>
-#include <cmath>
 #include <time.h>
 
 #include <ros/ros.h>
@@ -28,12 +26,12 @@
 
 
 #define LATIS_MOVEMENT
-#define EXPLORATOR
+//#define EXPLORATOR
 //#define DISPLAY
 
 #define WIN_SIZE 800
 
-const static int UNACCESIBLE_RADIUS = 5; // unit ? see _info.resolution ??
+const static int UNACCESIBLE_RADIUS = 1; // unit ? see _info.resolution ??
 
 class OccupancyGridPlanner {
 protected:
@@ -122,7 +120,6 @@ protected:
         // Compute a sub-image that covers only the useful part of the
         // grid.
         cropped_og_ = cv::Mat_<uint8_t>(og_, roi_);
-#ifdef DISPLAY
         if ((w > WIN_SIZE) || (h > WIN_SIZE)) {
             // The occupancy grid is too large to display. We need to scale
             // it first.
@@ -135,14 +132,15 @@ protected:
             }
             cv::Mat_<uint8_t> resized_og;
             cv::resize(cropped_og_, resized_og, new_size);
-
+#ifdef DISPLAY
             cv::imshow("OccGrid", resized_og);
+#endif
         } else {
             // cv::imshow( "OccGrid", cropped_og_ );
+#ifdef DISPLAY
             cv::imshow("OccGrid", og_rgb_);
-
-        }
 #endif
+        }
     }
 
     // Generic test if a point is within the occupancy grid
@@ -160,9 +158,8 @@ protected:
     void target_callback(const geometry_msgs::PoseStampedConstPtr &msg) {
         last_goal = geometry_msgs::PoseStampedConstPtr(msg);
 #else
-    void target_callback(const std_msgs::Empty void_msg) {
+        void target_callback(const std_msgs::Empty void_msg) {
 #endif
-        ROS_INFO("====== Starting planning =======");
         ros::Time start_time = ros::Time::now();
         tf::StampedTransform transform;
         geometry_msgs::PoseStamped pose;
@@ -180,6 +177,7 @@ protected:
             pose = *msg;
         } else {
             // This converts target in the grid frame.
+            ROS_INFO("converting target from frame %s to frame %s", msg->header.frame_id.c_str(), frame_id_.c_str());
             listener_.waitForTransform(frame_id_, msg->header.frame_id, msg->header.stamp, ros::Duration(1.0));
             listener_.transformPose(frame_id_, *msg, pose);
             // this gets the current pose in transform
@@ -191,6 +189,7 @@ protected:
                            + og_center_;
 #else //compute target with exploration map
         // this gets the current pose in transform
+        ROS_INFO("converting start from frame %s to frame %s", base_link_.c_str(), frame_id_.c_str());
         listener_.lookupTransform(frame_id_, base_link_, ros::Time(0), transform);
 #endif
         // Now get the current point in grid coordinates.
@@ -232,12 +231,10 @@ protected:
             }
         }
 #ifdef EXPLORATOR
-        ROS_INFO("--- computing target heap ---");
         std::vector<cv::Point> inaccessiblePoints;
         tf::Quaternion qRobot(transform.getOrigin().x(), transform.getOrigin().y(), transform.getOrigin().z(), transform.getOrigin().w());
         GoalHeap heap = targetMapBuilder.computeGoals(og_, start, float(qRobot.getAngle()));
     get_new_element_from_heap:
-        ROS_INFO("--- get element from heap ---");
         if(heap.empty()){
             ROS_INFO("Nothing to explore...");
             std_msgs::Bool finished_msg;
@@ -252,6 +249,13 @@ protected:
             if(abs(target.x - p.x) >= UNACCESIBLE_RADIUS && abs(target.y - p.y) >= UNACCESIBLE_RADIUS){
                 goto get_new_element_from_heap;
             }
+        }
+#else
+        if ((abs(start.x - target.x) <=  goal_threshold) &&
+            (abs(start.y - target.y) <=  goal_threshold)) {
+            std_msgs::Bool finished_msg;
+            finished_msg.data = 1; // 1 == true
+            finished_pub_.publish(finished_msg);
         }
 #endif
         ROS_INFO("Planning target: %.2f %.2f -> %d %d",
@@ -316,9 +320,7 @@ protected:
         start3D.angle =  unsigned(round(qStart.getAngle()  * double(NUMBER_OF_ANGLES_LEVELS) / (2.0 * M_PI)));
         target3D.angle = unsigned(round(qTarget.getAngle() * double(NUMBER_OF_ANGLES_LEVELS) / (2.0 * M_PI)));
         // Here the A* algorithm is run
-        ROS_INFO("--- computing A* ---");
         std::list<Pos3D> listPath = AStar3D(start3D, target3D);
-        ROS_INFO("--- A* computed ---");
 
         if (listPath.empty()) {
             // No path found
@@ -398,7 +400,7 @@ public:
                           transform.getOrigin().y() / info_.resolution)
                 + og_center_;
         if ((abs(start.x - target.x) <=  goal_threshold) &&
-                (abs(start.y - target.y) <=  goal_threshold)) {
+            (abs(start.y - target.y) <=  goal_threshold)) {
             ROS_INFO("republishing goal to recompute path");
             goal_pub_.publish(last_goal);
         } else {
@@ -438,11 +440,11 @@ public:
         target_sub_ = nh_.subscribe("explore", 1, &OccupancyGridPlanner::target_callback, this);
 #endif
         path_pub_ = nh_.advertise<nav_msgs::Path>("path", 1, true);
+        finished_pub_ = nh_.advertise<std_msgs::Bool>("finished", 1, true);
 #ifndef EXPLORATOR
         goal_pub_ = nh_.advertise<nav_msgs::Path>("goal", 1, true);
 #else
         goal_pub_ = nh_.advertise<std_msgs::Empty>("explore", 1, true);
-        finished_pub_ = nh_.advertise<std_msgs::Bool>("finished", 1, true);
         image_transport::ImageTransport it(nh_);
         targetMapPub_ = it.advertise("target_map", 1, false);
 #endif
@@ -600,8 +602,7 @@ private:
     typedef std::priority_queue<HeapElement3D, std::vector<HeapElement3D>, HeapElement3DCompare> AStarHeap3D;
 
     inline unsigned toLinearCord(const int &x, const int &y, const unsigned &z) const {
-        unsigned index = (x * og_.size[1] + y) * NUMBER_OF_ANGLES_LEVELS + z;
-        return index;
+        return (x * og_.size[1] + y) * NUMBER_OF_ANGLES_LEVELS + z;
     }
 
     inline bool isOnMap(const int &x, const int &y) const{
@@ -682,7 +683,7 @@ private:
      * @param current_dist the current distance to go from start to p
      */
     static void addToHeap3D(AStarHeap3D &heap, const Pos3D &p, const Pos3D &target,
-                          const float &current_dist){
+                            const float &current_dist){
         float dist = current_dist + distHeuristic3D(p, target);
         heap.push(HeapElement3D(dist, p));
     }

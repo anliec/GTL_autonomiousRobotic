@@ -9,15 +9,29 @@
 </node>
 
 
-    <node pkg="occgrid_planner" type="occgrid_planner_b" name="planner" output="screen">
+    <node pkg="occgrid_planner" type="occgrid_planner_b"  respawn="true" name="planner" output="screen">
       launch-prefix="xterm -e gdb --args">
       <param name="neighbourhood" value="8"/>
     <param name="base_frame" value="/base_link"/>
     <param name="debug" value="False"/>
         <param name="robot_radius" value="0.6" />
     <remap from="/planner/occ_grid" to="/costmap/costmap/costmap"/>
-    <remap from="/planner/goal" to="/move_base_simple/goal"/> <!--TODO: verifier ce remap -->
-  </node>
+    <!--<remap from="/planner/goal" to="/move_base_simple/goal"/> &lt;!&ndash;TODO: verifier ce remap &ndash;&gt;-->
+    <remap from="/planner/finished" to="/explore_finished"/>
+    <remap from="/planner/path" to="/path_optimizer/path"/>
+    </node>
+
+    <node pkg="occgrid_planner" type="occgrid_goto_pose_b"  respawn="true" name="goto" output="screen">
+        launch-prefix="xterm -e gdb --args">
+        <param name="neighbourhood" value="8"/>
+        <param name="base_frame" value="/base_link"/>
+        <param name="debug" value="False"/>
+        <param name="robot_radius" value="0.6" />
+        <remap from="/goto/occ_grid" to="/costmap/costmap/costmap"/>
+        <remap from="/goto/goal" to="/move_base_simple/goal"/>
+        <remap from="/goto/finished" to="/home_finished"/>
+        <remap from="/goto/path" to="/path_optimizer/path"/>
+    </node>
 
 
   <node pkg="occgrid_planner" type="path_optimizer_b" name="path_optimizer" output="screen">
@@ -25,7 +39,6 @@
       <param name="max_acceleration" value="0.1"/>
       <param name="max_braking" value="0.1"/>
       <param name="velocity" value="0.45"/>
-      <remap from="/path_optimizer/path" to="/planner/path"/>
   </node>
 
   <node pkg="occgrid_planner" type="path_follower_b" name="path_follower" output="screen">
@@ -62,6 +75,7 @@
     <remap from="/obstacle_avoidance/current_velocity" to="/mobile_base/commands/velocity"/>
     <remap from="/obstacle_avoidance/command_velocity" to="/obstacle_avoidance/command_velocity"/> -->
     <remap from="/obstacle_avoidance/output_velocity" to="/cmd_vel_mux/input/navi"/> -->
+    <remap from="/obstacle_avoidance/enable" to="/enable_avoidance"/> -->
 </node>
 
 </launch>
