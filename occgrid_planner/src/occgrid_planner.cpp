@@ -33,7 +33,7 @@
 
 #define WIN_SIZE 800
 
-const static int UNACCESIBLE_RADIUS = 5; // unit ? see _info.resolution ??
+const static int UNACCESIBLE_RADIUS = 2; // unit ? see _info.resolution ??
 
 class OccupancyGridPlanner {
 protected:

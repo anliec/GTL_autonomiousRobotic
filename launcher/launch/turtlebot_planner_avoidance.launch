@@ -26,7 +26,8 @@
         <param name="neighbourhood" value="8"/>
         <param name="base_frame" value="/base_link"/>
         <param name="debug" value="False"/>
-        <param name="robot_radius" value="0.6" />
+        <param name="robot_radius" value="0.9" />
+        <param name="goal_threshol" value="4" />
         <remap from="/goto/occ_grid" to="/costmap/costmap/costmap"/>
         <remap from="/goto/goal" to="/move_base_simple/goal"/>
         <remap from="/goto/finished" to="/home_finished"/>
@@ -44,9 +45,9 @@
   <node pkg="occgrid_planner" type="path_follower_b" name="path_follower" output="screen">
       launch-prefix="xterm -e gdb --args">
       <param name="Kx" value="0.5"/>
-      <param name="Ky" value="0.5"/>
-      <param name="Ktheta" value="1.0"/>
-      <param name="max_rot_speed" value="0.42"/>
+      <param name="Ky" value="1.0"/>
+      <param name="Ktheta" value="2.0"/>
+      <param name="max_rot_speed" value="4.0"/>
       <param name="max_velocity" value="0.4"/>
       <param name="max_y_error" value="1.0"/>
       <param name="look_ahead" value="1.0"/>
@@ -60,14 +61,14 @@
     <param name="base_frame" value="/base_link" />
     <param name="max_range" value="2.0" />
     <param name="max_linear_velocity" value="0.4" />
-    <param name="max_angular_velocity" value="0.42" />
-    <param name="max_linear_accel" value="0.5" />
+    <param name="max_angular_velocity" value="4" />
+    <param name="max_linear_accel" value="0.6" />
     <param name="max_angular_accel" value="0.8" />
-    <param name="map_resolution" value="0.1" />
-    <param name="linear_velocity_resolution" value="0.05" />
-    <param name="angular_velocity_resolution" value="0.05" />
+    <param name="map_resolution" value="0.2" />
+    <param name="linear_velocity_resolution" value="0.2" />
+    <param name="angular_velocity_resolution" value="0.1" />
     <param name="robot_radius" value="0.5" />
-    <param name="time_horizon" value="4.0" />
+    <param name="time_horizon" value="5.0" />
     <param name="k_v" value="5.0" />
     <param name="k_w" value="1.0" />
 

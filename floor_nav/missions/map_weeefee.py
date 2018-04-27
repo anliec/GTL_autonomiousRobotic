@@ -34,9 +34,17 @@ try:
     en_pub.publish(Bool(False))
     # marche arriere, BANZAAAAI !!!!
     tc.Undock(goal_x=-1.5, k_v=-1)
+    tc.SetHeading(target=pi/2)
+    tc.Wait(duration=0.5)
     tc.SetHeading(target=pi)
-    timer = tc.Wait(duration=60.0, foreground=False)
-    tc.addCondition(ConditionIsCompleted("Timer condition", tc, timer))
+    tc.Wait(duration=0.5)
+    tc.SetHeading(target=3*pi/2)
+    tc.Wait(duration=0.5)
+    tc.SetHeading(target=0)
+    tc.Wait(duration=0.5)
+    tc.SetHeading(target=pi)
+    # timer = tc.Wait(duration=60.0, foreground=False)
+    # tc.addCondition(ConditionIsCompleted("Timer condition", tc, timer))
     try:
         while not finished:
             en_pub.publish(Bool(True))
@@ -45,10 +53,18 @@ try:
     except TaskConditionException, e:
         pass
 
+    # en_pub.publish(Bool(False))
+    # tc.Wait(duration=5)
+    # tc.SetHeading(target=pi)
+    # tc.Wait(duration=5)
+    # tc.SetHeading(target=0)
+    # tc.Wait(duration=5)
+    en_pub.publish(Bool(True))
+
     pose = PoseStamped()
     pose.header.stamp = rospy.Time.now()
     pose.header.frame_id = "/map"
-    pose.pose.position.x = -1
+    pose.pose.position.x = -2
     pose.pose.position.y = 0
     pose.pose.position.z = 0
 
@@ -57,13 +73,13 @@ try:
     pose.pose.orientation.y = quaternion[1]
     pose.pose.orientation.z = quaternion[2]
     pose.pose.orientation.w = quaternion[3]
-    timer = tc.Wait(duration=30.0, foreground=False)
+    timer = tc.Wait(duration=45.0, foreground=False)
     tc.addCondition(ConditionIsCompleted("Timer condition", tc, timer))
     try:
-        while finished_home:
+        while not finished_home:
             en_pub.publish(Bool(True))
             goto_pub.publish(pose)
-            tc.Wait(duration=15)
+            tc.Wait(duration=3)
     finally:
         en_pub.publish(Bool(False))
         gtb = tc.GoToBase(foreground=True)
